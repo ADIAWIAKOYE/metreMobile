@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:metremobile/bottom_navigationbar/navigation_page.dart';
 import 'package:metremobile/pages/signup_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -122,7 +123,12 @@ class _LoginPageState extends State<LoginPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        print("BUTTON cliqué !");
+                        // Action à effectuer lors du clic sur le texte
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => NavigationBarPage()),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color.fromARGB(

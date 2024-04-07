@@ -162,7 +162,7 @@ class _WelcomePageState extends State<WelcomePage> {
                         255, 206, 163, 5), // Couleur or du bouton
                     shape: RoundedRectangleBorder(
                       borderRadius:
-                          BorderRadius.circular(10), // Bord arrondi du bouton
+                          BorderRadius.circular(100), // Bord arrondi du bouton
                     ),
                   ),
                   child: Text(
@@ -195,7 +195,7 @@ class _WelcomePageState extends State<WelcomePage> {
                         255, 206, 163, 5), // Couleur or du bouton
                     shape: RoundedRectangleBorder(
                       borderRadius:
-                          BorderRadius.circular(10), // Bord arrondi du bouton
+                          BorderRadius.circular(100), // Bord arrondi du bouton
                     ),
                     padding: EdgeInsets.symmetric(
                         horizontal: MediaQuery.of(context).size.width * 0.2),
