@@ -11,18 +11,23 @@ class LogoWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          //une ecriture
-          // Text(
-          //   'Salut !, Que\n Cherches-Vous',
-          //   style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-          // ),
           //le logo
           Container(
             child: Image.asset(
-              'assets/image/logo2.png',
-              width: 120,
+              'assets/image/logo4.png',
+              width: 70,
             ),
-          )
+          ),
+          //une ecriture
+          // Expanded(
+          //   child: Center(
+          //     child: Text(
+          //       'La liste de vos clients enregistrés ! ',
+          //       style: TextStyle(fontWeight: FontWeight.w700,),
+          //       textAlign: TextAlign.center,
+          //     ),
+          //   ),
+          // ),
         ],
       ),
     );

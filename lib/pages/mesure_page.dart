@@ -32,7 +32,18 @@ class _MesurePageState extends State<MesurePage> {
   void updateliste(String value) {
     // this is a function that will filter our list
     // we will be back to this list after a wile
+    // Now let's write our search function
+
+    setState(() {
+      displaye_liste = liste_des_clients
+          .where((element) =>
+              element.nom!.toLowerCase().contains(value.toLowerCase()) ||
+              element.prenom!.toLowerCase().contains(value.toLowerCase()) ||
+              element.numero!.toLowerCase().contains(value.toLowerCase()))
+          .toList();
+    });
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -45,6 +56,7 @@ class _MesurePageState extends State<MesurePage> {
       Padding(
         padding: const EdgeInsets.all(16),
         child: TextField(
+          onChanged: (value) => updateliste(value),
           style:
               TextStyle(color: Colors.black, decoration: TextDecoration.none),
           decoration: InputDecoration(
@@ -79,99 +91,109 @@ class _MesurePageState extends State<MesurePage> {
       //   height: 5,
       // ),
       Expanded(
-        child: ListView.builder(
-          itemCount: displaye_liste.length,
-          itemBuilder: (context, index) => Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(
-                color:
-                    Color.fromARGB(255, 206, 163, 5), // Couleur de la bordure
-                width: 1, // Largeur de la bordure
-              ),
-              borderRadius: BorderRadius.circular(5), // Bord arrondi
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey,
-                  blurRadius: 4,
-                  offset: Offset(4, 8), // Shadow position
+        child: displaye_liste.length == 0
+            ? Center(
+                child: Text(
+                  "Aucun résultat trouvé ! ",
+                  style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700),
                 ),
-              ],
-            ),
-            margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            child: ListTile(
-              contentPadding: EdgeInsets.all(5.0),
-              title: Text(
-                displaye_liste[index].prenom! +
-                    " " +
-                    displaye_liste[index].nom!,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              subtitle: Row(
-                children: [
-                  Text(
-                    displaye_liste[index].numero!,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 13,
+              )
+            : ListView.builder(
+                itemCount: displaye_liste.length,
+                itemBuilder: (context, index) => Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(
+                      color: Color.fromARGB(
+                          255, 206, 163, 5), // Couleur de la bordure
+                      width: 1, // Largeur de la bordure
                     ),
-                  ),
-                  Spacer(), // Ajouter un espace flexible entre les deux éléments
-
-                  InkWell(
-                    onTap: () {
-                      // Action à effectuer lors du tapotement
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => LoginPage(),
-                        ),
-                      );
-                    },
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      margin: EdgeInsets.symmetric(horizontal: 10),
-                      padding:
-                          EdgeInsets.symmetric(vertical: 4, horizontal: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: Color.fromARGB(
-                              255, 206, 163, 5), // Couleur de la bordure
-                          width: 1, // Largeur de la bordure
-                        ),
+                    borderRadius: BorderRadius.circular(5), // Bord arrondi
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey,
+                        blurRadius: 1,
+                        offset: Offset(1, 2), // Shadow position
                       ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Voir plus ',
-                            style: TextStyle(
-                              color: Color.fromARGB(255, 206, 163, 5),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 10,
+                    ],
+                  ),
+                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                  child: ListTile(
+                    contentPadding: EdgeInsets.all(5.0),
+                    title: Text(
+                      displaye_liste[index].prenom! +
+                          " " +
+                          displaye_liste[index].nom!,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    subtitle: Row(
+                      children: [
+                        Text(
+                          displaye_liste[index].numero!,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: 13,
+                          ),
+                        ),
+                        Spacer(), // Ajouter un espace flexible entre les deux éléments
+
+                        InkWell(
+                          onTap: () {
+                            // Action à effectuer lors du tapotement
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => LoginPage(),
+                              ),
+                            );
+                          },
+                          borderRadius: BorderRadius.circular(10),
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 10),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: Color.fromARGB(
+                                    255, 206, 163, 5), // Couleur de la bordure
+                                width: 1, // Largeur de la bordure
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Voir plus ',
+                                  style: TextStyle(
+                                    color: Color.fromARGB(255, 206, 163, 5),
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 10,
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.arrow_forward,
+                                  color: Color.fromARGB(255, 206, 163, 5),
+                                  size: 18,
+                                ),
+                              ],
                             ),
                           ),
-                          Icon(
-                            Icons.arrow_forward,
-                            color: Color.fromARGB(255, 206, 163, 5),
-                            size: 18,
-                          ),
-                        ],
-                      ),
+                        )
+                      ],
                     ),
-                  )
-                ],
+                    leading: Image.asset('assets/image/customer.png'),
+                  ),
+                ),
+                // ),
               ),
-              leading: Image.asset('assets/image/customer.png'),
-            ),
-          ),
-          // ),
-        ),
       )
     ]);
   }

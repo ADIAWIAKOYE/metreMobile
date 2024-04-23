@@ -22,7 +22,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         bottomNavigationBar: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           decoration: BoxDecoration(boxShadow: [
             BoxShadow(
                 color: Colors.black.withOpacity(0.2),
