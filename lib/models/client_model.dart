@@ -3,6 +3,7 @@
 import 'dart:ffi';
 
 class ClientsModel {
+  String? id;
   String? nom;
   String? prenom;
   String? numero;
@@ -12,6 +13,6 @@ class ClientsModel {
   bool? isDeleted;
   String? utilisateur;
 
-  ClientsModel(this.nom, this.prenom, this.numero, this.email, this.adresse,
-      this.isActive, this.isDeleted, this.utilisateur);
+  ClientsModel(this.id, this.nom, this.prenom, this.numero, this.email,
+      this.adresse, this.isActive, this.isDeleted, this.utilisateur);
 }

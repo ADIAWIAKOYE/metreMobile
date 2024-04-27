@@ -29,12 +29,12 @@ class _SignupPageState extends State<SignupPage> {
                   //   height: 38,
                   // ),
                   SizedBox(
-                    width: 100,
-                    child: Image.asset('assets/image/logo1.png'),
+                    width: 150,
+                    child: Image.asset('assets/image/logo4.png'),
                   ),
-                  SizedBox(
-                    height: 15,
-                  ),
+                  // SizedBox(
+                  //   height: 10,
+                  // ),
 
                   Text(
                     "Inscrivez-vous",

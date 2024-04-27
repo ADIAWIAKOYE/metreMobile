@@ -24,11 +24,11 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   // le logo
                   SizedBox(
-                    width: 100,
-                    child: Image.asset("assets/image/logo1.png"),
+                    width: 150,
+                    child: Image.asset("assets/image/logo4.png"),
                   ),
                   SizedBox(
-                    height: 15,
+                    height: 10,
                   ),
 
                   Text(

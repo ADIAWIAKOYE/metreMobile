@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:metremobile/models/client_model.dart';
+import 'package:metremobile/pages/detail_mesure_page.dart';
 import 'package:metremobile/pages/login_page.dart';
 import 'package:metremobile/widgets/logo.dart';
 import 'package:metremobile/widgets/search_input.dart';
@@ -13,18 +14,18 @@ class MesurePage extends StatefulWidget {
 
 class _MesurePageState extends State<MesurePage> {
   static List<ClientsModel> liste_des_clients = [
-    ClientsModel("SY", "Ibrahime", "+22393963145", "sy@gmail.com", "yirimadio",
-        true, false, "i32443DEFTHGVDT"),
-    ClientsModel("SYLLA", "Bada", "+22383963145", "babasylla@gmail.com",
-        "Sirakoro", true, false, "i32443DEFTHG4DT"),
-    ClientsModel("CISSE", "Fouseyni", "+22373963145", "fous6se@gmail.com",
-        "Djikoroni", true, false, "i32443DEFTDG4DT"),
-    ClientsModel("SY", "Ibrahime", "+22393963145", "sy@gmail.com", "yirimadio",
-        true, false, "i32443DEFTHGVDT"),
-    ClientsModel("SYLLA", "Bada", "+22383963145", "babasylla@gmail.com",
-        "Sirakoro", true, false, "i32443DEFTHG4DT"),
-    ClientsModel("CISSE", "Fouseyni", "+22373963145", "fous6se@gmail.com",
-        "Djikoroni", true, false, "i32443DEFTDG4DT"),
+    ClientsModel("idclient1", "SY", "Ibrahime", "+22393963145", "sy@gmail.com",
+        "yirimadio", true, false, "i32443DEFTHGVDT"),
+    ClientsModel("idclient2", "SYLLA", "Bada", "+22383963145",
+        "babasylla@gmail.com", "Sirakoro", true, false, "i32443DEFTHG4DT"),
+    ClientsModel("idclient3", "CISSE", "Fouseyni", "+22373963145",
+        "fous6se@gmail.com", "Djikoroni", true, false, "i32443DEFTDG4DT"),
+    ClientsModel("idclient4", "SY", "Ibrahime", "+22393963145", "sy@gmail.com",
+        "yirimadio", true, false, "i32443DEFTHGVDT"),
+    ClientsModel("idclient5", "SYLLA", "Bada", "+22383963145",
+        "babasylla@gmail.com", "Sirakoro", true, false, "i32443DEFTHG4DT"),
+    ClientsModel("idclient6", "CISSE", "Fouseyni", "+22373963145",
+        "fous6se@gmail.com", "Djikoroni", true, false, "i32443DEFTDG4DT"),
   ];
 
   List<ClientsModel> displaye_liste = List.from(liste_des_clients);
@@ -149,7 +150,8 @@ class _MesurePageState extends State<MesurePage> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => LoginPage(),
+                                builder: (context) => DetailMesurePage(
+                                    client: displaye_liste[index]),
                               ),
                             );
                           },
