@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
+// import 'package:flutter_svg/flutter_svg.dart';
 
 class SearchInputWidget extends StatelessWidget {
   const SearchInputWidget({super.key});
@@ -12,21 +12,23 @@ class SearchInputWidget extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         child: TextField(
           decoration: InputDecoration(
-              fillColor: Colors.white,
-              filled: true,
-              hintText: 'Rechercher',
-              border: OutlineInputBorder(
-                borderRadius:
-                    BorderRadius.circular(10), // même rayon que ClipRRect
-                borderSide: BorderSide(color: Colors.grey, width: 1.0),
-              ),
-              prefixIcon: Padding(
-                padding: const EdgeInsets.all(14.0),
-                child: SvgPicture.asset(
-                  'assets/image/icone/search.svg',
-                  width: 10,
-                ),
-              )),
+            fillColor: Colors.white,
+            filled: true,
+            hintText: 'Rechercher',
+            border: OutlineInputBorder(
+              borderRadius:
+                  BorderRadius.circular(10), // même rayon que ClipRRect
+              borderSide: BorderSide(color: Colors.grey, width: 1.0),
+            ),
+            prefixIcon: Padding(
+              padding: const EdgeInsets.all(14.0),
+              child: Icon(Icons.search),
+              // SvgPicture.asset(
+              //   'assets/image/icone/search.svg',
+              //   width: 10,
+              // ),
+            ),
+          ),
         ),
       ),
     );

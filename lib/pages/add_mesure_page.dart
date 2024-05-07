@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:metremobile/widgets/logo.dart';
+import 'package:Metre/widgets/logo.dart';
 
 class AddMesurePage extends StatefulWidget {
   const AddMesurePage({super.key});
@@ -12,18 +12,18 @@ class AddMesurePage extends StatefulWidget {
 
 class _AddMesurePageState extends State<AddMesurePage> {
   List<String> items = [
-    'LongueurPantalon',
+    'L.Pantalon',
     'Ceinture',
-    'Toure de fesse',
+    'T.fesse',
     'Cuisse',
     'Patte',
-    'LongueurChemise',
-    'LongueurBoubou',
+    'L.Chemise',
+    'L.Boubou',
     'Poitrine',
     'Epaule',
-    'MancheLong',
-    'MancheCourt',
-    'TourManche',
+    'Manche.L',
+    'Manche.C',
+    'T.Manche',
     'Encolure'
   ]; // Options du DropdownButton
   String? selectedItem; // Valeur sélectionnée du DropdownButton
@@ -76,10 +76,11 @@ class _AddMesurePageState extends State<AddMesurePage> {
   List<Step> stepList() => [
         Step(
           title: const Text(
-            'Donnes personnels',
+            'Données personnels',
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.w700,
+              fontSize: 12,
             ),
           ),
           isActive: _currentStep >= 0,
@@ -97,10 +98,14 @@ class _AddMesurePageState extends State<AddMesurePage> {
                     hintText: "Entrez le nom ",
                     hintStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
+                      fontSize: 12,
                     ),
 
                     labelText: "Nom",
-                    labelStyle: TextStyle(color: Colors.black),
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
@@ -119,7 +124,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
 
                     contentPadding: EdgeInsets.symmetric(
                         vertical:
-                            13), // Ajustez la valeur de la marge verticale selon vos besoins
+                            10), // Ajustez la valeur de la marge verticale selon vos besoins
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -140,10 +145,14 @@ class _AddMesurePageState extends State<AddMesurePage> {
                     hintText: "Entrez le prenom ",
                     hintStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
+                      fontSize: 12,
                     ),
 
                     labelText: "prenom",
-                    labelStyle: TextStyle(color: Colors.black),
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
@@ -168,7 +177,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                     ),
                     contentPadding: EdgeInsets.symmetric(
                         vertical:
-                            13), // Ajustez la valeur de la marge verticale selon vos besoins
+                            10), // Ajustez la valeur de la marge verticale selon vos besoins
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -189,10 +198,14 @@ class _AddMesurePageState extends State<AddMesurePage> {
                     hintText: "exemple@gmail.com",
                     hintStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
+                      fontSize: 12,
                     ),
 
                     labelText: "Email",
-                    labelStyle: TextStyle(color: Colors.black),
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
@@ -210,7 +223,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                     ),
                     contentPadding: EdgeInsets.symmetric(
                         vertical:
-                            13), // Ajustez la valeur de la marge verticale selon vos besoins
+                            10), // Ajustez la valeur de la marge verticale selon vos besoins
                   ),
                 ),
                 SizedBox(
@@ -226,9 +239,13 @@ class _AddMesurePageState extends State<AddMesurePage> {
                     hintText: "+XXXXXXXXXXX",
                     hintStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
+                      fontSize: 12,
                     ),
                     labelText: "Téléphone",
-                    labelStyle: TextStyle(color: Colors.black),
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
@@ -251,7 +268,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                       ), // Couleur de la bordure lorsqu'elle est en état de focus
                     ),
                     contentPadding: EdgeInsets.symmetric(
-                      vertical: 13,
+                      vertical: 10,
                     ),
                   ),
                   validator: (value) {
@@ -273,9 +290,13 @@ class _AddMesurePageState extends State<AddMesurePage> {
                     hintText: "Entrer l'adresse",
                     hintStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
+                      fontSize: 12,
                     ),
                     labelText: "Adresse",
-                    labelStyle: TextStyle(color: Colors.black),
+                    labelStyle: TextStyle(
+                      color: Colors.black,
+                      fontSize: 12,
+                    ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
@@ -291,7 +312,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                       ),
                     ),
                     contentPadding: EdgeInsets.symmetric(
-                      vertical: 13,
+                      vertical: 10,
                     ),
                   ),
                 ),
@@ -305,6 +326,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
             style: TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.w700,
+              fontSize: 12,
             ),
           ),
           isActive: _currentStep >= 1,
@@ -320,9 +342,13 @@ class _AddMesurePageState extends State<AddMesurePage> {
                   hintText: "Entrer nom propriétaire",
                   hintStyle: TextStyle(
                     color: Color.fromARGB(255, 132, 134, 135),
+                    fontSize: 12,
                   ),
                   labelText: "Proprietaire",
-                  labelStyle: TextStyle(color: Colors.black),
+                  labelStyle: TextStyle(
+                    color: Colors.black,
+                    fontSize: 12,
+                  ),
                   enabledBorder: OutlineInputBorder(
                     // borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(
@@ -338,7 +364,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                     ),
                   ),
                   contentPadding: EdgeInsets.symmetric(
-                    vertical: 13,
+                    vertical: 10,
                   ),
                 ),
                 onChanged: (value) {
@@ -363,9 +389,13 @@ class _AddMesurePageState extends State<AddMesurePage> {
                             hintText: "Selectonner",
                             hintStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 12,
                             ),
                             labelText: "Selectonner",
-                            labelStyle: TextStyle(color: Colors.black),
+                            labelStyle: TextStyle(
+                              color: Colors.black,
+                              fontSize: 12,
+                            ),
                             enabledBorder: OutlineInputBorder(
                               // borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
@@ -397,7 +427,10 @@ class _AddMesurePageState extends State<AddMesurePage> {
                           items: items.map((String value) {
                             return DropdownMenuItem<String>(
                               value: value,
-                              child: Text(value),
+                              child: Text(
+                                value,
+                                style: TextStyle(fontSize: 12),
+                              ),
                             );
                           }).toList(),
                         ),
@@ -422,9 +455,13 @@ class _AddMesurePageState extends State<AddMesurePage> {
                             hintText: "Valeur",
                             hintStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 12,
                             ),
                             labelText: "Valeur",
-                            labelStyle: TextStyle(color: Colors.black),
+                            labelStyle: TextStyle(
+                              color: Colors.black,
+                              fontSize: 12,
+                            ),
                             enabledBorder: OutlineInputBorder(
                               // borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
@@ -602,7 +639,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                 'Ajouter un nouveau Client', // Ajoutez votre texte personnalisé ici
                 textAlign: TextAlign.center, // Centrer le texte
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 15,
                   fontWeight: FontWeight.w700,
                   color: Colors.black,
                 ),
@@ -666,7 +703,8 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 15),
+                                      letterSpacing: 2,
+                                      fontSize: 13),
                                 ),
                                 style: ButtonStyle(
                                   backgroundColor:
@@ -694,7 +732,8 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w700,
-                                      fontSize: 15),
+                                      letterSpacing: 2,
+                                      fontSize: 13),
                                 ),
                                 style: ButtonStyle(
                                   backgroundColor:
@@ -724,7 +763,8 @@ class _AddMesurePageState extends State<AddMesurePage> {
                               style: TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 15),
+                                  letterSpacing: 2,
+                                  fontSize: 13),
                             ),
                             style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(

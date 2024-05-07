@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:metremobile/bottom_navigationbar/navigation_page.dart';
-import 'package:metremobile/pages/signup_page.dart';
+import 'package:Metre/bottom_navigationbar/navigation_page.dart';
+import 'package:Metre/pages/signup_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -15,6 +15,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: ListView(
         children: [
           Container(
@@ -34,7 +35,7 @@ class _LoginPageState extends State<LoginPage> {
                   Text(
                     "Connectez-vous",
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 17,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -51,29 +52,33 @@ class _LoginPageState extends State<LoginPage> {
                       hintText: "Entrez le numéro votre entreprise",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
                       ),
 
                       labelText: "téléphone de l'entreprise",
-                      labelStyle: TextStyle(color: Colors.black),
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
+                      ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
-                              255, 195, 154, 5), // Couleur de la bordure
+                              255, 206, 136, 5), // Couleur de la bordure
                           width: 1.5, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                           width: 1.5,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
-                              13), // Ajustez la valeur de la marge verticale selon vos besoins
+                              10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                   ),
 
@@ -89,29 +94,33 @@ class _LoginPageState extends State<LoginPage> {
                       hintText: "Entrez votre mot de passe",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
                       ),
 
                       labelText: "mot de passe",
-                      labelStyle: TextStyle(color: Colors.black),
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
+                      ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
-                              255, 195, 154, 5), // Couleur de la bordure
+                              255, 206, 136, 5), // Couleur de la bordure
                           width: 1.5, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                           width: 1.5,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
-                              13), // Ajustez la valeur de la marge verticale selon vos besoins
+                              10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                   ),
                   SizedBox(
@@ -119,7 +128,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
 
                   SizedBox(
-                    height: 50,
+                    height: 45,
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
@@ -132,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color.fromARGB(
-                            255, 206, 163, 5), // Couleur or du bouton
+                            255, 206, 136, 5), // Couleur or du bouton
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                               10), // Bord arrondi du bouton
@@ -141,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: Text(
                         "Se connecter",
                         style: TextStyle(
-                          fontSize: 17,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -169,8 +178,7 @@ class _LoginPageState extends State<LoginPage> {
                 child: Text(
                   "mot de passe oublier",
                   style: TextStyle(
-                    color: Color.fromARGB(
-                        255, 1, 62, 111), // Couleur du texte cliquable
+                    color: Colors.blue, // Couleur du texte cliquable
                     decoration: TextDecoration.none, // Souligner le texte
                   ),
                 ),
@@ -195,30 +203,34 @@ class _LoginPageState extends State<LoginPage> {
                         prefixIcon: Icon(Icons.phone),
                         hintText: "Entrez le numéro votre entreprise",
                         hintStyle: TextStyle(
-                          color: Color.fromARGB(255, 132, 134, 135),
+                          color: Colors.grey,
+                          fontSize: 12,
                         ),
 
                         labelText: "téléphone de l'entreprise",
-                        labelStyle: TextStyle(color: Colors.black),
+                        labelStyle: TextStyle(
+                          color: Colors.grey,
+                          fontSize: 12,
+                        ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
                             color: Color.fromARGB(
-                                255, 195, 154, 5), // Couleur de la bordure
+                                255, 206, 136, 5), // Couleur de la bordure
                             width: 1.5, // Largeur de la bordure
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: Color.fromARGB(255, 195, 154, 5),
+                            color: Color.fromARGB(255, 206, 136, 5),
                             width: 1.5,
                           ), // Couleur de la bordure lorsqu'elle est en état de focus
                         ),
 
                         contentPadding: EdgeInsets.symmetric(
                             vertical:
-                                13), // Ajustez la valeur de la marge verticale selon vos besoins
+                                10), // Ajustez la valeur de la marge verticale selon vos besoins
                       ),
                     ),
 
@@ -233,30 +245,31 @@ class _LoginPageState extends State<LoginPage> {
                         prefixIcon: Icon(Icons.mail),
                         hintText: "Entrez l'email votre entreprise",
                         hintStyle: TextStyle(
-                          color: Color.fromARGB(255, 132, 134, 135),
+                          color: Colors.grey,
+                          fontSize: 12,
                         ),
 
                         labelText: "email de l'entreprise",
-                        labelStyle: TextStyle(color: Colors.black),
+                        labelStyle: TextStyle(color: Colors.grey, fontSize: 12),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
                             color: Color.fromARGB(
-                                255, 195, 154, 5), // Couleur de la bordure
+                                255, 206, 136, 5), // Couleur de la bordure
                             width: 1.5, // Largeur de la bordure
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: Color.fromARGB(255, 195, 154, 5),
+                            color: Color.fromARGB(255, 206, 136, 5),
                             width: 1.5,
                           ), // Couleur de la bordure lorsqu'elle est en état de focus
                         ),
 
                         contentPadding: EdgeInsets.symmetric(
                             vertical:
-                                13), // Ajustez la valeur de la marge verticale selon vos besoins
+                                10), // Ajustez la valeur de la marge verticale selon vos besoins
                       ),
                     ),
 
@@ -265,7 +278,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
 
                     SizedBox(
-                      height: 50,
+                      height: 45,
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
@@ -273,7 +286,7 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromARGB(
-                              255, 206, 163, 5), // Couleur or du bouton
+                              255, 206, 136, 5), // Couleur or du bouton
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(
                                 10), // Bord arrondi du bouton
@@ -282,7 +295,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: Text(
                           "Envoyer",
                           style: TextStyle(
-                            fontSize: 17,
+                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
@@ -310,15 +323,16 @@ class _LoginPageState extends State<LoginPage> {
                     TextSpan(
                       text: "Je n'ai pas de compte ",
                       style: TextStyle(
-                        color: Colors.black, // Couleur du texte
+                        color: Theme.of(context)
+                            .colorScheme
+                            .tertiary, // Couleur du texte
                         decoration: TextDecoration.none, // Pas de décoration
                       ),
                     ),
                     TextSpan(
                       text: "inscrivez-vous",
                       style: TextStyle(
-                        color: Color.fromARGB(
-                            255, 1, 49, 87), // Couleur du texte cliquable
+                        color: Colors.blue, // Couleur du texte cliquable
                         decoration: TextDecoration.none, // Souligner le texte
                       ),
                       recognizer: TapGestureRecognizer()

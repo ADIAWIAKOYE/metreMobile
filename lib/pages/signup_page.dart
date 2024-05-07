@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:metremobile/pages/login_page.dart';
+import 'package:Metre/pages/login_page.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -13,6 +13,7 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: ListView(
         children: [
           Container(
@@ -39,7 +40,7 @@ class _SignupPageState extends State<SignupPage> {
                   Text(
                     "Inscrivez-vous",
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 17,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -78,7 +79,7 @@ class _SignupPageState extends State<SignupPage> {
 
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
-                              13), // Ajustez la valeur de la marge verticale selon vos besoins
+                              10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                   ),
 
@@ -116,7 +117,7 @@ class _SignupPageState extends State<SignupPage> {
 
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
-                              13), // Ajustez la valeur de la marge verticale selon vos besoins
+                              10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                   ),
 
@@ -154,7 +155,7 @@ class _SignupPageState extends State<SignupPage> {
 
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
-                              13), // Ajustez la valeur de la marge verticale selon vos besoins
+                              10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                   ),
 
@@ -192,7 +193,7 @@ class _SignupPageState extends State<SignupPage> {
 
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
-                              13), // Ajustez la valeur de la marge verticale selon vos besoins
+                              10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                   ),
 
@@ -231,7 +232,7 @@ class _SignupPageState extends State<SignupPage> {
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
                       contentPadding: EdgeInsets.symmetric(
-                        vertical: 13,
+                        vertical: 10,
                       ), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                     items: [
@@ -287,7 +288,7 @@ class _SignupPageState extends State<SignupPage> {
 
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
-                              13), // Ajustez la valeur de la marge verticale selon vos besoins
+                              10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                   ),
 
@@ -325,7 +326,7 @@ class _SignupPageState extends State<SignupPage> {
 
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
-                              13), // Ajustez la valeur de la marge verticale selon vos besoins
+                              10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                   ),
 
@@ -334,7 +335,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
 
                   SizedBox(
-                    height: 50,
+                    height: 45,
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
@@ -351,7 +352,7 @@ class _SignupPageState extends State<SignupPage> {
                       child: Text(
                         "S'inscrire",
                         style: TextStyle(
-                          fontSize: 17,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),

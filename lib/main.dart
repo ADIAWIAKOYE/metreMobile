@@ -1,5 +1,6 @@
+import 'package:Metre/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:metremobile/pages/welcome_page.dart';
+import 'package:Metre/pages/welcome_page.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,10 +15,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
+        theme: lightMode,
+        darkTheme: darkMode,
         home: WelcomePage());
   }
 }

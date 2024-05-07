@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:metremobile/pages/add_mesure_page.dart';
-import 'package:metremobile/pages/mesure_page.dart';
-import 'package:metremobile/pages/profile_page.dart';
+import 'package:Metre/pages/add_mesure_page.dart';
+import 'package:Metre/pages/mesure_page.dart';
+import 'package:Metre/pages/profile_page.dart';
 
 class NavigationBarPage extends StatefulWidget {
   const NavigationBarPage({super.key});
@@ -40,7 +40,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
                 selectedFontSize: 12,
                 showSelectedLabels: true,
                 showUnselectedLabels: false,
-                iconSize: 35, // Taille des icônes
+                iconSize: 30, // Taille des icônes
                 onTap: (index) {
                   setState(() {
                     myCurrentIndex = index;
@@ -49,7 +49,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
                 items: [
                   BottomNavigationBarItem(
                       icon: Image.asset('assets/image/rubanIcone.png',
-                          width: 40, height: 35),
+                          width: 35, height: 30),
                       label: "Mésure"),
                   BottomNavigationBarItem(
                       icon: Icon(Icons.add_circle_outline), label: "Ajout"),

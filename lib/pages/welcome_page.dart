@@ -1,8 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:metremobile/pages/login_page.dart';
-import 'package:metremobile/pages/signup_page.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:Metre/pages/login_page.dart';
+import 'package:Metre/pages/signup_page.dart';
+// import 'package:url_launcher/url_launcher.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -12,6 +12,19 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
+  // URL à ouvrir lorsque le lien est cliqué
+  final String _url1 = 'https://www.google.com';
+  final String _url2 = 'https://flutter.dev/';
+
+  // Fonction pour ouvrir l'URL
+  // Future<void> _launchURL() async {
+  //   if (await canLaunch(_url1)) {
+  //     await launch(_url1);
+  //   } else {
+  //     throw 'Impossible d\'ouvrir $_url1';
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     // Obtenir la taille de l'écran
@@ -20,6 +33,7 @@ class _WelcomePageState extends State<WelcomePage> {
     final spaceBetweenSections = screenHeight * 0.06;
 
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: ListView(children: [
         Container(
           // width: double.infinity,
@@ -50,7 +64,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   child: Text(
                     "Bienvenue sur Mètre pour la gestion des mesures de vos clients en toute facilité ...... ",
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -69,8 +83,10 @@ class _WelcomePageState extends State<WelcomePage> {
                           text:
                               "En appuyant sur se Connecter ou s’inscrire, vous acceptez nos ",
                           style: TextStyle(
-                            color: Colors.black, // Couleur du texte
-                            fontSize: 15,
+                            color: Theme.of(context)
+                                .colorScheme
+                                .tertiary, // Couleur du texte
+                            fontSize: 12,
                             decoration:
                                 TextDecoration.none, // Pas de décoration
                           ),
@@ -78,7 +94,9 @@ class _WelcomePageState extends State<WelcomePage> {
                         TextSpan(
                           text: "Conditions générales.",
                           style: TextStyle(
-                            color: Colors.black, // Couleur du texte cliquable
+                            color: Theme.of(context)
+                                .colorScheme
+                                .tertiary, // Couleur du texte cliquable
                             fontSize: 15,
                             decoration:
                                 TextDecoration.underline, // Souligner le texte
@@ -87,8 +105,8 @@ class _WelcomePageState extends State<WelcomePage> {
                             ..onTap = () {
                               // Action à effectuer lors du clic sur "inscrivez-vous"
                               // ignore: deprecated_member_use
-                              launch(
-                                  'https://flutter.dev/'); // Lien URL de vos conditions générales
+                              // launch(
+                              //     'https://flutter.dev/'); // Lien URL de vos conditions générales
                               // Navigator.push(
                               //   context,
                               //   MaterialPageRoute(
@@ -113,7 +131,9 @@ class _WelcomePageState extends State<WelcomePage> {
                           text:
                               "Pour en savoir plus sur l’utilisation de tes données, consulte notre ",
                           style: TextStyle(
-                            color: Colors.black, // Couleur du texte
+                            color: Theme.of(context)
+                                .colorScheme
+                                .tertiary, // Couleur du texte
                             fontSize: 15,
                             decoration:
                                 TextDecoration.none, // Pas de décoration
@@ -122,7 +142,9 @@ class _WelcomePageState extends State<WelcomePage> {
                         TextSpan(
                           text: " Politique de confidentialité.",
                           style: TextStyle(
-                            color: Colors.black, // Couleur du texte cliquable
+                            color: Theme.of(context)
+                                .colorScheme
+                                .tertiary, // Couleur du texte cliquable
                             fontSize: 15,
                             decoration:
                                 TextDecoration.underline, // Souligner le texte
@@ -131,8 +153,8 @@ class _WelcomePageState extends State<WelcomePage> {
                             ..onTap = () {
                               // Action à effectuer lors du clic sur "inscrivez-vous"
                               // ignore: deprecated_member_use
-                              launch(
-                                  'https://www.google.com/'); // Lien URL de votre politique de confidentialité
+                              // launch(
+                              //     'https://www.google.com/'); // Lien URL de votre politique de confidentialité
                             },
                         ),
                       ],
@@ -146,7 +168,7 @@ class _WelcomePageState extends State<WelcomePage> {
               SizedBox(height: spaceBetweenSections),
               // Partie des buttons
               SizedBox(
-                height: 50,
+                height: 45,
                 width: MediaQuery.of(context).size.width *
                     0.85, // Définissez la largeur du bouton en fonction de la largeur de l'écran
                 child: ElevatedButton(
@@ -159,7 +181,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromARGB(
-                        255, 206, 163, 5), // Couleur or du bouton
+                        255, 206, 136, 5), // Couleur or du bouton
                     shape: RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.circular(100), // Bord arrondi du bouton
@@ -168,7 +190,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   child: Text(
                     "Se connecter",
                     style: TextStyle(
-                      fontSize: 17,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -179,7 +201,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 height: 25,
               ),
               SizedBox(
-                height: 50,
+                height: 45,
                 width: MediaQuery.of(context).size.width *
                     0.85, // Définissez la largeur du bouton en fonction de la largeur de l'écran
                 child: ElevatedButton(
@@ -192,7 +214,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color.fromARGB(
-                        255, 206, 163, 5), // Couleur or du bouton
+                        255, 206, 136, 5), // Couleur or du bouton
                     shape: RoundedRectangleBorder(
                       borderRadius:
                           BorderRadius.circular(100), // Bord arrondi du bouton
@@ -203,7 +225,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   child: Text(
                     "S'inscrire",
                     style: TextStyle(
-                      fontSize: 17,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),

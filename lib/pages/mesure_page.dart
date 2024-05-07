@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:metremobile/models/client_model.dart';
-import 'package:metremobile/pages/detail_mesure_page.dart';
-import 'package:metremobile/pages/login_page.dart';
-import 'package:metremobile/widgets/logo.dart';
-import 'package:metremobile/widgets/search_input.dart';
+import 'package:Metre/models/client_model.dart';
+import 'package:Metre/pages/detail_mesure_page.dart';
+import 'package:Metre/pages/login_page.dart';
+import 'package:Metre/widgets/logo.dart';
+import 'package:Metre/widgets/search_input.dart';
 
 class MesurePage extends StatefulWidget {
   const MesurePage({super.key});
@@ -35,13 +35,36 @@ class _MesurePageState extends State<MesurePage> {
     // we will be back to this list after a wile
     // Now let's write our search function
 
+    // setState(() {
+    //   displaye_liste = liste_des_clients
+    //       .where((element) =>
+    //           element.nom!.toLowerCase().contains(value.toLowerCase()) &&
+    //               element.prenom!.toLowerCase().contains(value.toLowerCase()) ||
+    //           element.numero!.toLowerCase().contains(value.toLowerCase()))
+    //       .toList();
+    // });
+
     setState(() {
-      displaye_liste = liste_des_clients
-          .where((element) =>
-              element.nom!.toLowerCase().contains(value.toLowerCase()) ||
-              element.prenom!.toLowerCase().contains(value.toLowerCase()) ||
-              element.numero!.toLowerCase().contains(value.toLowerCase()))
-          .toList();
+      displaye_liste = liste_des_clients.where((element) {
+        final fullName = "${element.nom} ${element.prenom}";
+        final nomPrenom = fullName.toLowerCase();
+        final nom = element.nom!.toLowerCase();
+        final prenom = element.prenom!.toLowerCase();
+        final numero = element.numero!.toLowerCase();
+
+        // Vérifie si le nom ou le prénom contient la valeur recherchée
+        // ou si le nom complet contient la valeur recherchée
+        // ou si le numéro contient la valeur recherchée
+        final searchTerms = value.toLowerCase().split(' ');
+        bool containsAllSearchTerms = true;
+        for (final term in searchTerms) {
+          containsAllSearchTerms = containsAllSearchTerms &&
+              (nom.contains(term) || prenom.contains(term));
+        }
+        return containsAllSearchTerms ||
+            nomPrenom.contains(value.toLowerCase()) ||
+            numero.contains(value.toLowerCase());
+      }).toList();
     });
   }
 
@@ -81,10 +104,13 @@ class _MesurePageState extends State<MesurePage> {
               ), // Couleur de la bordure lorsqu'elle est en état de focus
             ),
             hintText: "Rechercher",
-            hintStyle: TextStyle(color: Colors.black45),
+            hintStyle: TextStyle(
+              color: Colors.black45,
+              fontSize: 12,
+            ),
             prefixIcon: Icon(Icons.search),
             prefixIconColor: Colors.black45,
-            contentPadding: EdgeInsets.symmetric(vertical: 13),
+            contentPadding: EdgeInsets.symmetric(vertical: 10),
           ),
         ),
       ),
@@ -98,7 +124,7 @@ class _MesurePageState extends State<MesurePage> {
                   "Aucun résultat trouvé ! ",
                   style: TextStyle(
                       color: Colors.grey,
-                      fontSize: 18,
+                      fontSize: 15,
                       fontWeight: FontWeight.w700),
                 ),
               )
@@ -131,6 +157,7 @@ class _MesurePageState extends State<MesurePage> {
                       style: TextStyle(
                         color: Colors.black,
                         fontWeight: FontWeight.w700,
+                        fontSize: 12,
                       ),
                     ),
                     subtitle: Row(
@@ -139,7 +166,7 @@ class _MesurePageState extends State<MesurePage> {
                           displaye_liste[index].numero!,
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: 13,
+                            fontSize: 11,
                           ),
                         ),
                         Spacer(), // Ajouter un espace flexible entre les deux éléments
