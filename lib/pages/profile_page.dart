@@ -81,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
               border: Border(
                 bottom: BorderSide(
                   color:
-                      Color.fromARGB(255, 195, 154, 5), // Couleur de la bordure
+                      Color.fromARGB(255, 206, 136, 5), // Couleur de la bordure
                   width: 1.0,
                 ),
               ),
@@ -95,7 +95,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     alignment: Alignment.centerLeft,
                     child: Icon(
                       Icons.person,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.tertiary,
                       size: 25,
                     ),
                   ),
@@ -107,7 +107,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
                 ),
@@ -118,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     alignment: Alignment.centerRight,
                     child: Icon(
                       Icons.keyboard_arrow_right,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.tertiary,
                       size: 25,
                     ),
                   ),
@@ -150,7 +150,7 @@ class _ProfilePageState extends State<ProfilePage> {
               border: Border(
                 bottom: BorderSide(
                   color:
-                      Color.fromARGB(255, 195, 154, 5), // Couleur de la bordure
+                      Color.fromARGB(255, 206, 136, 5), // Couleur de la bordure
                   width: 1.0,
                 ),
               ),
@@ -164,7 +164,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     alignment: Alignment.centerLeft,
                     child: Icon(
                       Icons.lock,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.tertiary,
                       size: 25,
                     ),
                   ),
@@ -176,7 +176,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
                 ),
@@ -187,7 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     alignment: Alignment.centerRight,
                     child: Icon(
                       Icons.keyboard_arrow_right,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.tertiary,
                       size: 25,
                     ),
                   ),

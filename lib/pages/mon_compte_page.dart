@@ -36,7 +36,11 @@ class _MonComptePageState extends State<MonComptePage> {
             'Mon Compte',
             // style: Theme.of(context).textTheme.headline4,
             // textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
           ),
         ),
         actions: [
@@ -73,7 +77,7 @@ class _MonComptePageState extends State<MonComptePage> {
                             BoxShadow(
                               spreadRadius: 2,
                               blurRadius: 10,
-                              color: Color.fromARGB(255, 195, 154, 5)
+                              color: Color.fromARGB(255, 206, 136, 5)
                                   .withOpacity(0.1),
                             ),
                           ],
@@ -91,7 +95,7 @@ class _MonComptePageState extends State<MonComptePage> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(width: 4, color: Colors.white),
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                         ),
                         child: Icon(
                           Icons.edit,
@@ -130,7 +134,10 @@ class _MonComptePageState extends State<MonComptePage> {
                     child: Text(
                       'Annuler',
                       style: TextStyle(
-                          fontSize: 12, letterSpacing: 2, color: Colors.black),
+                        fontSize: 12,
+                        letterSpacing: 2,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
                     ),
                     style: OutlinedButton.styleFrom(
                         padding: EdgeInsets.symmetric(horizontal: 40),
@@ -147,7 +154,7 @@ class _MonComptePageState extends State<MonComptePage> {
                           fontSize: 12, letterSpacing: 2, color: Colors.white),
                     ),
                     style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromARGB(255, 195, 154, 5),
+                        backgroundColor: Color.fromARGB(255, 206, 136, 5),
                         padding: EdgeInsets.symmetric(horizontal: 40),
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20))),
@@ -200,7 +207,7 @@ class _MonComptePageState extends State<MonComptePage> {
                       value: value,
                       child: Text(
                         value,
-                        style: TextStyle(fontSize: 11),
+                        style: TextStyle(fontSize: 10),
                       ),
                     );
                   }).toList(),
@@ -210,7 +217,7 @@ class _MonComptePageState extends State<MonComptePage> {
                     hintStyle: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
                 ),
@@ -256,7 +263,7 @@ class _MonComptePageState extends State<MonComptePage> {
                     hintStyle: TextStyle(
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
                 ),

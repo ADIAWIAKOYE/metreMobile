@@ -57,22 +57,26 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Entrez votre nom de l'entreprise",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
                       ),
 
                       labelText: "nom de l'entreprise",
-                      labelStyle: TextStyle(color: Colors.black),
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
+                      ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
-                              255, 195, 154, 5), // Couleur de la bordure
+                              255, 206, 136, 5), // Couleur de la bordure
                           width: 1.5, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                           width: 1.5,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
@@ -95,22 +99,25 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Entrez l'adresse de votre entreprise",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
                       ),
 
                       labelText: "Adresse de l'entreprise",
-                      labelStyle: TextStyle(color: Colors.black),
+                      labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 132, 134, 135),
+                          fontSize: 12),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
-                              255, 195, 154, 5), // Couleur de la bordure
+                              255, 206, 136, 5), // Couleur de la bordure
                           width: 1.5, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                           width: 1.5,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
@@ -133,22 +140,25 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Entrez le numéro votre entreprise",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
                       ),
 
                       labelText: "téléphone de l'entreprise",
-                      labelStyle: TextStyle(color: Colors.black),
+                      labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 132, 134, 135),
+                          fontSize: 12),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
-                              255, 195, 154, 5), // Couleur de la bordure
+                              255, 206, 136, 5), // Couleur de la bordure
                           width: 1.5, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                           width: 1.5,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
@@ -171,22 +181,26 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Entrez l'email votre entreprise",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
                       ),
 
                       labelText: "email de l'entreprise",
-                      labelStyle: TextStyle(color: Colors.black),
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
+                      ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
-                              255, 195, 154, 5), // Couleur de la bordure
+                              255, 206, 136, 5), // Couleur de la bordure
                           width: 1.5, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                           width: 1.5,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
@@ -209,25 +223,24 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Choisissez votre specialité ",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
                       ),
                       labelText: "Specialité de l'entreprise",
-                      labelStyle: TextStyle(color: Colors.black),
+                      labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 132, 134, 135),
+                          fontSize: 12),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
-                            255,
-                            195,
-                            154,
-                            5,
-                          ), // Couleur de la bordure
+                              255, 206, 136, 5), // Couleur de la bordure
                           width: 1.5, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                           width: 1.5,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
@@ -237,16 +250,25 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                     items: [
                       DropdownMenuItem(
-                        child: Text("Option 1"),
-                        value: "option1",
+                        child: Text(
+                          "Couture Homme & Enfant",
+                          style: TextStyle(fontSize: 11),
+                        ),
+                        value: "Couture Homme & Enfant",
                       ),
                       DropdownMenuItem(
-                        child: Text("Option 2"),
-                        value: "option2",
+                        child: Text(
+                          "Couture Femme & Enfant",
+                          style: TextStyle(fontSize: 11),
+                        ),
+                        value: "Couture Femme & Enfant",
                       ),
                       DropdownMenuItem(
-                        child: Text("Option 3"),
-                        value: "option3",
+                        child: Text(
+                          "Couture Homme, Femme & Enfant",
+                          style: TextStyle(fontSize: 11),
+                        ),
+                        value: "Couture Homme, Femme & Enfant",
                       ),
                     ],
                     onChanged: (value) {
@@ -266,22 +288,26 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Entrez votre mot de passe",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
                       ),
 
                       labelText: "mot de passe",
-                      labelStyle: TextStyle(color: Colors.black),
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
+                      ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
-                              255, 195, 154, 5), // Couleur de la bordure
+                              255, 206, 136, 5), // Couleur de la bordure
                           width: 1.5, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                           width: 1.5,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
@@ -304,22 +330,26 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Confirmer votre mot de passe",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
                       ),
 
                       labelText: "mot de passe confirmer",
-                      labelStyle: TextStyle(color: Colors.black),
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
+                      ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
-                              255, 195, 154, 5), // Couleur de la bordure
+                              255, 206, 136, 5), // Couleur de la bordure
                           width: 1.5, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                           width: 1.5,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
@@ -343,7 +373,7 @@ class _SignupPageState extends State<SignupPage> {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color.fromARGB(
-                            255, 206, 163, 5), // Couleur or du bouton
+                            255, 206, 136, 5), // Couleur or du bouton
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
                               10), // Bord arrondi du bouton

@@ -33,10 +33,10 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
             borderRadius: BorderRadius.circular(30),
             child: BottomNavigationBar(
                 currentIndex: myCurrentIndex,
-                backgroundColor: Colors.white,
-                selectedItemColor: Color.fromARGB(255, 111, 111, 111),
+                backgroundColor: Theme.of(context).colorScheme.onPrimary,
+                selectedItemColor: Color.fromARGB(255, 206, 136, 5),
                 selectedLabelStyle: TextStyle(color: Colors.black),
-                unselectedItemColor: Color.fromARGB(2255, 111, 111, 111),
+                unselectedItemColor: Theme.of(context).colorScheme.tertiary,
                 selectedFontSize: 12,
                 showSelectedLabels: true,
                 showUnselectedLabels: false,
@@ -47,10 +47,12 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
                   });
                 },
                 items: [
+                  // BottomNavigationBarItem(
+                  //     icon: Image.asset('assets/image/rubanIcone.png',
+                  //         width: 35, height: 30),
+                  //     label: "Mésure"),
                   BottomNavigationBarItem(
-                      icon: Image.asset('assets/image/rubanIcone.png',
-                          width: 35, height: 30),
-                      label: "Mésure"),
+                      icon: Icon(Icons.home), label: "Acceuil"),
                   BottomNavigationBarItem(
                       icon: Icon(Icons.add_circle_outline), label: "Ajout"),
                   BottomNavigationBarItem(

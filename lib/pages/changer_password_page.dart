@@ -110,7 +110,7 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                     autocorrect: false,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.lock),
-                      prefixIconColor: Color.fromARGB(255, 95, 95, 96),
+                      // prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                       suffixIcon: IconButton(
                         // padding: EdgeInsetsDirectional.only(end: 12.0),
                         icon: _isObscured
@@ -128,19 +128,21 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                           fontSize: 12),
 
                       labelText: "Ancien mot de passe",
-                      labelStyle: TextStyle(color: Colors.black, fontSize: 12),
+                      labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 132, 134, 135),
+                          fontSize: 12),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
-                              255, 195, 154, 5), // Couleur de la bordure
+                              255, 206, 136, 5), // Couleur de la bordure
                           width: 1.5, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                           width: 1.5,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
@@ -174,7 +176,7 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                     autocorrect: false,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.lock),
-                      prefixIconColor: Color.fromARGB(255, 95, 95, 96),
+                      // prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                       suffixIcon: IconButton(
                         // padding: EdgeInsetsDirectional.only(end: 12.0),
                         icon: _isObscured
@@ -192,19 +194,21 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                           fontSize: 12),
 
                       labelText: "Nouveau mot de passe",
-                      labelStyle: TextStyle(color: Colors.black, fontSize: 12),
+                      labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 132, 134, 135),
+                          fontSize: 12),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
-                              255, 195, 154, 5), // Couleur de la bordure
+                              255, 206, 136, 5), // Couleur de la bordure
                           width: 1.5, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                           width: 1.5,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
@@ -238,7 +242,7 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                     autocorrect: false,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.lock),
-                      prefixIconColor: Color.fromARGB(255, 95, 95, 96),
+                      // prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                       suffixIcon: IconButton(
                         // padding: EdgeInsetsDirectional.only(end: 12.0),
                         icon: _isObscured
@@ -256,19 +260,21 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                           fontSize: 12),
 
                       labelText: "confirmer le mot de passe",
-                      labelStyle: TextStyle(color: Colors.black, fontSize: 12),
+                      labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 132, 134, 135),
+                          fontSize: 12),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
-                              255, 195, 154, 5), // Couleur de la bordure
+                              255, 206, 136, 5), // Couleur de la bordure
                           width: 1.5, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                           width: 1.5,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
@@ -307,9 +313,10 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                         child: Text(
                           'Annuler',
                           style: TextStyle(
-                              fontSize: 13,
-                              letterSpacing: 2,
-                              color: Colors.black),
+                            fontSize: 13,
+                            letterSpacing: 2,
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
                         ),
                         style: OutlinedButton.styleFrom(
                             padding: EdgeInsets.symmetric(horizontal: 40),
@@ -332,7 +339,7 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                               color: Colors.white),
                         ),
                         style: ElevatedButton.styleFrom(
-                            backgroundColor: Color.fromARGB(255, 195, 154, 5),
+                            backgroundColor: Color.fromARGB(255, 206, 136, 5),
                             padding: EdgeInsets.symmetric(horizontal: 40),
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(20))),

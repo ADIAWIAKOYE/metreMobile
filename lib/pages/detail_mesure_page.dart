@@ -64,10 +64,10 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
             child: Container(
               margin: const EdgeInsets.only(left: 10.0, right: 10.0),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.primary,
                 border: Border.all(
                   color:
-                      Color.fromARGB(255, 206, 163, 5), // Couleur de la bordure
+                      Color.fromARGB(255, 206, 136, 5), // Couleur de la bordure
                   width: 1, // Largeur de la bordure
                 ),
                 borderRadius: BorderRadius.circular(1), // Bord arrondi
@@ -95,7 +95,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                     style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
-                      color: Colors.black,
+                      color: Theme.of(context).colorScheme.tertiary,
                     ),
                   ),
                 ),
@@ -137,7 +137,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.black,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                 ),
                               ),
                             ),
@@ -151,7 +151,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.black,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                 ),
                               ),
                             ),
@@ -192,14 +192,14 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                 style: TextStyle(
                                   fontSize: 13,
                                   fontWeight: FontWeight.bold,
-                                  color: Color.fromARGB(255, 206, 163, 5),
+                                  color: Color.fromARGB(255, 206, 136, 5),
                                 ),
                               ),
                               Container(
                                 margin: const EdgeInsets.only(left: 5.0),
                                 child: Icon(
                                   Icons.border_color,
-                                  color: Color.fromARGB(255, 206, 163, 5),
+                                  color: Color.fromARGB(255, 206, 136, 5),
                                   size: 17,
                                 ),
                               )
@@ -264,10 +264,10 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
             child: Container(
               margin: const EdgeInsets.only(left: 20.0, right: 20.0),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.primary,
                 border: Border.all(
                   color:
-                      Color.fromARGB(255, 206, 163, 5), // Couleur de la bordure
+                      Color.fromARGB(255, 206, 136, 5), // Couleur de la bordure
                   width: 1, // Largeur de la bordure
                 ),
                 borderRadius: BorderRadius.circular(1), // Bord arrondi
@@ -288,7 +288,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.black,
+                    color: Theme.of(context).colorScheme.tertiary,
                   ),
                 ),
               ),
@@ -326,13 +326,13 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                               style: TextStyle(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w700,
-                                color: Colors.black,
+                                color: Theme.of(context).colorScheme.tertiary,
                               ),
                             ),
                             IconButton(
                               icon: const Icon(
                                 Icons.edit,
-                                color: Color.fromARGB(255, 206, 163, 5),
+                                color: Color.fromARGB(255, 206, 136, 5),
                                 size: 17,
                               ),
                               // color: Colors.white,
@@ -360,7 +360,8 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.black,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
                                   ),
                                 ),
                               ),
@@ -372,7 +373,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.black,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                 ),
                               ),
                             ),
@@ -400,7 +401,8 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.black,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
                                   ),
                                 ),
                               ),
@@ -412,7 +414,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.black,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                 ),
                               ),
                             ),
@@ -421,7 +423,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                 Icons.delete,
                                 color: Colors.red,
                               ),
-                              // color: Colors.white,
+                              color: Theme.of(context).colorScheme.tertiary,
                               onPressed: () {
                                 print('vous avez cliquer sur le buttom');
                               },
@@ -440,7 +442,8 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.black,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
                                   ),
                                 ),
                               ),
@@ -452,7 +455,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.black,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                 ),
                               ),
                             ),
@@ -480,7 +483,8 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.black,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
                                   ),
                                 ),
                               ),
@@ -492,7 +496,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.black,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                 ),
                               ),
                             ),
@@ -520,7 +524,8 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                   style: TextStyle(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w500,
-                                    color: Colors.black,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
                                   ),
                                 ),
                               ),
@@ -532,7 +537,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.black,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                 ),
                               ),
                             ),
@@ -566,7 +571,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                     color: Colors.transparent,
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                      color: Color.fromARGB(255, 206, 163,
+                                      color: Color.fromARGB(255, 206, 136,
                                           5), // Couleur de la bordure
                                       width: 1, // Largeur de la bordure
                                     ),
@@ -579,7 +584,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                           fontSize: 11,
                                           fontWeight: FontWeight.bold,
                                           color:
-                                              Color.fromARGB(255, 206, 163, 5),
+                                              Color.fromARGB(255, 206, 136, 5),
                                         ),
                                       ),
                                       Container(
@@ -588,7 +593,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                         child: Icon(
                                           Icons.add_circle,
                                           color:
-                                              Color.fromARGB(255, 206, 163, 5),
+                                              Color.fromARGB(255, 206, 136, 5),
                                           size: 17,
                                         ),
                                       )
@@ -671,14 +676,14 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.bold,
-                      color: Color.fromARGB(255, 206, 163, 5),
+                      color: Color.fromARGB(255, 206, 136, 5),
                     ),
                   ),
                   Container(
                     margin: const EdgeInsets.only(left: 5.0),
                     child: Icon(
                       Icons.add_circle,
-                      color: Color.fromARGB(255, 206, 163, 5),
+                      color: Color.fromARGB(255, 206, 136, 5),
                       size: 20,
                     ),
                   )

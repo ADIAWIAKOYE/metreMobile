@@ -78,7 +78,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
           title: const Text(
             'Données personnels',
             style: TextStyle(
-              color: Colors.black,
+              // color: Colors.black,
               fontWeight: FontWeight.w700,
               fontSize: 12,
             ),
@@ -103,21 +103,21 @@ class _AddMesurePageState extends State<AddMesurePage> {
 
                     labelText: "Nom",
                     labelStyle: TextStyle(
-                      color: Colors.black,
+                      color: Color.fromARGB(255, 132, 134, 135),
                       fontSize: 12,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
                         color: Color.fromARGB(
-                            255, 195, 154, 5), // Couleur de la bordure
+                            255, 206, 136, 5), // Couleur de la bordure
                         width: 1.5, // Largeur de la bordure
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
-                        color: Color.fromARGB(255, 195, 154, 5),
+                        color: Color.fromARGB(255, 206, 136, 5),
                         width: 1.5,
                       ), // Couleur de la bordure lorsqu'elle est en état de focus
                     ),
@@ -150,21 +150,21 @@ class _AddMesurePageState extends State<AddMesurePage> {
 
                     labelText: "prenom",
                     labelStyle: TextStyle(
-                      color: Colors.black,
+                      color: Color.fromARGB(255, 132, 134, 135),
                       fontSize: 12,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
                         color: Color.fromARGB(
-                            255, 195, 154, 5), // Couleur de la bordure
+                            255, 206, 136, 5), // Couleur de la bordure
                         width: 1.5, // Largeur de la bordure
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
-                        color: Color.fromARGB(255, 195, 154, 5),
+                        color: Color.fromARGB(255, 206, 136, 5),
                         width: 1.5,
                       ), // Couleur de la bordure lorsqu'elle est en état de focus
                     ),
@@ -203,21 +203,21 @@ class _AddMesurePageState extends State<AddMesurePage> {
 
                     labelText: "Email",
                     labelStyle: TextStyle(
-                      color: Colors.black,
+                      color: Color.fromARGB(255, 132, 134, 135),
                       fontSize: 12,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
                         color: Color.fromARGB(
-                            255, 195, 154, 5), // Couleur de la bordure
+                            255, 206, 136, 5), // Couleur de la bordure
                         width: 1.5, // Largeur de la bordure
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
-                        color: Color.fromARGB(255, 195, 154, 5),
+                        color: Color.fromARGB(255, 206, 136, 5),
                         width: 1.5,
                       ), // Couleur de la bordure lorsqu'elle est en état de focus
                     ),
@@ -243,20 +243,20 @@ class _AddMesurePageState extends State<AddMesurePage> {
                     ),
                     labelText: "Téléphone",
                     labelStyle: TextStyle(
-                      color: Colors.black,
+                      color: Color.fromARGB(255, 132, 134, 135),
                       fontSize: 12,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
-                        color: Color.fromARGB(255, 195, 154, 5),
+                        color: Color.fromARGB(255, 206, 136, 5),
                         width: 1.5,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
-                        color: Color.fromARGB(255, 195, 154, 5),
+                        color: Color.fromARGB(255, 206, 136, 5),
                         width: 1.5,
                       ),
                     ),
@@ -294,20 +294,20 @@ class _AddMesurePageState extends State<AddMesurePage> {
                     ),
                     labelText: "Adresse",
                     labelStyle: TextStyle(
-                      color: Colors.black,
+                      color: Color.fromARGB(255, 132, 134, 135),
                       fontSize: 12,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
-                        color: Color.fromARGB(255, 195, 154, 5),
+                        color: Color.fromARGB(255, 206, 136, 5),
                         width: 1.5,
                       ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
                       borderSide: BorderSide(
-                        color: Color.fromARGB(255, 195, 154, 5),
+                        color: Color.fromARGB(255, 206, 136, 5),
                         width: 1.5,
                       ),
                     ),
@@ -324,7 +324,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
           title: Text(
             'Mésures',
             style: TextStyle(
-              color: Colors.black,
+              // color: Colors.black,
               fontWeight: FontWeight.w700,
               fontSize: 12,
             ),
@@ -346,20 +346,20 @@ class _AddMesurePageState extends State<AddMesurePage> {
                   ),
                   labelText: "Proprietaire",
                   labelStyle: TextStyle(
-                    color: Colors.black,
+                    color: Color.fromARGB(255, 132, 134, 135),
                     fontSize: 12,
                   ),
                   enabledBorder: OutlineInputBorder(
                     // borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(
-                      color: Color.fromARGB(255, 195, 154, 5),
+                      color: Color.fromARGB(255, 206, 136, 5),
                       width: 1.5,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(
-                      color: Color.fromARGB(255, 195, 154, 5),
+                      color: Color.fromARGB(255, 206, 136, 5),
                       width: 1.5,
                     ),
                   ),
@@ -389,24 +389,24 @@ class _AddMesurePageState extends State<AddMesurePage> {
                             hintText: "Selectonner",
                             hintStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 12,
+                              fontSize: 10,
                             ),
                             labelText: "Selectonner",
                             labelStyle: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12,
+                              color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 10,
                             ),
                             enabledBorder: OutlineInputBorder(
                               // borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                color: Color.fromARGB(255, 195, 154, 5),
+                                color: Color.fromARGB(255, 206, 136, 5),
                                 width: 1.5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(5),
                               borderSide: BorderSide(
-                                color: Color.fromARGB(255, 195, 154, 5),
+                                color: Color.fromARGB(255, 206, 136, 5),
                                 width: 1.5,
                               ),
                             ),
@@ -455,24 +455,24 @@ class _AddMesurePageState extends State<AddMesurePage> {
                             hintText: "Valeur",
                             hintStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 12,
+                              fontSize: 10,
                             ),
                             labelText: "Valeur",
                             labelStyle: TextStyle(
-                              color: Colors.black,
-                              fontSize: 12,
+                              color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 10,
                             ),
                             enabledBorder: OutlineInputBorder(
                               // borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
-                                color: Color.fromARGB(255, 195, 154, 5),
+                                color: Color.fromARGB(255, 206, 136, 5),
                                 width: 1.5,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(5),
                               borderSide: BorderSide(
-                                color: Color.fromARGB(255, 195, 154, 5),
+                                color: Color.fromARGB(255, 206, 136, 5),
                                 width: 1.5,
                               ),
                             ),
@@ -516,7 +516,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                           color: Colors.white,
                                           border: Border.all(
                                             color: Color.fromARGB(
-                                                255, 206, 163, 5),
+                                                255, 206, 136, 5),
                                             width: 1,
                                           ),
                                           borderRadius:
@@ -525,7 +525,10 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 10, vertical: 8),
-                                          child: Text(dropdownValue),
+                                          child: Text(
+                                            dropdownValue,
+                                            style: TextStyle(fontSize: 10),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -536,7 +539,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                           color: Colors.white,
                                           border: Border.all(
                                             color: Color.fromARGB(
-                                                255, 206, 163, 5),
+                                                255, 206, 136, 5),
                                             width: 1,
                                           ),
                                           borderRadius:
@@ -545,7 +548,10 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                         child: Padding(
                                           padding: const EdgeInsets.symmetric(
                                               horizontal: 10, vertical: 8),
-                                          child: Text(fieldValue),
+                                          child: Text(
+                                            fieldValue,
+                                            style: TextStyle(fontSize: 10),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -580,7 +586,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                         icon: Icon(
                           Icons.add_box,
                           size: 40,
-                          color: Color.fromARGB(255, 195, 154, 5),
+                          color: Color.fromARGB(255, 206, 136, 5),
                         ),
                       ),
                     ],
@@ -590,7 +596,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                     decoration: BoxDecoration(
                       border: Border.all(
                         color: Color.fromARGB(
-                            255, 206, 163, 5), // Couleur de la bordure
+                            255, 206, 136, 5), // Couleur de la bordure
                         width: 1, // Largeur de la bordure
                       ),
                     ),
@@ -618,10 +624,10 @@ class _AddMesurePageState extends State<AddMesurePage> {
           child: Container(
             margin: const EdgeInsets.only(left: 20.0, right: 20.0),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Theme.of(context).colorScheme.primary,
               border: Border.all(
                 color:
-                    Color.fromARGB(255, 206, 163, 5), // Couleur de la bordure
+                    Color.fromARGB(255, 206, 136, 5), // Couleur de la bordure
                 width: 1, // Largeur de la bordure
               ),
               borderRadius: BorderRadius.circular(1), // Bord arrondi
@@ -639,9 +645,9 @@ class _AddMesurePageState extends State<AddMesurePage> {
                 'Ajouter un nouveau Client', // Ajoutez votre texte personnalisé ici
                 textAlign: TextAlign.center, // Centrer le texte
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 14,
                   fontWeight: FontWeight.w700,
-                  color: Colors.black,
+                  color: Theme.of(context).colorScheme.tertiary,
                 ),
               ),
             ),
@@ -659,8 +665,8 @@ class _AddMesurePageState extends State<AddMesurePage> {
                 Theme(
               data: Theme.of(context).copyWith(
                 colorScheme: ColorScheme.light(
-                  primary: Color.fromARGB(255, 195, 154, 5),
-                  secondary: Colors.black,
+                  primary: Color.fromARGB(255, 206, 136, 5),
+                  secondary: Color.fromARGB(255, 73, 73, 73),
                 ),
               ),
               child: Stepper(
@@ -709,7 +715,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                 style: ButtonStyle(
                                   backgroundColor:
                                       MaterialStateProperty.all<Color>(
-                                    Color.fromARGB(255, 206, 163,
+                                    Color.fromARGB(255, 206, 136,
                                         5), // Couleur d'arrière-plan du bouton
                                   ),
                                 ),
@@ -739,7 +745,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                   backgroundColor:
                                       MaterialStateProperty.all<Color>(
                                     isOwnerFilled && isTextFieldWidgetAdded
-                                        ? Color.fromARGB(255, 206, 163, 5)
+                                        ? Color.fromARGB(255, 206, 136, 5)
                                         : Colors
                                             .grey, // Couleur d'arrière-plan du bouton
                                   ),
@@ -768,7 +774,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                             ),
                             style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
-                                Color.fromARGB(255, 206, 163,
+                                Color.fromARGB(255, 206, 136,
                                     5), // Couleur d'arrière-plan du bouton
                               ),
                             ),
@@ -818,7 +824,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
               Text('Téléphone : $telephone'),
               Text('Adresse : $adresse'),
               Text('Mesures :',
-                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
               Text('Propriétaire : $proprietaire'),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

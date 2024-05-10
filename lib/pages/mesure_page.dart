@@ -70,160 +70,163 @@ class _MesurePageState extends State<MesurePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      LogoWidget(),
-      // SizedBox(
-      //   height: 5,
-      // ),
+    return Scaffold(
+      body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        LogoWidget(),
+        // SizedBox(
+        //   height: 5,
+        // ),
 
-      //inpute rechercher
-      Padding(
-        padding: const EdgeInsets.all(16),
-        child: TextField(
-          onChanged: (value) => updateliste(value),
-          style:
-              TextStyle(color: Colors.black, decoration: TextDecoration.none),
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            enabledBorder: OutlineInputBorder(
-              borderRadius:
-                  BorderRadius.circular(15), // même rayon que ClipRRect
-              // borderSide: BorderSide(color: Colors.grey, width: 1.0),
-              borderSide: const BorderSide(
-                color:
-                    Color.fromARGB(255, 195, 154, 5), // Couleur de la bordure
-                width: 1.5, // Largeur de la bordure
+        //inpute rechercher
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: TextField(
+            onChanged: (value) => updateliste(value),
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.tertiary,
+                decoration: TextDecoration.none),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Theme.of(context).colorScheme.primary,
+              enabledBorder: OutlineInputBorder(
+                borderRadius:
+                    BorderRadius.circular(15), // même rayon que ClipRRect
+                // borderSide: BorderSide(color: Colors.grey, width: 1.0),
+                borderSide: const BorderSide(
+                  color:
+                      Color.fromARGB(255, 206, 136, 5), // Couleur de la bordure
+                  width: 1.5, // Largeur de la bordure
+                ),
               ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(15),
+                borderSide: BorderSide(
+                  color: Color.fromARGB(255, 206, 136, 5),
+                  width: 1.5,
+                ), // Couleur de la bordure lorsqu'elle est en état de focus
+              ),
+              hintText: "Rechercher",
+              hintStyle: TextStyle(
+                color: Theme.of(context).colorScheme.secondary,
+                fontSize: 12,
+              ),
+              prefixIcon: Icon(Icons.search),
+              prefixIconColor: Theme.of(context).colorScheme.secondary,
+              contentPadding: EdgeInsets.symmetric(vertical: 10),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide(
-                color: Color.fromARGB(255, 195, 154, 5),
-                width: 1.5,
-              ), // Couleur de la bordure lorsqu'elle est en état de focus
-            ),
-            hintText: "Rechercher",
-            hintStyle: TextStyle(
-              color: Colors.black45,
-              fontSize: 12,
-            ),
-            prefixIcon: Icon(Icons.search),
-            prefixIconColor: Colors.black45,
-            contentPadding: EdgeInsets.symmetric(vertical: 10),
           ),
         ),
-      ),
-      // SizedBox(
-      //   height: 5,
-      // ),
-      Expanded(
-        child: displaye_liste.length == 0
-            ? Center(
-                child: Text(
-                  "Aucun résultat trouvé ! ",
-                  style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700),
-                ),
-              )
-            : ListView.builder(
-                itemCount: displaye_liste.length,
-                itemBuilder: (context, index) => Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(
-                      color: Color.fromARGB(
-                          255, 206, 163, 5), // Couleur de la bordure
-                      width: 1, // Largeur de la bordure
-                    ),
-                    borderRadius: BorderRadius.circular(5), // Bord arrondi
-                    boxShadow: [
-                      BoxShadow(
+        // SizedBox(
+        //   height: 5,
+        // ),
+        Expanded(
+          child: displaye_liste.length == 0
+              ? Center(
+                  child: Text(
+                    "Aucun résultat trouvé ! ",
+                    style: TextStyle(
                         color: Colors.grey,
-                        blurRadius: 1,
-                        offset: Offset(1, 2), // Shadow position
-                      ),
-                    ],
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700),
                   ),
-                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-                  child: ListTile(
-                    contentPadding: EdgeInsets.all(5.0),
-                    title: Text(
-                      displaye_liste[index].prenom! +
-                          " " +
-                          displaye_liste[index].nom!,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 12,
+                )
+              : ListView.builder(
+                  itemCount: displaye_liste.length,
+                  itemBuilder: (context, index) => Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primary,
+                      border: Border.all(
+                        color: Color.fromARGB(
+                            255, 206, 136, 5), // Couleur de la bordure
+                        width: 1, // Largeur de la bordure
                       ),
-                    ),
-                    subtitle: Row(
-                      children: [
-                        Text(
-                          displaye_liste[index].numero!,
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontSize: 11,
-                          ),
+                      borderRadius: BorderRadius.circular(5), // Bord arrondi
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey,
+                          blurRadius: 1,
+                          offset: Offset(1, 2), // Shadow position
                         ),
-                        Spacer(), // Ajouter un espace flexible entre les deux éléments
-
-                        InkWell(
-                          onTap: () {
-                            // Action à effectuer lors du tapotement
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => DetailMesurePage(
-                                    client: displaye_liste[index]),
-                              ),
-                            );
-                          },
-                          borderRadius: BorderRadius.circular(10),
-                          child: Container(
-                            margin: EdgeInsets.symmetric(horizontal: 10),
-                            padding: EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 10),
-                            decoration: BoxDecoration(
-                              color: Colors.transparent,
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: Color.fromARGB(
-                                    255, 206, 163, 5), // Couleur de la bordure
-                                width: 1, // Largeur de la bordure
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'Voir plus ',
-                                  style: TextStyle(
-                                    color: Color.fromARGB(255, 206, 163, 5),
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 10,
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.arrow_forward,
-                                  color: Color.fromARGB(255, 206, 163, 5),
-                                  size: 18,
-                                ),
-                              ],
-                            ),
-                          ),
-                        )
                       ],
                     ),
-                    leading: Image.asset('assets/image/customer.png'),
+                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+                    child: ListTile(
+                      contentPadding: EdgeInsets.all(5.0),
+                      title: Text(
+                        displaye_liste[index].prenom! +
+                            " " +
+                            displaye_liste[index].nom!,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.tertiary,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 12,
+                        ),
+                      ),
+                      subtitle: Row(
+                        children: [
+                          Text(
+                            displaye_liste[index].numero!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.tertiary,
+                              fontSize: 11,
+                            ),
+                          ),
+                          Spacer(), // Ajouter un espace flexible entre les deux éléments
+
+                          InkWell(
+                            onTap: () {
+                              // Action à effectuer lors du tapotement
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => DetailMesurePage(
+                                      client: displaye_liste[index]),
+                                ),
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              margin: EdgeInsets.symmetric(horizontal: 10),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 4, horizontal: 10),
+                              decoration: BoxDecoration(
+                                color: Colors.transparent,
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: Color.fromARGB(255, 206, 136,
+                                      5), // Couleur de la bordure
+                                  width: 1, // Largeur de la bordure
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    'Voir plus ',
+                                    style: TextStyle(
+                                      color: Color.fromARGB(255, 206, 136, 5),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 10,
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward,
+                                    color: Color.fromARGB(255, 206, 136, 5),
+                                    size: 18,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                      leading: Image.asset('assets/image/customer1.png'),
+                    ),
                   ),
+                  // ),
                 ),
-                // ),
-              ),
-      )
-    ]);
+        )
+      ]),
+    );
   }
 }
