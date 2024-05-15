@@ -10,6 +10,53 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  var _isObscuredP = true;
+  var _isObscuredC = true;
+
+  TextEditingController nomEntre = TextEditingController();
+  TextEditingController adresse = TextEditingController();
+  TextEditingController phone = TextEditingController();
+  TextEditingController email = TextEditingController();
+  // TextEditingController specialite = TextEditingController();
+  String? specialite;
+  TextEditingController password = TextEditingController();
+  TextEditingController confirmePassword = TextEditingController();
+
+  bool validateEmail(String value) {
+    bool emailValid = RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(value);
+    return emailValid;
+  }
+
+  bool isValidPhoneNumber(String input) {
+    // Expression régulière pour valider le numéro de téléphone au format international
+    // La syntaxe utilisée ici correspond à un numéro de téléphone de la forme +XXX XXXXXXXX, où X est un chiffre.
+    RegExp regExp = RegExp(r'^\+\d{11}$');
+    return regExp.hasMatch(input);
+  }
+
+  void _submitForm() {
+    String _nomEntre = nomEntre.text;
+    String _adresse = adresse.text;
+    String _phone = phone.text;
+    String _email = email.text;
+    String? _specialite = specialite ?? "";
+    String _password = password.text;
+    // Check if the form is valid
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState!.save(); // Save the form data
+      // You can perform actions with the form data here and extract the details
+      print('le nom de l\'entreprise: $_nomEntre');
+      print('L\'adresse de l\'entreprise: $_adresse');
+      print('Numero de telephone: $_phone');
+      print('l\'email : $_email');
+      print('la specialite de : $_specialite');
+      print('le mot de passe : $_password');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,23 +66,13 @@ class _SignupPageState extends State<SignupPage> {
           Container(
             margin: EdgeInsets.all(15),
             child: Form(
+              key: _formKey, // Clé pour le formulaire
               child: Column(
                 children: [
-                  // Image(
-                  //   image: AssetImage('assets/image/logo1.pnd'),
-                  //   width: 100,
-                  //   height: 100,
-                  // ),
-                  // SizedBox(
-                  //   height: 38,
-                  // ),
                   SizedBox(
                     width: 150,
                     child: Image.asset('assets/image/logo4.png'),
                   ),
-                  // SizedBox(
-                  //   height: 10,
-                  // ),
 
                   Text(
                     "Inscrivez-vous",
@@ -52,6 +89,8 @@ class _SignupPageState extends State<SignupPage> {
                   // nom de l'entreprise
 
                   TextFormField(
+                    controller: nomEntre,
+                    keyboardType: TextInputType.name,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.account_circle),
                       hintText: "Entrez votre nom de l'entreprise",
@@ -81,10 +120,23 @@ class _SignupPageState extends State<SignupPage> {
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red,
+                          width: 1.5,
+                        ), // Couleur de la bordure lorsqu'elle est en état de focus
+                      ),
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
                               10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer le nom de votre atelier';
+                      }
+                      return null;
+                    },
                   ),
 
                   SizedBox(
@@ -94,6 +146,8 @@ class _SignupPageState extends State<SignupPage> {
                   // adresse de l'entreprise
 
                   TextFormField(
+                    controller: adresse,
+                    keyboardType: TextInputType.text,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.location_on),
                       hintText: "Entrez l'adresse de votre entreprise",
@@ -122,10 +176,23 @@ class _SignupPageState extends State<SignupPage> {
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red,
+                          width: 1.5,
+                        ), // Couleur de la bordure lorsqu'elle est en état de focus
+                      ),
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
                               10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer l\'adresse de votre atelier';
+                      }
+                      return null;
+                    },
                   ),
 
                   SizedBox(
@@ -135,6 +202,8 @@ class _SignupPageState extends State<SignupPage> {
                   // le numero de telephone de l'entreprise
 
                   TextFormField(
+                    controller: phone,
+                    keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.phone),
                       hintText: "Entrez le numéro votre entreprise",
@@ -163,10 +232,28 @@ class _SignupPageState extends State<SignupPage> {
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red,
+                          width: 1.5,
+                        ), // Couleur de la bordure lorsqu'elle est en état de focus
+                      ),
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
                               10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer votre numero de telephone';
+                      }
+                      String phoneNumber = phone.text;
+                      if (!isValidPhoneNumber(phoneNumber)) {
+                        // Affichez un message d'erreur indiquant que le numéro de téléphone est invalide
+                        return 'le telephone nest pas valide !';
+                      }
+                      return null;
+                    },
                   ),
 
                   SizedBox(
@@ -176,6 +263,8 @@ class _SignupPageState extends State<SignupPage> {
                   // l'email de l'entreprise
 
                   TextFormField(
+                    controller: email,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.mail),
                       hintText: "Entrez l'email votre entreprise",
@@ -205,10 +294,25 @@ class _SignupPageState extends State<SignupPage> {
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red,
+                          width: 1.5,
+                        ), // Couleur de la bordure lorsqu'elle est en état de focus
+                      ),
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
                               10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer votre email';
+                      } else if (!validateEmail(value)) {
+                        return "Email invalide ";
+                      }
+                      return null;
+                    },
                   ),
 
                   SizedBox(
@@ -217,24 +321,26 @@ class _SignupPageState extends State<SignupPage> {
 
                   // la specialité de l'entreprise
 
-                  DropdownButtonFormField(
+                  DropdownButtonFormField<String>(
+                    value:
+                        specialite, // Assurez-vous de définir la valeur initiale
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.category),
-                      hintText: "Choisissez votre specialité ",
+                      hintText: "Choisissez votre spécialité",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
                         fontSize: 12,
                       ),
-                      labelText: "Specialité de l'entreprise",
+                      labelText: "Spécialité de l'entreprise",
                       labelStyle: TextStyle(
-                          color: Color.fromARGB(255, 132, 134, 135),
-                          fontSize: 12),
+                        color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 12,
+                      ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
-                          color: Color.fromARGB(
-                              255, 206, 136, 5), // Couleur de la bordure
-                          width: 1.5, // Largeur de la bordure
+                          color: Color.fromARGB(255, 206, 136, 5),
+                          width: 1.5,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
@@ -242,37 +348,42 @@ class _SignupPageState extends State<SignupPage> {
                         borderSide: BorderSide(
                           color: Color.fromARGB(255, 206, 136, 5),
                           width: 1.5,
-                        ), // Couleur de la bordure lorsqu'elle est en état de focus
+                        ),
                       ),
-                      contentPadding: EdgeInsets.symmetric(
-                        vertical: 10,
-                      ), // Ajustez la valeur de la marge verticale selon vos besoins
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red,
+                          width: 1.5,
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(vertical: 10),
                     ),
                     items: [
-                      DropdownMenuItem(
+                      "Couture Homme & Enfant",
+                      "Couture Femme & Enfant",
+                      "Couture Homme, Femme & Enfant"
+                    ].map((label) {
+                      return DropdownMenuItem<String>(
+                        value: label,
                         child: Text(
-                          "Couture Homme & Enfant",
+                          label,
                           style: TextStyle(fontSize: 11),
                         ),
-                        value: "Couture Homme & Enfant",
-                      ),
-                      DropdownMenuItem(
-                        child: Text(
-                          "Couture Femme & Enfant",
-                          style: TextStyle(fontSize: 11),
-                        ),
-                        value: "Couture Femme & Enfant",
-                      ),
-                      DropdownMenuItem(
-                        child: Text(
-                          "Couture Homme, Femme & Enfant",
-                          style: TextStyle(fontSize: 11),
-                        ),
-                        value: "Couture Homme, Femme & Enfant",
-                      ),
-                    ],
+                      );
+                    }).toList(),
                     onChanged: (value) {
+                      setState(() {
+                        specialite =
+                            value!; // Mettre à jour la valeur sélectionnée
+                      });
                       // Ajoutez votre logique pour traiter la sélection ici
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez sélectionner une spécialité';
+                      }
+                      return null;
                     },
                   ),
 
@@ -283,8 +394,24 @@ class _SignupPageState extends State<SignupPage> {
                   // le mot de passe
 
                   TextFormField(
+                    controller: password,
+                    keyboardType: TextInputType.visiblePassword,
+                    obscureText: _isObscuredP,
+                    obscuringCharacter: "*",
+                    enableSuggestions: false,
+                    autocorrect: false,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: _isObscuredP
+                            ? const Icon(Icons.visibility)
+                            : const Icon(Icons.visibility_off),
+                        onPressed: () {
+                          setState(() {
+                            _isObscuredP = !_isObscuredP;
+                          });
+                        },
+                      ),
                       hintText: "Entrez votre mot de passe",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
@@ -312,10 +439,25 @@ class _SignupPageState extends State<SignupPage> {
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red,
+                          width: 1.5,
+                        ), // Couleur de la bordure lorsqu'elle est en état de focus
+                      ),
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
                               10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer votre mot de passe';
+                      } else if (value.length < 6) {
+                        return "Le mot de passe doit être supérieur à 6 carractères";
+                      }
+                      return null;
+                    },
                   ),
 
                   SizedBox(
@@ -325,8 +467,24 @@ class _SignupPageState extends State<SignupPage> {
                   // le mot de passe confirmer
 
                   TextFormField(
+                    controller: confirmePassword,
+                    keyboardType: TextInputType.visiblePassword,
+                    obscureText: _isObscuredC,
+                    obscuringCharacter: "*",
+                    enableSuggestions: false,
+                    autocorrect: false,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        icon: _isObscuredC
+                            ? const Icon(Icons.visibility)
+                            : const Icon(Icons.visibility_off),
+                        onPressed: () {
+                          setState(() {
+                            _isObscuredC = !_isObscuredC;
+                          });
+                        },
+                      ),
                       hintText: "Confirmer votre mot de passe",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
@@ -354,10 +512,26 @@ class _SignupPageState extends State<SignupPage> {
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red,
+                          width: 1.5,
+                        ), // Couleur de la bordure lorsqu'elle est en état de focus
+                      ),
                       contentPadding: EdgeInsets.symmetric(
                           vertical:
                               10), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer mot de passe confirmer';
+                      }
+                      if (confirmePassword.text != password.text) {
+                        return 'les mots de passes ne sont pas egales !';
+                      }
+                      return null;
+                    },
                   ),
 
                   SizedBox(
@@ -369,7 +543,17 @@ class _SignupPageState extends State<SignupPage> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
-                        print("BUTTON cliqué !");
+                        if (_formKey.currentState!.validate()) {
+                          if (confirmePassword.text == password.text) {
+                            _submitForm();
+                          } else {
+                            // Afficher une erreur indiquant que les mots de passe ne correspondent pas
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(
+                                  'Les mots de passe ne correspondent pas.'),
+                            ));
+                          }
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color.fromARGB(

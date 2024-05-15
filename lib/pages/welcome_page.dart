@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:Metre/pages/login_page.dart';
 import 'package:Metre/pages/signup_page.dart';
 // import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -105,8 +106,8 @@ class _WelcomePageState extends State<WelcomePage> {
                             ..onTap = () {
                               // Action à effectuer lors du clic sur "inscrivez-vous"
                               // ignore: deprecated_member_use
-                              // launch(
-                              //     'https://flutter.dev/'); // Lien URL de vos conditions générales
+                              launch(
+                                  'https://flutter.dev/'); // Lien URL de vos conditions générales
                               // Navigator.push(
                               //   context,
                               //   MaterialPageRoute(
@@ -153,8 +154,8 @@ class _WelcomePageState extends State<WelcomePage> {
                             ..onTap = () {
                               // Action à effectuer lors du clic sur "inscrivez-vous"
                               // ignore: deprecated_member_use
-                              // launch(
-                              //     'https://www.google.com/'); // Lien URL de votre politique de confidentialité
+                              launch(
+                                  'https://www.google.com/'); // Lien URL de votre politique de confidentialité
                             },
                         ),
                       ],
