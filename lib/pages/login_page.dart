@@ -1,7 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:Metre/bottom_navigationbar/navigation_page.dart';
 import 'package:Metre/pages/signup_page.dart';
+import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -36,18 +41,104 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _showResetPasswordForm = false;
   bool _fieldsEnabled = true;
+  bool _isLoading = false;
 
-  void _submitFormLogin() {
-    String _phone = phone.text;
-    String _password = password.text;
-    // Check if the form is valid
+  // void _submitFormLogin() {
+  //   String _username = phone.text;
+  //   String _password = password.text;
+  //   // Check if the form is valid
+  //   if (_formKey.currentState!.validate()) {
+  //     _formKey.currentState!.save(); // Save the form data
+  //     // You can perform actions with the form data here and extract the detail
+  //     print('Numero de telephone: $_username');
+  //     print('le mot de passe : $_password');
+  //   }
+  // }
+
+// uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu
+
+  Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save(); // Save the form data
-      // You can perform actions with the form data here and extract the detail
-      print('Numero de telephone: $_phone');
-      print('le mot de passe : $_password');
+      setState(() {
+        _isLoading = true;
+      });
+
+      String _username = phone.text;
+      String _password = password.text;
+      final String url = 'http://192.168.56.1:8010/user/login';
+
+      try {
+        final response = await http.post(
+          Uri.parse(url),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({'username': _username, 'password': _password}),
+        );
+
+        if (response.statusCode == 200) {
+          final data = jsonDecode(response.body);
+
+          final String token = data['token'];
+          final String refreshToken = data['refreshToken'];
+          final String id = data['id'];
+
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString('token', token);
+          await prefs.setString('refreshToken', refreshToken);
+          await prefs.setString('username', _username);
+          await prefs.setString('id', id);
+
+          _startTokenRefreshTimer(refreshToken);
+
+          // print("l\'id de l\'utilisateur est " + id);
+          // print("les données de retour sont " + jsonEncode(data));
+          // print("le token est " + token);
+          // print("le Refresh Token est " + refreshToken);
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => NavigationBarPage()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Erreur de connexion. Veuillez réessayer.'),
+          ));
+        }
+      } catch (e) {
+        print('Error: $e');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Une erreur s\'est produite. Veuillez réessayer.'),
+        ));
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
+
+  void _startTokenRefreshTimer(String refreshToken) {
+    Timer.periodic(Duration(milliseconds: 3600000), (timer) async {
+      final String url = 'http://192.168.56.1:8010/user/refreshtoken';
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'refreshToken': refreshToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final String newToken = data['token'];
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', newToken);
+      } else {
+        // Handle token refresh error
+      }
+    });
+  }
+
+// yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
 
   void _submitFormOubliPassword() {
     String _phone = phoneMO.text;
@@ -99,7 +190,6 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ],
           ),
-
           SizedBox(
             height: 15,
           ),
@@ -242,91 +332,138 @@ class _LoginPageState extends State<LoginPage> {
                     SizedBox(
                       height: 20,
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Mot de passe oublié?',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 206, 136, 5),
+                                  fontSize: 12,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    setState(() {
+                                      _showResetPasswordForm = true;
+                                      _fieldsEnabled = false;
+                                    });
+                                  },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
 
                     SizedBox(
-                      height: 45,
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          // Action à effectuer lors du clic sur le texte
-                          // if (_formKey.currentState!.validate()) {
-                          //   _submitFormLogin();
-                          // }
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => NavigationBarPage()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(
-                              255, 206, 136, 5), // Couleur or du bouton
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                10), // Bord arrondi du bouton
+                      height: 20,
+                    ),
+
+                    if (!_isLoading)
+                      SizedBox(
+                        width: 200,
+                        height: 40,
+                        child: ElevatedButton(
+                          style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all<Color>(
+                                Color.fromARGB(255, 206, 136, 5)),
+                            shape: MaterialStateProperty.all<
+                                RoundedRectangleBorder>(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                            ),
+                          ),
+                          onPressed: _login,
+                          child: Text(
+                            "Se connecter",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
-                        child: Text(
-                          "Se connecter",
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                      )
+                    else
+                      CircularProgressIndicator(),
+
+                    SizedBox(
+                      height: 10,
+                    ),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Vous navez pas encore de compte?',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                ),
+                              ),
+                              TextSpan(
+                                text: ' Inscrivez-vous',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 206, 136, 5),
+                                  fontSize: 12,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => SignupPage()),
+                                    );
+                                  },
+                              ),
+                            ],
                           ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
               ),
             ),
-
-          // Lien pour le mot de passe oublier
-
-          Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              margin: EdgeInsets.only(right: 30), // Marge à droite
-              child: GestureDetector(
-                onTap: () {
-                  // Action à effectuer lors du clic sur le texte
-                  setState(() {
-                    _showResetPasswordForm = !_showResetPasswordForm;
-                    _fieldsEnabled =
-                        !_showResetPasswordForm; // Disable fields if form is shown
-
-                    _resetForm();
-                    phone.clear();
-                    password.clear();
-
-                    _resetFormMO();
-                    phoneMO.clear();
-                    email.clear();
-                  });
-                },
-                child: Text(
-                  "mot de passe oublier",
-                  style: TextStyle(
-                    color: Colors.blue, // Couleur du texte cliquable
-                    decoration: TextDecoration.none, // Souligner le texte
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          SizedBox(
-            height: 20,
-          ),
-          // Afficher le formulaire de réinitialisation du mot de passe si _showResetPasswordForm est vrai
           if (_showResetPasswordForm)
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 20),
+              margin: EdgeInsets.all(15),
               child: Form(
-                key: _formKeyMO,
+                key: _formKeyMO, // Clé pour le formulaire
                 child: Column(
                   children: [
                     // le numero de telephone de l'entreprise
+                    SizedBox(
+                      height: 20,
+                    ),
+
+                    Text(
+                      "Mot de passe oublié",
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    SizedBox(
+                      height: 15,
+                    ),
+
+                    Text(
+                      "Entrer votre adresse mail et le téléphone de votre entreprise",
+                      style: TextStyle(
+                        fontSize: 12,
+                      ),
+                    ),
+
+                    SizedBox(
+                      height: 15,
+                    ),
 
                     TextFormField(
                       controller: phoneMO,
@@ -335,13 +472,13 @@ class _LoginPageState extends State<LoginPage> {
                         prefixIcon: Icon(Icons.phone),
                         hintText: "Entrez le numéro votre entreprise",
                         hintStyle: TextStyle(
-                          color: Colors.grey,
+                          color: Color.fromARGB(255, 132, 134, 135),
                           fontSize: 12,
                         ),
 
                         labelText: "téléphone de l'entreprise",
                         labelStyle: TextStyle(
-                          color: Colors.grey,
+                          color: Color.fromARGB(255, 132, 134, 135),
                           fontSize: 12,
                         ),
                         enabledBorder: OutlineInputBorder(
@@ -359,7 +496,6 @@ class _LoginPageState extends State<LoginPage> {
                             width: 1.5,
                           ), // Couleur de la bordure lorsqu'elle est en état de focus
                         ),
-
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
@@ -385,24 +521,25 @@ class _LoginPageState extends State<LoginPage> {
                     ),
 
                     SizedBox(
-                      height: 15,
+                      height: 20,
                     ),
-
-                    // l'email de l'entreprise
 
                     TextFormField(
                       controller: email,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.mail),
-                        hintText: "Entrez l'email votre entreprise",
+                        prefixIcon: Icon(Icons.email),
+                        hintText: "Entrez votre adresse mail",
                         hintStyle: TextStyle(
-                          color: Colors.grey,
+                          color: Color.fromARGB(255, 132, 134, 135),
                           fontSize: 12,
                         ),
 
-                        labelText: "email de l'entreprise",
-                        labelStyle: TextStyle(color: Colors.grey, fontSize: 12),
+                        labelText: "Adresse mail",
+                        labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 132, 134, 135),
+                          fontSize: 12,
+                        ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
@@ -418,7 +555,6 @@ class _LoginPageState extends State<LoginPage> {
                             width: 1.5,
                           ), // Couleur de la bordure lorsqu'elle est en état de focus
                         ),
-
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
@@ -432,9 +568,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre email';
-                        } else if (!validateEmail(value)) {
-                          return "Email invalide";
+                          return 'Veuillez entrer votre adresse mail';
+                        }
+                        if (!validateEmail(value)) {
+                          return 'Adresse mail invalide';
                         }
                         return null;
                       },
@@ -445,29 +582,71 @@ class _LoginPageState extends State<LoginPage> {
                     ),
 
                     SizedBox(
-                      height: 45,
-                      width: double.infinity,
+                      width: 200,
+                      height: 40,
                       child: ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.all<Color>(
+                              Color.fromARGB(255, 206, 136, 5)),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                          ),
+                        ),
                         onPressed: () {
-                          if (_formKeyMO.currentState!.validate()) {
-                            _submitFormOubliPassword();
-                          }
-                          print("BUTTON cliqué !");
+                          _submitFormOubliPassword();
+                          Timer(Duration(seconds: 1), () {
+                            setState(() {
+                              _showResetPasswordForm = false;
+                              _fieldsEnabled = true;
+                              _resetForm();
+                              _resetFormMO();
+                            });
+                          });
                         },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color.fromARGB(
-                              255, 206, 136, 5), // Couleur or du bouton
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(
-                                10), // Bord arrondi du bouton
-                          ),
-                        ),
                         child: Text(
-                          "Envoyer",
+                          "Soumettre",
                           style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
                             color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(
+                      height: 20,
+                    ),
+
+                    SizedBox(
+                      width: 200,
+                      height: 40,
+                      child: ElevatedButton(
+                        style: ButtonStyle(
+                          backgroundColor:
+                              MaterialStateProperty.all<Color>(Colors.grey),
+                          shape:
+                              MaterialStateProperty.all<RoundedRectangleBorder>(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15.0),
+                            ),
+                          ),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _showResetPasswordForm = false;
+                            _fieldsEnabled = true;
+                            _resetForm();
+                            _resetFormMO();
+                          });
+                        },
+                        child: Text(
+                          "Annuler",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
                           ),
                         ),
                       ),
@@ -476,50 +655,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
-
-          SizedBox(
-            height: 20,
-          ),
-
-          // Lien pour la page d'inscription
-
-          Align(
-            alignment: Alignment.centerRight,
-            child: Container(
-              margin: EdgeInsets.only(right: 30), // Marge à droite
-              child: RichText(
-                text: TextSpan(
-                  children: [
-                    TextSpan(
-                      text: "Je n'ai pas de compte ",
-                      style: TextStyle(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .tertiary, // Couleur du texte
-                        decoration: TextDecoration.none, // Pas de décoration
-                      ),
-                    ),
-                    TextSpan(
-                      text: "inscrivez-vous",
-                      style: TextStyle(
-                        color: Colors.blue, // Couleur du texte cliquable
-                        decoration: TextDecoration.none, // Souligner le texte
-                      ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          // Action à effectuer lors du clic sur "inscrivez-vous"
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => SignupPage()),
-                          );
-                        },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
         ],
       ),
     );

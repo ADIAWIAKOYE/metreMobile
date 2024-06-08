@@ -4,6 +4,7 @@ import 'package:Metre/pages/detail_mesure_page.dart';
 import 'package:Metre/pages/login_page.dart';
 import 'package:Metre/widgets/logo.dart';
 import 'package:Metre/widgets/search_input.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MesurePage extends StatefulWidget {
   const MesurePage({super.key});
@@ -67,6 +68,30 @@ class _MesurePageState extends State<MesurePage> {
       }).toList();
     });
   }
+
+// FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+  String? _username;
+  String? _token;
+  String? _refreshToken;
+  String? _id;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData(); // Appel de la méthode lors de l'initialisation de l'état
+  }
+
+  // Déclaration de la méthode _loadUserData
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _id = prefs.getString('id');
+      _username = prefs.getString('username');
+      _token = prefs.getString('token');
+      _refreshToken = prefs.getString('refreshToken');
+    });
+  }
+// GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
 
   @override
   Widget build(BuildContext context) {
@@ -225,7 +250,25 @@ class _MesurePageState extends State<MesurePage> {
                   ),
                   // ),
                 ),
-        )
+        ),
+        // LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('id: $_id'),
+              SizedBox(height: 10),
+              Text('Username: $_username'),
+              SizedBox(height: 10),
+              Text('Token: $_token'),
+              SizedBox(height: 10),
+              Text('Refresh Token: $_refreshToken'),
+            ],
+          ),
+        ),
+        // LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
       ]),
     );
   }

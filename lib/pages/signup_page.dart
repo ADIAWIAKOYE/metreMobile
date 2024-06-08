@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:Metre/pages/login_page.dart';
+import 'package:http/http.dart' as http;
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -37,23 +40,93 @@ class _SignupPageState extends State<SignupPage> {
     return regExp.hasMatch(input);
   }
 
-  void _submitForm() {
+  // void _submitForm() {
+  //   String _nomEntre = nomEntre.text;
+  //   String _adresse = adresse.text;
+  //   String _phone = phone.text;
+  //   String _email = email.text;
+  //   String? _specialite = specialite ?? "";
+  //   String _password = password.text;
+  //   // Check if the form is valid
+  //   if (_formKey.currentState!.validate()) {
+  //     _formKey.currentState!.save(); // Save the form data
+  //     // You can perform actions with the form data here and extract the details
+  //     print('le nom de l\'entreprise: $_nomEntre');
+  //     print('L\'adresse de l\'entreprise: $_adresse');
+  //     print('Numero de telephone: $_phone');
+  //     print('l\'email : $_email');
+  //     print('la specialite de : $_specialite');
+  //     print('le mot de passe : $_password');
+  //   }
+  // }
+
+  void showLoadingDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: Center(
+            child: CircularProgressIndicator(),
+          ),
+        );
+      },
+    );
+  }
+
+  void _submitForm() async {
     String _nomEntre = nomEntre.text;
     String _adresse = adresse.text;
     String _phone = phone.text;
     String _email = email.text;
     String? _specialite = specialite ?? "";
     String _password = password.text;
-    // Check if the form is valid
+
     if (_formKey.currentState!.validate()) {
-      _formKey.currentState!.save(); // Save the form data
-      // You can perform actions with the form data here and extract the details
-      print('le nom de l\'entreprise: $_nomEntre');
-      print('L\'adresse de l\'entreprise: $_adresse');
-      print('Numero de telephone: $_phone');
-      print('l\'email : $_email');
-      print('la specialite de : $_specialite');
-      print('le mot de passe : $_password');
+      _formKey.currentState!.save();
+
+      showLoadingDialog(context);
+
+      try {
+        final response = await http.post(
+          Uri.parse('http://192.168.56.1:8010/user/newutilisateur'),
+          headers: <String, String>{
+            'Content-Type': 'application/json; charset=UTF-8',
+          },
+          body: jsonEncode(<String, String>{
+            'nom': _nomEntre,
+            'adresse': _adresse,
+            'specialite': _specialite,
+            'email': _email,
+            'username': _phone,
+            'password': _password,
+            'role': 'UTILISATEUR',
+          }),
+        );
+
+        Navigator.of(context).pop();
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Inscription réussie !'),
+          ));
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => LoginPage()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Erreur lors de l\'inscription. Veuillez réessayer.'),
+          ));
+        }
+      } catch (e) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              'Une erreur s\'est produite. Veuillez vérifier votre connexion.'),
+        ));
+      }
     }
   }
 
