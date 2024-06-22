@@ -64,6 +64,9 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
       // ),
 
       appBar: AppBar(
+        backgroundColor: Theme.of(context)
+            .colorScheme
+            .background, // Changez cette couleur selon vos besoins
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);

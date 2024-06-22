@@ -613,181 +613,193 @@ class _AddMesurePageState extends State<AddMesurePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        LogoWidget(),
-        SizedBox(height: 10), // Ajouter un espacement entre le logo et le texte
-        SizedBox(
-          // height: 50,
-          width: double.infinity,
-          child: Container(
-            margin: const EdgeInsets.only(left: 20.0, right: 20.0),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              border: Border.all(
-                color:
-                    Color.fromARGB(255, 206, 136, 5), // Couleur de la bordure
-                width: 1, // Largeur de la bordure
-              ),
-              borderRadius: BorderRadius.circular(1), // Bord arrondi
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.grey,
-                  blurRadius: 1,
-                  offset: Offset(1, 2), // Shadow position
+    return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: LogoWidget(),
+        backgroundColor: Theme.of(context)
+            .colorScheme
+            .background, // Changez cette couleur selon vos besoins
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // LogoWidget(),
+          SizedBox(
+              height: 10), // Ajouter un espacement entre le logo et le texte
+          SizedBox(
+            // height: 50,
+            width: double.infinity,
+            child: Container(
+              margin: const EdgeInsets.only(left: 20.0, right: 20.0),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary,
+                border: Border.all(
+                  color:
+                      Color.fromARGB(255, 206, 136, 5), // Couleur de la bordure
+                  width: 1, // Largeur de la bordure
                 ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
-              child: Text(
-                'Ajouter un nouveau Client', // Ajoutez votre texte personnalisé ici
-                textAlign: TextAlign.center, // Centrer le texte
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  color: Theme.of(context).colorScheme.tertiary,
+                borderRadius: BorderRadius.circular(1), // Bord arrondi
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey,
+                    blurRadius: 1,
+                    offset: Offset(1, 2), // Shadow position
+                  ),
+                ],
+              ),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                child: Text(
+                  'Ajouter un nouveau Client', // Ajoutez votre texte personnalisé ici
+                  textAlign: TextAlign.center, // Centrer le texte
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        SizedBox(height: 10),
-        // Assurez-vous que ce widget a une taille définie
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(5),
-            child:
-                // isCompleted
-                // ? buildCompleted()
-                // :
-                Theme(
-              data: Theme.of(context).copyWith(
-                colorScheme: ColorScheme.light(
-                  primary: Color.fromARGB(255, 206, 136, 5),
-                  secondary: Color.fromARGB(255, 73, 73, 73),
+          SizedBox(height: 10),
+          // Assurez-vous que ce widget a une taille définie
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(5),
+              child:
+                  // isCompleted
+                  // ? buildCompleted()
+                  // :
+                  Theme(
+                data: Theme.of(context).copyWith(
+                  colorScheme: ColorScheme.light(
+                    primary: Color.fromARGB(255, 206, 136, 5),
+                    secondary: Color.fromARGB(255, 73, 73, 73),
+                  ),
                 ),
-              ),
-              child: Stepper(
-                steps: stepList(),
-                type: StepperType.horizontal,
-                elevation: 0,
-                currentStep: _currentStep,
-                onStepContinue: () {
-                  final isLastStep = _currentStep == stepList().length - 1;
-                  if (isLastStep) {
-                    print('StepComplet');
-                  } else {
-                    setState(() {
-                      _currentStep += 1;
-                    });
-                  }
-                },
-                onStepCancel: () {
-                  if (_currentStep > 0) {
-                    setState(() {
-                      _currentStep -= 1;
-                    });
-                  }
-                },
-                controlsBuilder:
-                    (BuildContext context, ControlsDetails controlsDetails) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      if (_currentStep != 0)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(9.0),
-                              child: ElevatedButton(
-                                onPressed: controlsDetails.onStepCancel,
-                                child: Text(
-                                  'Retour',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: 2,
-                                      fontSize: 13),
-                                ),
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                    Color.fromARGB(255, 206, 136,
-                                        5), // Couleur d'arrière-plan du bouton
+                child: Stepper(
+                  steps: stepList(),
+                  type: StepperType.horizontal,
+                  elevation: 0,
+                  currentStep: _currentStep,
+                  onStepContinue: () {
+                    final isLastStep = _currentStep == stepList().length - 1;
+                    if (isLastStep) {
+                      print('StepComplet');
+                    } else {
+                      setState(() {
+                        _currentStep += 1;
+                      });
+                    }
+                  },
+                  onStepCancel: () {
+                    if (_currentStep > 0) {
+                      setState(() {
+                        _currentStep -= 1;
+                      });
+                    }
+                  },
+                  controlsBuilder:
+                      (BuildContext context, ControlsDetails controlsDetails) {
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        if (_currentStep != 0)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(9.0),
+                                child: ElevatedButton(
+                                  onPressed: controlsDetails.onStepCancel,
+                                  child: Text(
+                                    'Retour',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 2,
+                                        fontSize: 13),
+                                  ),
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                      Color.fromARGB(255, 206, 136,
+                                          5), // Couleur d'arrière-plan du bouton
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(9.0),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // Vérifier si tous les champs obligatoires sont remplis et si des mesures ont été ajoutées
-                                  if (_formKey.currentState!.validate() &&
-                                      isOwnerFilled &&
-                                      isTextFieldWidgetAdded) {
-                                    // Appeler la fonction pour envoyer les données
-                                    envoyerDonnees();
-                                  }
-                                },
-                                child: Text(
-                                  'Envoyer',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: 2,
-                                      fontSize: 13),
-                                ),
-                                style: ButtonStyle(
-                                  backgroundColor:
-                                      MaterialStateProperty.all<Color>(
-                                    isOwnerFilled && isTextFieldWidgetAdded
-                                        ? Color.fromARGB(255, 206, 136, 5)
-                                        : Colors
-                                            .grey, // Couleur d'arrière-plan du bouton
+                              Padding(
+                                padding: const EdgeInsets.all(9.0),
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    // Vérifier si tous les champs obligatoires sont remplis et si des mesures ont été ajoutées
+                                    if (_formKey.currentState!.validate() &&
+                                        isOwnerFilled &&
+                                        isTextFieldWidgetAdded) {
+                                      // Appeler la fonction pour envoyer les données
+                                      envoyerDonnees();
+                                    }
+                                  },
+                                  child: Text(
+                                    'Envoyer',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.w700,
+                                        letterSpacing: 2,
+                                        fontSize: 13),
+                                  ),
+                                  style: ButtonStyle(
+                                    backgroundColor:
+                                        MaterialStateProperty.all<Color>(
+                                      isOwnerFilled && isTextFieldWidgetAdded
+                                          ? Color.fromARGB(255, 206, 136, 5)
+                                          : Colors
+                                              .grey, // Couleur d'arrière-plan du bouton
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                      if (_currentStep != stepList().length - 1)
-                        Padding(
-                          padding: const EdgeInsets.all(9.0),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // Vérifier la validation des champs avant de permettre à l'utilisateur de passer à l'étape suivante
-                              if (_formKey.currentState!.validate()) {
-                                controlsDetails.onStepContinue!();
-                              }
-                            },
-                            child: Text(
-                              'Continuer',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 2,
-                                  fontSize: 13),
-                            ),
-                            style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                Color.fromARGB(255, 206, 136,
-                                    5), // Couleur d'arrière-plan du bouton
+                            ],
+                          ),
+                        if (_currentStep != stepList().length - 1)
+                          Padding(
+                            padding: const EdgeInsets.all(9.0),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                // Vérifier la validation des champs avant de permettre à l'utilisateur de passer à l'étape suivante
+                                if (_formKey.currentState!.validate()) {
+                                  controlsDetails.onStepContinue!();
+                                }
+                              },
+                              child: Text(
+                                'Continuer',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 2,
+                                    fontSize: 13),
+                              ),
+                              style: ButtonStyle(
+                                backgroundColor:
+                                    MaterialStateProperty.all<Color>(
+                                  Color.fromARGB(255, 206, 136,
+                                      5), // Couleur d'arrière-plan du bouton
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
-                  );
-                },
+                      ],
+                    );
+                  },
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

@@ -1,112 +1,108 @@
+import 'dart:convert';
+import 'package:Metre/models/clients_model.dart';
 import 'package:flutter/material.dart';
-import 'package:Metre/models/client_model.dart';
 import 'package:Metre/pages/detail_mesure_page.dart';
-import 'package:Metre/pages/login_page.dart';
 import 'package:Metre/widgets/logo.dart';
-import 'package:Metre/widgets/search_input.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class MesurePage extends StatefulWidget {
-  const MesurePage({super.key});
+  const MesurePage({Key? key});
 
   @override
   State<MesurePage> createState() => _MesurePageState();
 }
 
 class _MesurePageState extends State<MesurePage> {
-  static List<ClientsModel> liste_des_clients = [
-    ClientsModel("idclient1", "SY", "Ibrahime", "+22393963145", "sy@gmail.com",
-        "yirimadio", true, false, "i32443DEFTHGVDT"),
-    ClientsModel("idclient2", "SYLLA", "Bada", "+22383963145",
-        "babasylla@gmail.com", "Sirakoro", true, false, "i32443DEFTHG4DT"),
-    ClientsModel("idclient3", "CISSE", "Fouseyni", "+22373963145",
-        "fous6se@gmail.com", "Djikoroni", true, false, "i32443DEFTDG4DT"),
-    ClientsModel("idclient4", "SY", "Ibrahime", "+22393963145", "sy@gmail.com",
-        "yirimadio", true, false, "i32443DEFTHGVDT"),
-    ClientsModel("idclient5", "SYLLA", "Bada", "+22383963145",
-        "babasylla@gmail.com", "Sirakoro", true, false, "i32443DEFTHG4DT"),
-    ClientsModel("idclient6", "CISSE", "Fouseyni", "+22373963145",
-        "fous6se@gmail.com", "Djikoroni", true, false, "i32443DEFTDG4DT"),
-  ];
+  List<ClientsModels> listeDesClients = [];
+  List<ClientsModels> displayedListe = [];
 
-  List<ClientsModel> displaye_liste = List.from(liste_des_clients);
-
-  void updateliste(String value) {
-    // this is a function that will filter our list
-    // we will be back to this list after a wile
-    // Now let's write our search function
-
-    // setState(() {
-    //   displaye_liste = liste_des_clients
-    //       .where((element) =>
-    //           element.nom!.toLowerCase().contains(value.toLowerCase()) &&
-    //               element.prenom!.toLowerCase().contains(value.toLowerCase()) ||
-    //           element.numero!.toLowerCase().contains(value.toLowerCase()))
-    //       .toList();
-    // });
-
-    setState(() {
-      displaye_liste = liste_des_clients.where((element) {
-        final fullName = "${element.nom} ${element.prenom}";
-        final nomPrenom = fullName.toLowerCase();
-        final nom = element.nom!.toLowerCase();
-        final prenom = element.prenom!.toLowerCase();
-        final numero = element.numero!.toLowerCase();
-
-        // Vérifie si le nom ou le prénom contient la valeur recherchée
-        // ou si le nom complet contient la valeur recherchée
-        // ou si le numéro contient la valeur recherchée
-        final searchTerms = value.toLowerCase().split(' ');
-        bool containsAllSearchTerms = true;
-        for (final term in searchTerms) {
-          containsAllSearchTerms = containsAllSearchTerms &&
-              (nom.contains(term) || prenom.contains(term));
-        }
-        return containsAllSearchTerms ||
-            nomPrenom.contains(value.toLowerCase()) ||
-            numero.contains(value.toLowerCase());
-      }).toList();
-    });
-  }
-
-// FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
-  String? _username;
-  String? _token;
-  String? _refreshToken;
   String? _id;
+  String? _token;
 
   @override
   void initState() {
     super.initState();
-    _loadUserData(); // Appel de la méthode lors de l'initialisation de l'état
+    _loadUserData().then((_) {
+      _fetchClients();
+    });
   }
 
-  // Déclaration de la méthode _loadUserData
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _id = prefs.getString('id');
-      _username = prefs.getString('username');
       _token = prefs.getString('token');
-      _refreshToken = prefs.getString('refreshToken');
     });
   }
-// GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG
+
+  Future<void> _fetchClients() async {
+    if (_id != null && _token != null) {
+      final url = 'http://192.168.56.1:8010/clients/getByUser/$_id';
+
+      try {
+        final response = await http.get(
+          Uri.parse(url),
+          headers: {'Authorization': 'Bearer $_token'},
+        );
+
+        if (response.statusCode == 202) {
+          final data = jsonDecode(response.body);
+          final clientsData = data['data']['content'] as List;
+
+          setState(() {
+            listeDesClients = clientsData
+                .map((clientJson) => ClientsModels.fromJson(clientJson))
+                .toList();
+            displayedListe = List.from(listeDesClients);
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Erreur lors du chargement des clients.'),
+          ));
+        }
+      } catch (e) {
+        print('Error: $e');
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Une erreur s\'est produite. Veuillez réessayer.'),
+        ));
+      }
+    }
+  }
+
+  void updateListe(String value) {
+    setState(() {
+      displayedListe = listeDesClients.where((element) {
+        final fullName = "${element.nom} ${element.prenom}";
+        final searchTerms = value.toLowerCase().split(' ');
+        bool containsAllSearchTerms = true;
+        for (final term in searchTerms) {
+          containsAllSearchTerms = containsAllSearchTerms &&
+              (element.nom!.toLowerCase().contains(term) ||
+                  element.prenom!.toLowerCase().contains(term));
+        }
+        return containsAllSearchTerms ||
+            fullName.toLowerCase().contains(value.toLowerCase()) ||
+            element.numero!.toLowerCase().contains(value.toLowerCase());
+      }).toList();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        title: LogoWidget(),
+        backgroundColor: Theme.of(context)
+            .colorScheme
+            .background, // Changez cette couleur selon vos besoins
+      ),
       body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        LogoWidget(),
-        // SizedBox(
-        //   height: 5,
-        // ),
-
-        //inpute rechercher
         Padding(
           padding: const EdgeInsets.all(16),
           child: TextField(
-            onChanged: (value) => updateliste(value),
+            onChanged: (value) => updateListe(value),
             style: TextStyle(
                 color: Theme.of(context).colorScheme.tertiary,
                 decoration: TextDecoration.none),
@@ -116,7 +112,6 @@ class _MesurePageState extends State<MesurePage> {
               enabledBorder: OutlineInputBorder(
                 borderRadius:
                     BorderRadius.circular(15), // même rayon que ClipRRect
-                // borderSide: BorderSide(color: Colors.grey, width: 1.0),
                 borderSide: const BorderSide(
                   color:
                       Color.fromARGB(255, 206, 136, 5), // Couleur de la bordure
@@ -141,11 +136,8 @@ class _MesurePageState extends State<MesurePage> {
             ),
           ),
         ),
-        // SizedBox(
-        //   height: 5,
-        // ),
         Expanded(
-          child: displaye_liste.length == 0
+          child: displayedListe.isEmpty
               ? Center(
                   child: Text(
                     "Aucun résultat trouvé ! ",
@@ -156,7 +148,7 @@ class _MesurePageState extends State<MesurePage> {
                   ),
                 )
               : ListView.builder(
-                  itemCount: displaye_liste.length,
+                  itemCount: displayedListe.length,
                   itemBuilder: (context, index) => Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.primary,
@@ -178,9 +170,9 @@ class _MesurePageState extends State<MesurePage> {
                     child: ListTile(
                       contentPadding: EdgeInsets.all(5.0),
                       title: Text(
-                        displaye_liste[index].prenom! +
+                        displayedListe[index].prenom! +
                             " " +
-                            displaye_liste[index].nom!,
+                            displayedListe[index].nom!,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.tertiary,
                           fontWeight: FontWeight.w700,
@@ -190,7 +182,7 @@ class _MesurePageState extends State<MesurePage> {
                       subtitle: Row(
                         children: [
                           Text(
-                            displaye_liste[index].numero!,
+                            displayedListe[index].numero!,
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.tertiary,
                               fontSize: 11,
@@ -205,7 +197,9 @@ class _MesurePageState extends State<MesurePage> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => DetailMesurePage(
-                                      client: displaye_liste[index]),
+                                    // client: displayedListe[index],
+                                    clientId: displayedListe[index].id!,
+                                  ),
                                 ),
                               );
                             },
@@ -248,27 +242,8 @@ class _MesurePageState extends State<MesurePage> {
                       leading: Image.asset('assets/image/customer1.png'),
                     ),
                   ),
-                  // ),
                 ),
         ),
-        // LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('id: $_id'),
-              SizedBox(height: 10),
-              Text('Username: $_username'),
-              SizedBox(height: 10),
-              Text('Token: $_token'),
-              SizedBox(height: 10),
-              Text('Refresh Token: $_refreshToken'),
-            ],
-          ),
-        ),
-        // LLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLLL
       ]),
     );
   }

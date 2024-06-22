@@ -21,6 +21,9 @@ class _MonComptePageState extends State<MonComptePage> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context)
+            .colorScheme
+            .background, // Changez cette couleur selon vos besoins
         leading: IconButton(
           onPressed: () {
             Navigator.pop(context);

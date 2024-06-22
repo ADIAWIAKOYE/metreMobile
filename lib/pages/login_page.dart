@@ -33,8 +33,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   bool isValidPhoneNumber(String input) {
-    // Expression régulière pour valider le numéro de téléphone au format international
-    // La syntaxe utilisée ici correspond à un numéro de téléphone de la forme +XXX XXXXXXXX, où X est un chiffre.
     RegExp regExp = RegExp(r'^\+\d{11}$');
     return regExp.hasMatch(input);
   }
@@ -42,20 +40,6 @@ class _LoginPageState extends State<LoginPage> {
   bool _showResetPasswordForm = false;
   bool _fieldsEnabled = true;
   bool _isLoading = false;
-
-  // void _submitFormLogin() {
-  //   String _username = phone.text;
-  //   String _password = password.text;
-  //   // Check if the form is valid
-  //   if (_formKey.currentState!.validate()) {
-  //     _formKey.currentState!.save(); // Save the form data
-  //     // You can perform actions with the form data here and extract the detail
-  //     print('Numero de telephone: $_username');
-  //     print('le mot de passe : $_password');
-  //   }
-  // }
-
-// uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu
 
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
@@ -89,18 +73,14 @@ class _LoginPageState extends State<LoginPage> {
 
           _startTokenRefreshTimer(refreshToken);
 
-          // print("l\'id de l\'utilisateur est " + id);
-          // print("les données de retour sont " + jsonEncode(data));
-          // print("le token est " + token);
-          // print("le Refresh Token est " + refreshToken);
-
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => NavigationBarPage()),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Erreur de connexion. Veuillez réessayer.'),
+            content:
+                Text('Erreur de connexion. numero ou mot de passe incorrect.'),
           ));
         }
       } catch (e) {
@@ -138,15 +118,11 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-// yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
-
   void _submitFormOubliPassword() {
     String _phone = phoneMO.text;
     String _email = email.text;
-    // Check if the form is valid
     if (_formKeyMO.currentState!.validate()) {
-      _formKeyMO.currentState!.save(); // Save the form data
-      // You can perform actions with the form data here and extract the details
+      _formKeyMO.currentState!.save();
       print('Numero de telephone: $_phone');
       print('l\'email : $_email');
     }
@@ -154,13 +130,13 @@ class _LoginPageState extends State<LoginPage> {
 
   void _resetForm() {
     if (_formKey.currentState != null) {
-      _formKey.currentState!.reset(); // Réinitialisation du formulaire
+      _formKey.currentState!.reset();
     }
   }
 
   void _resetFormMO() {
     if (_formKeyMO.currentState != null) {
-      _formKeyMO.currentState!.reset(); // Réinitialisation du formulaire
+      _formKeyMO.currentState!.reset();
     }
   }
 
@@ -172,15 +148,11 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           Column(
             children: [
-              // le logo
               SizedBox(
                 width: 150,
                 child: Image.asset("assets/image/logo4.png"),
               ),
-              SizedBox(
-                height: 10,
-              ),
-
+              SizedBox(height: 10),
               Text(
                 "Connectez-vous",
                 style: TextStyle(
@@ -190,30 +162,25 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ],
           ),
-          SizedBox(
-            height: 15,
-          ),
+          SizedBox(height: 15),
           if (!_showResetPasswordForm)
             Container(
               margin: EdgeInsets.all(15),
               child: Form(
-                key: _formKey, // Clé pour le formulaire
+                key: _formKey,
                 child: Column(
                   children: [
-                    // le numero de telephone de l'entreprise
-
                     TextFormField(
                       controller: phone,
                       enabled: _fieldsEnabled,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.phone),
-                        hintText: "Entrez le numéro votre entreprise",
+                        hintText: "Entrez le numéro de votre entreprise",
                         hintStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
                           fontSize: 12,
                         ),
-
                         labelText: "téléphone de l'entreprise",
                         labelStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
@@ -222,9 +189,8 @@ class _LoginPageState extends State<LoginPage> {
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: Color.fromARGB(
-                                255, 206, 136, 5), // Couleur de la bordure
-                            width: 1.5, // Largeur de la bordure
+                            color: Color.fromARGB(255, 206, 136, 5),
+                            width: 1.5,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -232,38 +198,28 @@ class _LoginPageState extends State<LoginPage> {
                           borderSide: BorderSide(
                             color: Color.fromARGB(255, 206, 136, 5),
                             width: 1.5,
-                          ), // Couleur de la bordure lorsqu'elle est en état de focus
+                          ),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
                             color: Colors.red,
                             width: 1.5,
-                          ), // Couleur de la bordure lorsqu'elle est en état de focus
+                          ),
                         ),
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical:
-                                10), // Ajustez la valeur de la marge verticale selon vos besoins
+                        contentPadding: EdgeInsets.symmetric(vertical: 10),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre numero de telephone';
+                          return 'Veuillez entrer votre numéro de téléphone';
                         }
-                        String phoneNumber = phone.text;
-                        if (!isValidPhoneNumber(phoneNumber)) {
-                          // Affichez un message d'erreur indiquant que le numéro de téléphone est invalide
-                          return 'le telephone nest pas valide !';
+                        if (!isValidPhoneNumber(value)) {
+                          return 'Le téléphone n\'est pas valide !';
                         }
                         return null;
                       },
                     ),
-
-                    SizedBox(
-                      height: 20,
-                    ),
-
-                    // le mot de passe
-
+                    SizedBox(height: 20),
                     TextFormField(
                       controller: password,
                       enabled: _fieldsEnabled,
@@ -289,7 +245,6 @@ class _LoginPageState extends State<LoginPage> {
                           color: Color.fromARGB(255, 132, 134, 135),
                           fontSize: 12,
                         ),
-
                         labelText: "mot de passe",
                         labelStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
@@ -298,9 +253,8 @@ class _LoginPageState extends State<LoginPage> {
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: Color.fromARGB(
-                                255, 206, 136, 5), // Couleur de la bordure
-                            width: 1.5, // Largeur de la bordure
+                            color: Color.fromARGB(255, 206, 136, 5),
+                            width: 1.5,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -308,19 +262,16 @@ class _LoginPageState extends State<LoginPage> {
                           borderSide: BorderSide(
                             color: Color.fromARGB(255, 206, 136, 5),
                             width: 1.5,
-                          ), // Couleur de la bordure lorsqu'elle est en état de focus
+                          ),
                         ),
-
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
                             color: Colors.red,
                             width: 1.5,
-                          ), // Couleur de la bordure lorsqu'elle est en état de focus
+                          ),
                         ),
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical:
-                                10), // Ajustez la valeur de la marge verticale selon vos besoins
+                        contentPadding: EdgeInsets.symmetric(vertical: 10),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -329,9 +280,7 @@ class _LoginPageState extends State<LoginPage> {
                         return null;
                       },
                     ),
-                    SizedBox(
-                      height: 20,
-                    ),
+                    SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -347,8 +296,8 @@ class _LoginPageState extends State<LoginPage> {
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
                                     setState(() {
-                                      _showResetPasswordForm = true;
-                                      _fieldsEnabled = false;
+                                      _showResetPasswordForm =
+                                          !_showResetPasswordForm;
                                     });
                                   },
                               ),
@@ -357,74 +306,28 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ),
-
-                    SizedBox(
-                      height: 20,
-                    ),
-
-                    if (!_isLoading)
-                      SizedBox(
-                        width: 200,
-                        height: 40,
-                        child: ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateProperty.all<Color>(
-                                Color.fromARGB(255, 206, 136, 5)),
-                            shape: MaterialStateProperty.all<
-                                RoundedRectangleBorder>(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15.0),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _isLoading ? null : _login,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        backgroundColor: Color.fromARGB(255, 206, 136, 5),
+                        minimumSize: Size.fromHeight(40),
+                      ),
+                      child: _isLoading
+                          ? CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            )
+                          : Text(
+                              'Se connecter',
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                          ),
-                          onPressed: _login,
-                          child: Text(
-                            "Se connecter",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      )
-                    else
-                      CircularProgressIndicator(),
-
-                    SizedBox(
-                      height: 10,
-                    ),
-
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Vous navez pas encore de compte?',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                ),
-                              ),
-                              TextSpan(
-                                text: ' Inscrivez-vous',
-                                style: TextStyle(
-                                  color: Color.fromARGB(255, 206, 136, 5),
-                                  fontSize: 12,
-                                ),
-                                recognizer: TapGestureRecognizer()
-                                  ..onTap = () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: (context) => SignupPage()),
-                                    );
-                                  },
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),
@@ -434,48 +337,19 @@ class _LoginPageState extends State<LoginPage> {
             Container(
               margin: EdgeInsets.all(15),
               child: Form(
-                key: _formKeyMO, // Clé pour le formulaire
+                key: _formKeyMO,
                 child: Column(
                   children: [
-                    // le numero de telephone de l'entreprise
-                    SizedBox(
-                      height: 20,
-                    ),
-
-                    Text(
-                      "Mot de passe oublié",
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: 15,
-                    ),
-
-                    Text(
-                      "Entrer votre adresse mail et le téléphone de votre entreprise",
-                      style: TextStyle(
-                        fontSize: 12,
-                      ),
-                    ),
-
-                    SizedBox(
-                      height: 15,
-                    ),
-
                     TextFormField(
                       controller: phoneMO,
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.phone),
-                        hintText: "Entrez le numéro votre entreprise",
+                        hintText: "Entrez le numéro de votre entreprise",
                         hintStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
                           fontSize: 12,
                         ),
-
                         labelText: "téléphone de l'entreprise",
                         labelStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
@@ -484,9 +358,8 @@ class _LoginPageState extends State<LoginPage> {
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: Color.fromARGB(
-                                255, 206, 136, 5), // Couleur de la bordure
-                            width: 1.5, // Largeur de la bordure
+                            color: Color.fromARGB(255, 206, 136, 5),
+                            width: 1.5,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -494,47 +367,38 @@ class _LoginPageState extends State<LoginPage> {
                           borderSide: BorderSide(
                             color: Color.fromARGB(255, 206, 136, 5),
                             width: 1.5,
-                          ), // Couleur de la bordure lorsqu'elle est en état de focus
+                          ),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
                             color: Colors.red,
                             width: 1.5,
-                          ), // Couleur de la bordure lorsqu'elle est en état de focus
+                          ),
                         ),
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical:
-                                10), // Ajustez la valeur de la marge verticale selon vos besoins
+                        contentPadding: EdgeInsets.symmetric(vertical: 10),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Veuillez entrer votre numero de telephone';
+                          return 'Veuillez entrer votre numéro de téléphone';
                         }
-                        String phoneNumber = phoneMO.text;
-                        if (!isValidPhoneNumber(phoneNumber)) {
-                          // Affichez un message d'erreur indiquant que le numéro de téléphone est invalide
-                          return 'le telephone nest pas valide !';
+                        if (!isValidPhoneNumber(value)) {
+                          return 'Le téléphone n\'est pas valide !';
                         }
                         return null;
                       },
                     ),
-
-                    SizedBox(
-                      height: 20,
-                    ),
-
+                    SizedBox(height: 20),
                     TextFormField(
                       controller: email,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.email),
+                        prefixIcon: Icon(Icons.mail),
                         hintText: "Entrez votre adresse mail",
                         hintStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
                           fontSize: 12,
                         ),
-
                         labelText: "Adresse mail",
                         labelStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
@@ -543,9 +407,8 @@ class _LoginPageState extends State<LoginPage> {
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
-                            color: Color.fromARGB(
-                                255, 206, 136, 5), // Couleur de la bordure
-                            width: 1.5, // Largeur de la bordure
+                            color: Color.fromARGB(255, 206, 136, 5),
+                            width: 1.5,
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -553,18 +416,16 @@ class _LoginPageState extends State<LoginPage> {
                           borderSide: BorderSide(
                             color: Color.fromARGB(255, 206, 136, 5),
                             width: 1.5,
-                          ), // Couleur de la bordure lorsqu'elle est en état de focus
+                          ),
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
                             color: Colors.red,
                             width: 1.5,
-                          ), // Couleur de la bordure lorsqu'elle est en état de focus
+                          ),
                         ),
-                        contentPadding: EdgeInsets.symmetric(
-                            vertical:
-                                10), // Ajustez la valeur de la marge verticale selon vos besoins
+                        contentPadding: EdgeInsets.symmetric(vertical: 10),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -576,78 +437,47 @@ class _LoginPageState extends State<LoginPage> {
                         return null;
                       },
                     ),
-
-                    SizedBox(
-                      height: 20,
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Text.rich(
+                          TextSpan(
+                            children: [
+                              TextSpan(
+                                text: 'Se connecter?',
+                                style: TextStyle(
+                                  color: Color.fromARGB(255, 206, 136, 5),
+                                  fontSize: 12,
+                                ),
+                                recognizer: TapGestureRecognizer()
+                                  ..onTap = () {
+                                    setState(() {
+                                      _showResetPasswordForm =
+                                          !_showResetPasswordForm;
+                                    });
+                                  },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-
-                    SizedBox(
-                      width: 200,
-                      height: 40,
-                      child: ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor: MaterialStateProperty.all<Color>(
-                              Color.fromARGB(255, 206, 136, 5)),
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                          ),
+                    SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: _submitFormOubliPassword,
+                      style: ElevatedButton.styleFrom(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
                         ),
-                        onPressed: () {
-                          _submitFormOubliPassword();
-                          Timer(Duration(seconds: 1), () {
-                            setState(() {
-                              _showResetPasswordForm = false;
-                              _fieldsEnabled = true;
-                              _resetForm();
-                              _resetFormMO();
-                            });
-                          });
-                        },
-                        child: Text(
-                          "Soumettre",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
+                        backgroundColor: Color.fromARGB(255, 206, 136, 5),
+                        minimumSize: Size.fromHeight(40),
                       ),
-                    ),
-
-                    SizedBox(
-                      height: 20,
-                    ),
-
-                    SizedBox(
-                      width: 200,
-                      height: 40,
-                      child: ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor:
-                              MaterialStateProperty.all<Color>(Colors.grey),
-                          shape:
-                              MaterialStateProperty.all<RoundedRectangleBorder>(
-                            RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15.0),
-                            ),
-                          ),
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _showResetPasswordForm = false;
-                            _fieldsEnabled = true;
-                            _resetForm();
-                            _resetFormMO();
-                          });
-                        },
-                        child: Text(
-                          "Annuler",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
+                      child: Text(
+                        'Envoyer',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -655,6 +485,40 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
             ),
+          SizedBox(height: 15),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                "vous n'avez pas de compte?",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Color.fromARGB(255, 132, 134, 135),
+                ),
+              ),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: 'S\'inscrire',
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 206, 136, 5),
+                        fontSize: 12,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SignupPage()),
+                          );
+                        },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
