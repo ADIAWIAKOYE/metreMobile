@@ -15,9 +15,9 @@ class ProprietaireMesure {
     this.isExpanded = false,
   });
   // Ajoutez un setter pour le champ mesures
-  set setMesures(List<Mesure> value) {
-    mesures = value;
-  }
+  // set setMesures(List<Mesure> value) {
+  //   mesures = value;
+  // }
 
   factory ProprietaireMesure.fromJson(Map<String, dynamic> json) {
     return ProprietaireMesure(
@@ -25,7 +25,9 @@ class ProprietaireMesure {
       proprio: json['proprio'],
       isActive: json['isActive'],
       isDeleted: json['isDeleted'],
-      mesures: [], // Initialisez-le avec une liste vide par défaut
+      mesures:
+          (json['mesures'] as List?)?.map((i) => Mesure.fromJson(i)).toList() ??
+              [],
       isExpanded: false,
     );
   }

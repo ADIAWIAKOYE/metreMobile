@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:Metre/models/clients_model.dart';
 import 'package:Metre/models/mesure_model.dart';
+import 'package:Metre/models/proprioMesures_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -38,6 +39,9 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
   bool _showProprioMesures = true;
   bool _isLoading = true;
   late Client _client;
+  late Proprio _proprio;
+  bool _isLoadingproprio =
+      true; // Ajoutez une variable pour gérer l'état de chargement
   List<ProprietaireMesure> listeDesprorios = [];
   List<ProprietaireMesure> displayedprorios = [];
 
@@ -50,6 +54,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
   @override
   void initState() {
     super.initState();
+    selectedItem = items.first; // Sélectionner la première option par défaut
     _loadUserData().then((_) {
       _fetchClientDetails();
       _fetchProprietaireMesure();
@@ -96,43 +101,89 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
       },
     );
 
+    // print('Response status: ${response.statusCode}');
+    // print('Response body: ${response.body}');
+
     if (response.statusCode == 202) {
-      final data = jsonDecode(response.body);
-      final proprioData = data['data']['content'] as List;
-      listeDesprorios = proprioData
-          .map((proproJson) => ProprietaireMesure.fromJson(proproJson))
-          .toList();
+      try {
+        final data = jsonDecode(response.body);
 
-      // Maintenant pour chaque ProprietaireMesure, chargez les mesures depuis l'API
-      for (var proprietaire in listeDesprorios) {
-        final mesureUrl =
-            'http://192.168.56.1:8010/mesure/loadByProprio/${proprietaire.id}';
-        final mesureResponse = await http.get(
-          Uri.parse(mesureUrl),
-          headers: {
-            'Authorization': 'Bearer $_token',
-          },
-        );
-
-        if (mesureResponse.statusCode == 202) {
-          final mesureData = jsonDecode(mesureResponse.body);
-          final mesures = (mesureData['data'] as List)
-              .map((mesureJson) => Mesure.fromJson(mesureJson))
-              .toList();
-
-          proprietaire.mesures = mesures;
-        } else {
-          throw Exception(
-              'Échec du chargement des mesures pour le propriétaire: ${proprietaire.id}');
+        // Vérifiez si les champs attendus existent
+        if (data == null ||
+            data['data'] == null ||
+            data['data']['content'] == null) {
+          throw Exception('Contenu JSON manquant ou incorrect');
         }
-      }
 
-      return listeDesprorios;
+        final proprioData = data['data']['content'] as List;
+
+        listeDesprorios = proprioData
+            .map((proproJson) => ProprietaireMesure.fromJson(proproJson))
+            .toList();
+
+        for (var proprietaire in listeDesprorios) {
+          final mesureUrl =
+              'http://192.168.56.1:8010/mesure/loadByProprio/${proprietaire.id}';
+          final mesureResponse = await http.get(
+            Uri.parse(mesureUrl),
+            headers: {
+              'Authorization': 'Bearer $_token',
+            },
+          );
+
+          // print('Mesure response status: ${mesureResponse.statusCode}');
+          // print('Mesure response body: ${mesureResponse.body}');
+
+          if (mesureResponse.statusCode == 202) {
+            final mesureData = jsonDecode(mesureResponse.body);
+
+            // Vérifiez si les champs attendus existent
+            if (mesureData == null || mesureData['data'] == null) {
+              throw Exception('Données des mesures manquantes ou incorrectes');
+            }
+
+            final mesures = (mesureData['data'] as List)
+                .map((mesureJson) => Mesure.fromJson(mesureJson))
+                .toList();
+
+            proprietaire.mesures = mesures;
+          } else {
+            throw Exception(
+                'Échec du chargement des mesures pour le propriétaire: ${proprietaire.id}');
+          }
+        }
+
+        return listeDesprorios;
+      } catch (e) {
+        print('Erreur lors du décodage JSON: $e');
+        throw Exception('Erreur lors du décodage JSON');
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
         content: Text('Erreur lors du chargement des propros.'),
       ));
       throw Exception('Échec du chargement du client');
+    }
+  }
+
+// pour afficher le proprio
+  Future<void> _fetchProprio(String idProprio) async {
+    final url = 'http://192.168.56.1:8010/proprio/loadbyid/${idProprio}';
+    final response = await http.get(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $_token',
+      },
+    );
+
+    if (response.statusCode == 202) {
+      final data = json.decode(response.body)['data'];
+      setState(() {
+        _proprio = Proprio.fromJson(data);
+        _isLoadingproprio = false;
+      });
+    } else {
+      throw Exception('Échec du chargement du proprio');
     }
   }
 
@@ -285,6 +336,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                             child: InkWell(
                               onTap: () {
                                 print("BUTTON cliqué !");
+                                modifierClient();
                               },
                               child: Container(
                                 margin: EdgeInsets.symmetric(horizontal: 10),
@@ -477,9 +529,17 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                         ),
                                       ),
                                       IconButton(
-                                        onPressed: () {
+                                        onPressed: () async {
+                                          setState(() {
+                                            _isLoadingproprio = true;
+                                          });
+                                          await _fetchProprio(
+                                              mesure.id ?? 'Sans id');
+                                          if (!_isLoadingproprio) {
+                                            modifierProprio();
+                                          }
                                           print(
-                                              'Vous allez modifier le nom du proprietaire  !');
+                                              'Vous allez modifier le nom du proprietaire !');
                                         },
                                         icon: Icon(
                                           Icons.edit,
@@ -677,6 +737,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
             margin: const EdgeInsets.only(left: 5.0, right: 10.0),
             child: InkWell(
               onTap: () {
+                showBottomSheet(context);
                 print("BUTTON cliqué !");
               },
               child: Row(
@@ -707,6 +768,898 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
           ),
         ],
       ),
+    );
+  }
+
+// ajouter un nouveau proprietaireMesure et mesure
+
+  List<String> items = [
+    'L.Pantalon',
+    'Ceinture',
+    'T.fesse',
+    'Cuisse',
+    'Patte',
+    'L.Chemise',
+    'L.Boubou',
+    'Poitrine',
+    'Epaule',
+    'Manche.L',
+    'Manche.C',
+    'T.Manche',
+    'Encolure'
+  ]; // Options du DropdownButton
+  String? selectedItem; // Valeur sélectionnée du DropdownButton
+
+  bool isOwnerFilled = false;
+  bool isTextFieldWidgetAdded = false;
+  bool isAddButtonEnabled = false;
+  String? textFieldValue; // Définir la variable textFieldValue
+  List<String> selectedItems = []; // Définir la liste selectedItems
+  TextEditingController textFieldController =
+      TextEditingController(); // Contrôleur de champ de texte
+
+  // Déclarez textFieldsControllers pour stocker les contrôleurs de champ de texte
+  Map<String, TextEditingController> textFieldsControllers = {};
+  Map<String, String> textFieldsValues =
+      {}; // Déclaration de la variable textFieldsValues
+  List<Widget> textFieldsWidgets =
+      []; // Liste pour stocker les widgets des champs de texte dynamiques
+
+  void showBottomSheet(BuildContext context) async {
+    bool isModalClosed = await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setModalState) {
+            bool isOwnerFilled = false;
+            bool isTextFieldWidgetAdded = false;
+            return SizedBox(
+              height: 1000,
+              child: ListView(
+                children: [
+                  SizedBox(height: 10),
+                  Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: Text(
+                      'Ajouter un nouveau mesure pour ce client',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Color.fromARGB(255, 206, 136, 5),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Form(
+                      child: Column(
+                        children: <Widget>[
+                          TextFormField(
+                            keyboardType: TextInputType.text,
+                            decoration: InputDecoration(
+                              prefixIcon: Icon(Icons.location_on),
+                              prefixIconColor: Colors.transparent,
+                              hintText: "Entrer nom propriétaire",
+                              hintStyle: TextStyle(
+                                color: Color.fromARGB(255, 132, 134, 135),
+                                fontSize: 12,
+                              ),
+                              labelText: "Propriétaire",
+                              labelStyle: TextStyle(
+                                color: Color.fromARGB(255, 132, 134, 135),
+                                fontSize: 12,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 206, 136, 5),
+                                  width: 1.5,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                  color: Color.fromARGB(255, 206, 136, 5),
+                                  width: 1.5,
+                                ),
+                              ),
+                              contentPadding:
+                                  EdgeInsets.symmetric(vertical: 10),
+                            ),
+                            onChanged: (value) {
+                              setModalState(() {
+                                isOwnerFilled = value.isNotEmpty;
+                              });
+                            },
+                          ),
+                          SizedBox(height: 15),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    flex: 2,
+                                    child: DropdownButtonFormField<String>(
+                                      decoration: InputDecoration(
+                                        prefixIconColor: Colors.transparent,
+                                        hintText: "Sélectionner",
+                                        hintStyle: TextStyle(
+                                          color: Color.fromARGB(
+                                              255, 132, 134, 135),
+                                          fontSize: 10,
+                                        ),
+                                        labelText: "Sélectionner",
+                                        labelStyle: TextStyle(
+                                          color: Color.fromARGB(
+                                              255, 132, 134, 135),
+                                          fontSize: 10,
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Color.fromARGB(
+                                                255, 206, 136, 5),
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          borderSide: BorderSide(
+                                            color: Color.fromARGB(
+                                                255, 206, 136, 5),
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding: EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                      ),
+                                      value: selectedItem,
+                                      onChanged: (newValue) {
+                                        setModalState(() {
+                                          selectedItem = newValue!;
+                                          isAddButtonEnabled =
+                                              (selectedItem != null &&
+                                                  selectedItem!.isNotEmpty &&
+                                                  textFieldValue != null &&
+                                                  textFieldValue!.isNotEmpty &&
+                                                  !selectedItems
+                                                      .contains(selectedItem));
+                                        });
+                                      },
+                                      items: items.map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value,
+                                              style: TextStyle(fontSize: 12)),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                  SizedBox(width: 10),
+                                  Expanded(
+                                    child: TextFormField(
+                                      onChanged: (value) {
+                                        setModalState(() {
+                                          textFieldValue = value;
+                                          isAddButtonEnabled =
+                                              (selectedItem != null &&
+                                                  selectedItem!.isNotEmpty &&
+                                                  textFieldValue != null &&
+                                                  textFieldValue!.isNotEmpty &&
+                                                  !selectedItems
+                                                      .contains(selectedItem));
+                                        });
+                                      },
+                                      controller: textFieldController,
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+                                        prefixIconColor: Colors.transparent,
+                                        hintText: "Valeur",
+                                        hintStyle: TextStyle(
+                                          color: Color.fromARGB(
+                                              255, 132, 134, 135),
+                                          fontSize: 10,
+                                        ),
+                                        labelText: "Valeur",
+                                        labelStyle: TextStyle(
+                                          color: Color.fromARGB(
+                                              255, 132, 134, 135),
+                                          fontSize: 10,
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Color.fromARGB(
+                                                255, 206, 136, 5),
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          borderSide: BorderSide(
+                                            color: Color.fromARGB(
+                                                255, 206, 136, 5),
+                                            width: 1.5,
+                                          ),
+                                        ),
+                                        contentPadding: EdgeInsets.symmetric(
+                                            horizontal: 10),
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: isAddButtonEnabled
+                                        ? () {
+                                            setModalState(() {
+                                              String? dropdownValue =
+                                                  selectedItem;
+                                              String textValue =
+                                                  textFieldController.text;
+
+                                              if (dropdownValue != null &&
+                                                  dropdownValue.isNotEmpty &&
+                                                  textValue.isNotEmpty &&
+                                                  !selectedItems.contains(
+                                                      dropdownValue)) {
+                                                selectedItems
+                                                    .add(dropdownValue);
+
+                                                String fieldValue =
+                                                    '$textValue cm';
+                                                textFieldsControllers[
+                                                        dropdownValue] =
+                                                    TextEditingController(
+                                                        text: textValue);
+                                                textFieldsValues[
+                                                    dropdownValue] = fieldValue;
+
+                                                textFieldsWidgets.add(
+                                                  Row(
+                                                    key: ValueKey(
+                                                        dropdownValue), // Ajouter une clé unique
+                                                    children: [
+                                                      Expanded(
+                                                        flex: 2,
+                                                        child: Container(
+                                                          margin:
+                                                              EdgeInsets.only(
+                                                                  left: 10),
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Colors.white,
+                                                            border: Border.all(
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      206,
+                                                                      136,
+                                                                      5),
+                                                              width: 1,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        1),
+                                                          ),
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        10,
+                                                                    vertical:
+                                                                        8),
+                                                            child: Text(
+                                                              dropdownValue,
+                                                              style: TextStyle(
+                                                                  fontSize: 10),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 10),
+                                                      Expanded(
+                                                        child: Container(
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            color: Colors.white,
+                                                            border: Border.all(
+                                                              color: Color
+                                                                  .fromARGB(
+                                                                      255,
+                                                                      206,
+                                                                      136,
+                                                                      5),
+                                                              width: 1,
+                                                            ),
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        1),
+                                                          ),
+                                                          child: Padding(
+                                                            padding:
+                                                                const EdgeInsets
+                                                                    .symmetric(
+                                                                    horizontal:
+                                                                        10,
+                                                                    vertical:
+                                                                        8),
+                                                            child: Text(
+                                                              fieldValue,
+                                                              style: TextStyle(
+                                                                  fontSize: 10),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 10),
+                                                      IconButton(
+                                                        onPressed: () {
+                                                          setModalState(() {
+                                                            print(
+                                                                "Dropdown value to delete: $dropdownValue");
+                                                            textFieldsWidgets
+                                                                .removeWhere(
+                                                                    (widget) {
+                                                              if (widget
+                                                                  is Row) {
+                                                                return widget
+                                                                        .key ==
+                                                                    ValueKey(
+                                                                        dropdownValue);
+                                                              }
+                                                              return false;
+                                                            });
+
+                                                            selectedItems.remove(
+                                                                dropdownValue);
+                                                            print(
+                                                                "Selected items after deletion: $selectedItems");
+                                                          });
+                                                        },
+                                                        icon: Icon(
+                                                          Icons.delete,
+                                                          size: 30,
+                                                          color: Colors.red,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+
+                                                textFieldController.clear();
+                                              }
+                                            });
+                                          }
+                                        : null,
+                                    icon: Icon(
+                                      Icons.add_box,
+                                      size: 40,
+                                      color: Color.fromARGB(255, 206, 136, 5),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(height: 10),
+                              Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Color.fromARGB(255, 206, 136, 5),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: Column(
+                                  children: textFieldsWidgets,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                          ),
+                          child: Text(
+                            "Fermer",
+                            style: TextStyle(
+                              fontSize: 12,
+                              letterSpacing: 2,
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.of(context)
+                                .pop(true); // Fermer le modal et retourner true
+                          },
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color.fromARGB(255, 206, 136, 5),
+                            foregroundColor: Colors.white,
+                          ),
+                          child: Text("Modifier"),
+                          onPressed: isOwnerFilled || isTextFieldWidgetAdded
+                              ? () {
+                                  // Votre code de modification ici
+                                }
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+    // Après la fermeture du modal, isModalClosed sera true si le modal a été fermé
+    if (isModalClosed) {
+      // Réinitialisation de l'état ou autres actions après la fermeture du modal
+      setState(() {
+        // Réinitialisation des variables et des listes si nécessaire
+        selectedItem = null;
+        isOwnerFilled = false;
+        isAddButtonEnabled = false;
+        textFieldValue = null;
+        selectedItems.clear();
+        textFieldController.clear();
+        textFieldsControllers.clear();
+        textFieldsWidgets.clear();
+      });
+    }
+  }
+
+// MOdifier le proprio
+  void modifierProprio() {
+    // Valeurs par défaut pour les champs
+    final proprioController = TextEditingController(text: _proprio.proprio);
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            scrollable: true,
+            title: Text(
+              'Le proprietaire de mesure',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            content: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Form(
+                child: Column(
+                  children: <Widget>[
+                    TextFormField(
+                      controller: proprioController,
+                      keyboardType: TextInputType.name,
+                      style: TextStyle(
+                          fontSize:
+                              10), // Taille de police pour la valeur par défaut
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.account_circle),
+                        prefixIconColor: Color.fromARGB(255, 95, 95, 96),
+                        hintText: "Entrez le proprio ",
+                        hintStyle: TextStyle(
+                          color: Color.fromARGB(255, 132, 134, 135),
+                          fontSize: 12,
+                        ),
+                        labelText: "Proprio",
+                        labelStyle: TextStyle(
+                          color: Color.fromARGB(255, 132, 134, 135),
+                          fontSize: 12,
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: Color.fromARGB(
+                                255, 206, 136, 5), // Couleur de la bordure
+                            width: 1.5, // Largeur de la bordure
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: Color.fromARGB(255, 206, 136, 5),
+                            width: 1.5,
+                          ), // Couleur de la bordure lorsqu'elle est en état de focus
+                        ),
+                        errorBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide(
+                            color: Colors.red,
+                            width: 1.5,
+                          ), // Couleur de la bordure lorsqu'elle est en état de focus
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          vertical: 10,
+                        ), // Ajustez la valeur de la marge verticale selon vos besoins
+                      ),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Veuillez entrer le prénom';
+                        }
+                        return null;
+                      },
+                      // onChanged: (value) {
+                      //   setState(() {});
+                      // },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red, // background
+                  foregroundColor: Colors.white, // foreground
+                ),
+                child: Text(
+                  "Fermer",
+                  style: TextStyle(
+                    fontSize: 12,
+                    letterSpacing: 2,
+                  ),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }, // Désactive le bouton si aucun champ n'est modifié
+              ),
+              ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Color.fromARGB(255, 206, 136, 5), // background
+                    foregroundColor: Colors.white, // foreground
+                  ),
+                  child: Text("Modifier"),
+                  onPressed: () {
+                    // your code
+                  })
+            ],
+          );
+        });
+  }
+
+//modifier un client
+  void modifierClient() {
+    // Valeurs par défaut pour les champs
+    final nomController = TextEditingController(text: _client.nom);
+    final prenomController = TextEditingController(text: _client.prenom);
+    final emailController = TextEditingController(text: _client.email);
+    final telephoneController = TextEditingController(text: _client.numero);
+    final adresseController = TextEditingController(text: _client.adresse);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            bool isModified() {
+              return nomController.text != _client.nom ||
+                  prenomController.text != _client.prenom ||
+                  emailController.text != _client.email ||
+                  telephoneController.text != _client.numero ||
+                  adresseController.text != _client.adresse;
+            }
+
+            return AlertDialog(
+              scrollable: true,
+              title: Text(
+                'Modifier le client',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              content: SizedBox(
+                width: 950, // Ajustez la largeur ici
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Form(
+                    child: Column(
+                      children: <Widget>[
+                        TextFormField(
+                          controller: nomController,
+                          keyboardType: TextInputType.name,
+                          style: TextStyle(
+                              fontSize:
+                                  10), // Taille de police pour la valeur par défaut
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.account_circle),
+                            prefixIconColor: Color.fromARGB(255, 95, 95, 96),
+                            hintText: "Entrez le nom ",
+                            hintStyle: TextStyle(
+                              color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 12,
+                            ),
+                            labelText: "Nom",
+                            labelStyle: TextStyle(
+                              color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 12,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(
+                                    255, 206, 136, 5), // Couleur de la bordure
+                                width: 1.5, // Largeur de la bordure
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(255, 206, 136, 5),
+                                width: 1.5,
+                              ), // Couleur de la bordure lorsqu'elle est en état de focus
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 10,
+                            ), // Ajustez la valeur de la marge verticale selon vos besoins
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Veuillez entrer le nom';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            setState(() {});
+                          },
+                        ),
+                        SizedBox(height: 15),
+                        TextFormField(
+                          controller: prenomController,
+                          keyboardType: TextInputType.name,
+                          style: TextStyle(
+                              fontSize:
+                                  10), // Taille de police pour la valeur par défaut
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.account_circle),
+                            prefixIconColor: Color.fromARGB(255, 95, 95, 96),
+                            hintText: "Entrez le prénom ",
+                            hintStyle: TextStyle(
+                              color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 12,
+                            ),
+                            labelText: "Prénom",
+                            labelStyle: TextStyle(
+                              color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 12,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(
+                                    255, 206, 136, 5), // Couleur de la bordure
+                                width: 1.5, // Largeur de la bordure
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(255, 206, 136, 5),
+                                width: 1.5,
+                              ), // Couleur de la bordure lorsqu'elle est en état de focus
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Colors.red,
+                                width: 1.5,
+                              ), // Couleur de la bordure lorsqu'elle est en état de focus
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 10,
+                            ), // Ajustez la valeur de la marge verticale selon vos besoins
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Veuillez entrer le prénom';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            setState(() {});
+                          },
+                        ),
+                        SizedBox(height: 15),
+                        TextFormField(
+                          controller: emailController,
+                          keyboardType: TextInputType.emailAddress,
+                          style: TextStyle(
+                              fontSize:
+                                  10), // Taille de police pour la valeur par défaut
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.email),
+                            prefixIconColor: Color.fromARGB(255, 95, 95, 96),
+                            hintText: "exemple@gmail.com",
+                            hintStyle: TextStyle(
+                              color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 12,
+                            ),
+                            labelText: "Email",
+                            labelStyle: TextStyle(
+                              color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 12,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(
+                                    255, 206, 136, 5), // Couleur de la bordure
+                                width: 1.5, // Largeur de la bordure
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(255, 206, 136, 5),
+                                width: 1.5,
+                              ), // Couleur de la bordure lorsqu'elle est en état de focus
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 10,
+                            ), // Ajustez la valeur de la marge verticale selon vos besoins
+                          ),
+                          onChanged: (value) {
+                            setState(() {});
+                          },
+                        ),
+                        SizedBox(height: 15),
+                        TextFormField(
+                          controller: telephoneController,
+                          keyboardType: TextInputType.phone,
+                          style: TextStyle(
+                              fontSize:
+                                  10), // Taille de police pour la valeur par défaut
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.phone),
+                            prefixIconColor: Color.fromARGB(255, 95, 95, 96),
+                            hintText: "+XXXXXXXXXXX",
+                            hintStyle: TextStyle(
+                              color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 12,
+                            ),
+                            labelText: "Téléphone",
+                            labelStyle: TextStyle(
+                              color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 12,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(255, 206, 136, 5),
+                                width: 1.5,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(255, 206, 136, 5),
+                                width: 1.5,
+                              ),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Colors.red,
+                                width: 1.5,
+                              ), // Couleur de la bordure lorsqu'elle est en état de focus
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 10,
+                            ),
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Veuillez entrer le numéro de téléphone';
+                            }
+                            return null;
+                          },
+                          onChanged: (value) {
+                            setState(() {});
+                          },
+                        ),
+                        SizedBox(height: 15),
+                        TextFormField(
+                          controller: adresseController,
+                          keyboardType: TextInputType.text,
+                          style: TextStyle(
+                              fontSize:
+                                  10), // Taille de police pour la valeur par défaut
+                          decoration: InputDecoration(
+                            prefixIcon: Icon(Icons.location_on),
+                            prefixIconColor: Color.fromARGB(255, 95, 95, 96),
+                            hintText: "Entrer l'adresse",
+                            hintStyle: TextStyle(
+                              color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 12,
+                            ),
+                            labelText: "Adresse",
+                            labelStyle: TextStyle(
+                              color: Color.fromARGB(255, 132, 134, 135),
+                              fontSize: 12,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(255, 206, 136, 5),
+                                width: 1.5,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(255, 206, 136, 5),
+                                width: 1.5,
+                              ),
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 10,
+                            ),
+                          ),
+                          onChanged: (value) {
+                            setState(() {});
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              actions: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // background
+                    foregroundColor: Colors.white, // foreground
+                  ),
+                  child: Text(
+                    "Fermer",
+                    style: TextStyle(
+                      fontSize: 12,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  }, // Désactive le bouton si aucun champ n'est modifié
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Color.fromARGB(255, 206, 136, 5), // background
+                    foregroundColor: Colors.white, // foreground
+                  ),
+                  child: Text(
+                    "Modifier",
+                    style: TextStyle(
+                      fontSize: 12,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  onPressed: isModified()
+                      ? () {
+                          // votre code
+                        }
+                      : null, // Désactive le bouton si aucun champ n'est modifié
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

@@ -46,3 +46,20 @@ class Mesures {
     );
   }
 }
+
+class Proprio {
+  final String id;
+  final String proprio;
+
+  Proprio({
+    required this.id,
+    required this.proprio,
+  });
+
+  factory Proprio.fromJson(Map<String, dynamic> json) {
+    return Proprio(
+      id: json['id'],
+      proprio: json['proprio'],
+    );
+  }
+}

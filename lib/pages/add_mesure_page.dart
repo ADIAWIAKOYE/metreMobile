@@ -332,6 +332,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
           isActive: _currentStep >= 1,
           state: _currentStep <= 1 ? StepState.indexed : StepState.complete,
           content: Column(
+            // DEBUT
             children: [
               TextFormField(
                 controller: proprietaireController,
@@ -607,6 +608,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                 ],
               ),
             ],
+            // FIN
           ),
         ),
       ];

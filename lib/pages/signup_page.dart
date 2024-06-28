@@ -40,25 +40,7 @@ class _SignupPageState extends State<SignupPage> {
     return regExp.hasMatch(input);
   }
 
-  // void _submitForm() {
-  //   String _nomEntre = nomEntre.text;
-  //   String _adresse = adresse.text;
-  //   String _phone = phone.text;
-  //   String _email = email.text;
-  //   String? _specialite = specialite ?? "";
-  //   String _password = password.text;
-  //   // Check if the form is valid
-  //   if (_formKey.currentState!.validate()) {
-  //     _formKey.currentState!.save(); // Save the form data
-  //     // You can perform actions with the form data here and extract the details
-  //     print('le nom de l\'entreprise: $_nomEntre');
-  //     print('L\'adresse de l\'entreprise: $_adresse');
-  //     print('Numero de telephone: $_phone');
-  //     print('l\'email : $_email');
-  //     print('la specialite de : $_specialite');
-  //     print('le mot de passe : $_password');
-  //   }
-  // }
+ 
 
   void showLoadingDialog(BuildContext context) {
     showDialog(

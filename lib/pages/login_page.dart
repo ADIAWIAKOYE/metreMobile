@@ -97,7 +97,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _startTokenRefreshTimer(String refreshToken) {
-    Timer.periodic(Duration(milliseconds: 3600000), (timer) async {
+    Timer.periodic(Duration(milliseconds: 360000), (timer) async {
       final String url = 'http://192.168.56.1:8010/user/refreshtoken';
 
       final response = await http.post(
@@ -108,12 +108,16 @@ class _LoginPageState extends State<LoginPage> {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final String newToken = data['token'];
+        final String newToken = data['accessToken'];
 
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', newToken);
       } else {
         // Handle token refresh error
+        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //   content: Text('votre token est expirer .'),
+        // ));
+        print('votre token est expirer .');
       }
     });
   }
