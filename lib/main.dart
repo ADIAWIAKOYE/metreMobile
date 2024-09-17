@@ -3,6 +3,7 @@ import 'package:Metre/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:Metre/pages/welcome_page.dart';
 import 'package:provider/provider.dart';
+import 'package:sizer/sizer.dart';
 
 void main() {
   runApp(ChangeNotifierProvider(
@@ -17,17 +18,19 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    var isDarkMode =
-        MediaQuery.of(context).platformBrightness == Brightness.dark;
-    var themeProvider = Provider.of<ThemeProvider>(context);
-    var themeData =
-        isDarkMode ? themeProvider.darkTheme : themeProvider.lightTheme;
-    return MaterialApp(
-        debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        // theme: Provider.of<ThemeProvider>(context).themeData,
-        theme: themeData,
-        home: WelcomePage());
+    return Sizer(builder: (context, orientation, deviceType) {
+      var isDarkMode =
+          MediaQuery.of(context).platformBrightness == Brightness.dark;
+      var themeProvider = Provider.of<ThemeProvider>(context);
+      var themeData =
+          isDarkMode ? themeProvider.darkTheme : themeProvider.lightTheme;
+      return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Flutter Demo',
+          // theme: Provider.of<ThemeProvider>(context).themeData,
+          theme: themeData,
+          home: WelcomePage());
+    });
   }
 }
 

@@ -1,7 +1,9 @@
+import 'package:Metre/utilitaires/taille_des_polices.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:Metre/pages/login_page.dart';
 import 'package:Metre/pages/signup_page.dart';
+import 'package:sizer/sizer.dart';
 // import 'package:url_launcher/url_launcher.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -17,15 +19,6 @@ class _WelcomePageState extends State<WelcomePage> {
   final String _url1 = 'https://www.google.com';
   final String _url2 = 'https://flutter.dev/';
 
-  // Fonction pour ouvrir l'URL
-  // Future<void> _launchURL() async {
-  //   if (await canLaunch(_url1)) {
-  //     await launch(_url1);
-  //   } else {
-  //     throw 'Impossible d\'ouvrir $_url1';
-  //   }
-  // }
-
   @override
   Widget build(BuildContext context) {
     // Obtenir la taille de l'écran
@@ -37,22 +30,13 @@ class _WelcomePageState extends State<WelcomePage> {
       backgroundColor: Theme.of(context).colorScheme.background,
       body: ListView(children: [
         Container(
-          // width: double.infinity,
-          // padding: EdgeInsets.all(20),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              // Container(
-              // margin: EdgeInsets.all(10),
-              // child: Column(
-              // children: [
-              // SizedBox(
-              //   height: 20,
-              // ),
               SizedBox(height: spaceBetweenSections),
               // Partie de l'image
               SizedBox(
-                width: 350,
+                width: 85.w,
                 child: Image.asset("assets/image/tailleur.png"),
               ),
               SizedBox(height: spaceBetweenSections),
@@ -61,11 +45,11 @@ class _WelcomePageState extends State<WelcomePage> {
                 alignment: Alignment.centerLeft,
                 child: Container(
                   margin:
-                      EdgeInsets.only(right: 30, left: 30), // Marge à droite
+                      EdgeInsets.symmetric(horizontal: 7.5.w), // Marge à droite
                   child: Text(
                     "Bienvenue sur Mètre pour la gestion des mesures de vos clients en toute facilité ...... ",
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -76,7 +60,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 alignment: Alignment.centerLeft,
                 child: Container(
                   margin:
-                      EdgeInsets.only(right: 30, left: 30), // Marge à droite
+                      EdgeInsets.symmetric(horizontal: 7.5.w), // Marge à droite
                   child: RichText(
                     text: TextSpan(
                       children: [
@@ -87,7 +71,7 @@ class _WelcomePageState extends State<WelcomePage> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .tertiary, // Couleur du texte
-                            fontSize: 12,
+                            fontSize: 12.sp,
                             decoration:
                                 TextDecoration.none, // Pas de décoration
                           ),
@@ -98,7 +82,7 @@ class _WelcomePageState extends State<WelcomePage> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .tertiary, // Couleur du texte cliquable
-                            fontSize: 15,
+                            fontSize: 12.sp,
                             decoration:
                                 TextDecoration.underline, // Souligner le texte
                           ),
@@ -107,7 +91,7 @@ class _WelcomePageState extends State<WelcomePage> {
                               // Action à effectuer lors du clic sur "inscrivez-vous"
                               // ignore: deprecated_member_use
                               launch(
-                                  'https://flutter.dev/'); // Lien URL de vos conditions générales
+                                  _url2); // Lien URL de vos conditions générales
                               // Navigator.push(
                               //   context,
                               //   MaterialPageRoute(
@@ -124,7 +108,7 @@ class _WelcomePageState extends State<WelcomePage> {
                 alignment: Alignment.centerLeft,
                 child: Container(
                   margin:
-                      EdgeInsets.only(right: 30, left: 30), // Marge à droite
+                      EdgeInsets.symmetric(horizontal: 7.5.w), // Marge à droite
                   child: RichText(
                     text: TextSpan(
                       children: [
@@ -135,7 +119,7 @@ class _WelcomePageState extends State<WelcomePage> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .tertiary, // Couleur du texte
-                            fontSize: 15,
+                            fontSize: 12.sp,
                             decoration:
                                 TextDecoration.none, // Pas de décoration
                           ),
@@ -146,7 +130,7 @@ class _WelcomePageState extends State<WelcomePage> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .tertiary, // Couleur du texte cliquable
-                            fontSize: 15,
+                            fontSize: 12.sp,
                             decoration:
                                 TextDecoration.underline, // Souligner le texte
                           ),
@@ -155,7 +139,7 @@ class _WelcomePageState extends State<WelcomePage> {
                               // Action à effectuer lors du clic sur "inscrivez-vous"
                               // ignore: deprecated_member_use
                               launch(
-                                  'https://www.google.com/'); // Lien URL de votre politique de confidentialité
+                                  _url1); // Lien URL de votre politique de confidentialité
                             },
                         ),
                       ],
@@ -169,9 +153,9 @@ class _WelcomePageState extends State<WelcomePage> {
               SizedBox(height: spaceBetweenSections),
               // Partie des buttons
               SizedBox(
-                height: 45,
-                width: MediaQuery.of(context).size.width *
-                    0.85, // Définissez la largeur du bouton en fonction de la largeur de l'écran
+                height: h40px,
+                width: 85
+                    .w, // Définissez la largeur du bouton en fonction de la largeur de l'écran
                 child: ElevatedButton(
                   onPressed: () {
                     // Action à effectuer lors du clic sur le texte
@@ -191,20 +175,18 @@ class _WelcomePageState extends State<WelcomePage> {
                   child: Text(
                     "Se connecter",
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
                 ),
               ),
+              SizedBox(height: 2.5.h),
               SizedBox(
-                height: 25,
-              ),
-              SizedBox(
-                height: 45,
-                width: MediaQuery.of(context).size.width *
-                    0.85, // Définissez la largeur du bouton en fonction de la largeur de l'écran
+                height: h40px,
+                width: 85
+                    .w, // Définissez la largeur du bouton en fonction de la largeur de l'écran
                 child: ElevatedButton(
                   onPressed: () {
                     // Action à effectuer lors du clic sur le texte
@@ -220,22 +202,18 @@ class _WelcomePageState extends State<WelcomePage> {
                       borderRadius:
                           BorderRadius.circular(100), // Bord arrondi du bouton
                     ),
-                    padding: EdgeInsets.symmetric(
-                        horizontal: MediaQuery.of(context).size.width * 0.2),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
                   ),
                   child: Text(
                     "S'inscrire",
                     style: TextStyle(
-                      fontSize: 14,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
                   ),
                 ),
               ),
-              // ],
-              // ),
-              // ),
             ],
           ),
         ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:Metre/pages/login_page.dart';
 import 'package:http/http.dart' as http;
+import 'package:sizer/sizer.dart';
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -39,8 +40,6 @@ class _SignupPageState extends State<SignupPage> {
     RegExp regExp = RegExp(r'^\+\d{11}$');
     return regExp.hasMatch(input);
   }
-
- 
 
   void showLoadingDialog(BuildContext context) {
     showDialog(
@@ -119,26 +118,26 @@ class _SignupPageState extends State<SignupPage> {
       body: ListView(
         children: [
           Container(
-            margin: EdgeInsets.all(15),
+            margin: EdgeInsets.all(3.h),
             child: Form(
               key: _formKey, // Clé pour le formulaire
               child: Column(
                 children: [
                   SizedBox(
-                    width: 150,
+                    width: 37.5.w,
                     child: Image.asset('assets/image/logo4.png'),
                   ),
 
                   Text(
                     "Inscrivez-vous",
                     style: TextStyle(
-                      fontSize: 17,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
 
                   SizedBox(
-                    height: 15,
+                    height: 2.h,
                   ),
 
                   // nom de l'entreprise
@@ -151,27 +150,27 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Entrez votre nom de l'entreprise",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 12,
+                        fontSize: 10.sp,
                       ),
 
                       labelText: "nom de l'entreprise",
                       labelStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 12,
+                        fontSize: 10.sp,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
                               255, 206, 136, 5), // Couleur de la bordure
-                          width: 1.5, // Largeur de la bordure
+                          width: 0.4.w, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(255, 206, 136, 5),
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
@@ -179,12 +178,12 @@ class _SignupPageState extends State<SignupPage> {
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Colors.red,
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
                       contentPadding: EdgeInsets.symmetric(
-                          vertical:
-                              10), // Ajustez la valeur de la marge verticale selon vos besoins
+                          vertical: 1
+                              .h), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -195,7 +194,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
 
                   SizedBox(
-                    height: 15,
+                    height: 2.h,
                   ),
 
                   // adresse de l'entreprise
@@ -208,26 +207,26 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Entrez l'adresse de votre entreprise",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 12,
+                        fontSize: 10.sp,
                       ),
 
                       labelText: "Adresse de l'entreprise",
                       labelStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
-                          fontSize: 12),
+                          fontSize: 10.sp),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
                               255, 206, 136, 5), // Couleur de la bordure
-                          width: 1.5, // Largeur de la bordure
+                          width: 0.4.w, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(255, 206, 136, 5),
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
@@ -235,12 +234,12 @@ class _SignupPageState extends State<SignupPage> {
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Colors.red,
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
                       contentPadding: EdgeInsets.symmetric(
-                          vertical:
-                              10), // Ajustez la valeur de la marge verticale selon vos besoins
+                          vertical: 1
+                              .h), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -251,7 +250,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
 
                   SizedBox(
-                    height: 15,
+                    height: 2.h,
                   ),
 
                   // le numero de telephone de l'entreprise
@@ -264,26 +263,26 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Entrez le numéro votre entreprise",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 12,
+                        fontSize: 10.sp,
                       ),
 
                       labelText: "téléphone de l'entreprise",
                       labelStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
-                          fontSize: 12),
+                          fontSize: 10.sp),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
                               255, 206, 136, 5), // Couleur de la bordure
-                          width: 1.5, // Largeur de la bordure
+                          width: 0.4.w, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(255, 206, 136, 5),
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
@@ -291,12 +290,12 @@ class _SignupPageState extends State<SignupPage> {
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Colors.red,
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
                       contentPadding: EdgeInsets.symmetric(
-                          vertical:
-                              10), // Ajustez la valeur de la marge verticale selon vos besoins
+                          vertical: 1
+                              .h), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -312,7 +311,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
 
                   SizedBox(
-                    height: 15,
+                    height: 2.h,
                   ),
 
                   // l'email de l'entreprise
@@ -325,27 +324,27 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Entrez l'email votre entreprise",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 12,
+                        fontSize: 10.sp,
                       ),
 
                       labelText: "email de l'entreprise",
                       labelStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 12,
+                        fontSize: 10.sp,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
                               255, 206, 136, 5), // Couleur de la bordure
-                          width: 1.5, // Largeur de la bordure
+                          width: 0.4.w, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(255, 206, 136, 5),
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
@@ -353,12 +352,12 @@ class _SignupPageState extends State<SignupPage> {
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Colors.red,
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
                       contentPadding: EdgeInsets.symmetric(
-                          vertical:
-                              10), // Ajustez la valeur de la marge verticale selon vos besoins
+                          vertical: 1
+                              .h), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -371,7 +370,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
 
                   SizedBox(
-                    height: 15,
+                    height: 2.h,
                   ),
 
                   // la specialité de l'entreprise
@@ -384,35 +383,35 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Choisissez votre spécialité",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 12,
+                        fontSize: 10.sp,
                       ),
                       labelText: "Spécialité de l'entreprise",
                       labelStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 12,
+                        fontSize: 10.sp,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(255, 206, 136, 5),
-                          width: 1.5,
+                          width: 0.4.w,
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(255, 206, 136, 5),
-                          width: 1.5,
+                          width: 0.4.w,
                         ),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Colors.red,
-                          width: 1.5,
+                          width: 0.4.w,
                         ),
                       ),
-                      contentPadding: EdgeInsets.symmetric(vertical: 10),
+                      contentPadding: EdgeInsets.symmetric(vertical: 1.h),
                     ),
                     items: [
                       "Couture Homme & Enfant",
@@ -423,7 +422,7 @@ class _SignupPageState extends State<SignupPage> {
                         value: label,
                         child: Text(
                           label,
-                          style: TextStyle(fontSize: 11),
+                          style: TextStyle(fontSize: 10.sp),
                         ),
                       );
                     }).toList(),
@@ -443,7 +442,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
 
                   SizedBox(
-                    height: 15,
+                    height: 2.h,
                   ),
 
                   // le mot de passe
@@ -470,27 +469,27 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Entrez votre mot de passe",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 12,
+                        fontSize: 10.sp,
                       ),
 
                       labelText: "mot de passe",
                       labelStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 12,
+                        fontSize: 10.sp,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
                               255, 206, 136, 5), // Couleur de la bordure
-                          width: 1.5, // Largeur de la bordure
+                          width: 0.4.w, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(255, 206, 136, 5),
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
@@ -498,12 +497,12 @@ class _SignupPageState extends State<SignupPage> {
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Colors.red,
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
                       contentPadding: EdgeInsets.symmetric(
-                          vertical:
-                              10), // Ajustez la valeur de la marge verticale selon vos besoins
+                          vertical: 1
+                              .h), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -516,7 +515,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
 
                   SizedBox(
-                    height: 15,
+                    height: 2.h,
                   ),
 
                   // le mot de passe confirmer
@@ -543,27 +542,27 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Confirmer votre mot de passe",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 12,
+                        fontSize: 10.sp,
                       ),
 
                       labelText: "mot de passe confirmer",
                       labelStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 12,
+                        fontSize: 10.sp,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
                               255, 206, 136, 5), // Couleur de la bordure
-                          width: 1.5, // Largeur de la bordure
+                          width: 0.4.w, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(255, 206, 136, 5),
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
 
@@ -571,12 +570,12 @@ class _SignupPageState extends State<SignupPage> {
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Colors.red,
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
                       contentPadding: EdgeInsets.symmetric(
-                          vertical:
-                              10), // Ajustez la valeur de la marge verticale selon vos besoins
+                          vertical: 1
+                              .h), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -590,11 +589,11 @@ class _SignupPageState extends State<SignupPage> {
                   ),
 
                   SizedBox(
-                    height: 20,
+                    height: 3.h,
                   ),
 
                   SizedBox(
-                    height: 45,
+                    height: 6.h,
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
@@ -615,13 +614,13 @@ class _SignupPageState extends State<SignupPage> {
                             255, 206, 136, 5), // Couleur or du bouton
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(
-                              10), // Bord arrondi du bouton
+                              100), // Bord arrondi du bouton
                         ),
                       ),
                       child: Text(
                         "S'inscrire",
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 12.sp,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -635,7 +634,7 @@ class _SignupPageState extends State<SignupPage> {
           Align(
             alignment: Alignment.centerRight,
             child: Container(
-              margin: EdgeInsets.only(right: 30), // Marge à droite
+              margin: EdgeInsets.only(right: 4.h), // Marge à droite
               child: GestureDetector(
                 onTap: () {
                   // Action à effectuer lors du clic sur le texte

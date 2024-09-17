@@ -1,9 +1,11 @@
+import 'package:Metre/utilitaires/taille_des_polices.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:Metre/pages/changer_password_page.dart';
 import 'package:Metre/pages/mon_compte_page.dart';
 import 'package:Metre/widgets/logo.dart';
+import 'package:sizer/sizer.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -50,15 +52,14 @@ class _ProfilePageState extends State<ProfilePage> {
                       Text(
                         'MonStyle couture',
                         style: TextStyle(
-                            fontSize: 15, fontWeight: FontWeight.w700),
+                            fontSize: s14px, fontWeight: FontWeight.w700),
                       ),
                       SizedBox(
                         height: 10,
                       ),
                       Text(
                         'Couture Homme & Femme & Enfant',
-                        style: TextStyle(
-                            fontWeight: FontWeight.w500, fontSize: 11),
+                        style: TextStyle(fontSize: 8.sp),
                       )
                     ],
                   ),
@@ -67,145 +68,36 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
           SizedBox(
-            height: 30,
+            height: h20px,
           ),
-          InkWell(
-            onTap: () {
-              // print("BUTTON cliqué !");
-              // Action à effectuer lors du tapotement
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MonComptePage(),
-                ),
-              );
-            },
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 15),
-              padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(10),
-                border: Border(
-                  bottom: BorderSide(
-                    color: Color.fromARGB(
-                        255, 206, 136, 5), // Couleur de la bordure
-                    width: 1.0,
-                  ),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Icon(
-                        Icons.person,
-                        color: Theme.of(context).colorScheme.tertiary,
-                        size: 25,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      "Mon Compte",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Align(
-                      // margin: const EdgeInsets.only(left: 5.0),
-                      alignment: Alignment.centerRight,
-                      child: Icon(
-                        Icons.keyboard_arrow_right,
-                        color: Theme.of(context).colorScheme.tertiary,
-                        size: 25,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
+          _buildMenuOption(
+            context,
+            icon: Icons.person,
+            label: "Mon Compte",
+            onTap: () => _navigateToPage(context, const MonComptePage()),
           ),
           SizedBox(
-            height: 30,
+            height: 4.h,
           ),
           // Changer mot de passe
-          InkWell(
-            onTap: () {
-              // Action à effectuer lors du tapotement
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChangerPasswordPage(),
-                ),
-              );
-            },
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 15),
-              padding: EdgeInsets.symmetric(vertical: 15, horizontal: 20),
-              decoration: BoxDecoration(
-                color: Colors.transparent,
-                borderRadius: BorderRadius.circular(10),
-                border: Border(
-                  bottom: BorderSide(
-                    color: Color.fromARGB(
-                        255, 206, 136, 5), // Couleur de la bordure
-                    width: 1.0,
-                  ),
-                ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    flex: 1,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Icon(
-                        Icons.lock,
-                        color: Theme.of(context).colorScheme.tertiary,
-                        size: 25,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 3,
-                    child: Text(
-                      "Changer mots de passe",
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Theme.of(context).colorScheme.tertiary,
-                      ),
-                    ),
-                  ),
-                  Expanded(
-                    flex: 1,
-                    child: Align(
-                      // margin: const EdgeInsets.only(left: 5.0),
-                      alignment: Alignment.centerRight,
-                      child: Icon(
-                        Icons.keyboard_arrow_right,
-                        color: Theme.of(context).colorScheme.tertiary,
-                        size: 25,
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
+          _buildMenuOption(
+            context,
+            icon: Icons.lock,
+            label: "Changer mot de passe",
+            onTap: () => _navigateToPage(context, const ChangerPasswordPage()),
           ),
           SizedBox(
-            height: 70,
+            height: 4.h,
+          ),
+          // Changer mot de passe
+          _buildMenuOption(
+            context,
+            icon: Icons.person_add_disabled,
+            label: "Client Supprimer",
+            onTap: () => _navigateToPage(context, const ChangerPasswordPage()),
+          ),
+          SizedBox(
+            height: 7.h,
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
@@ -234,6 +126,53 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMenuOption(BuildContext context,
+      {required IconData icon,
+      required String label,
+      required VoidCallback onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: h10px),
+        padding: EdgeInsets.symmetric(vertical: 3.5.w, horizontal: h14px),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(10),
+          border: Border(
+            bottom: BorderSide(
+              color: Color.fromARGB(255, 206, 136, 5), // Couleur de la bordure
+              width: 0.3.w,
+            ),
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Icon(icon,
+                color: Theme.of(context).colorScheme.tertiary, size: s21px),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.w500,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+            ),
+            Icon(Icons.keyboard_arrow_right,
+                color: Theme.of(context).colorScheme.tertiary, size: s21px),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _navigateToPage(BuildContext context, Widget page) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => page),
     );
   }
 }

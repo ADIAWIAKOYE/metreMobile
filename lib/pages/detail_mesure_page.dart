@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:Metre/models/clients_model.dart';
 import 'package:Metre/models/mesure_model.dart';
 import 'package:Metre/models/proprioMesures_model.dart';
+import 'package:Metre/pages/mesure_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -12,6 +13,7 @@ import 'package:Metre/models/product.dart';
 import 'package:Metre/widgets/logo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
+import 'package:sizer/sizer.dart';
 
 class Item {
   Item({
@@ -34,9 +36,9 @@ class DetailMesurePage extends StatefulWidget {
 }
 
 class _DetailMesurePageState extends State<DetailMesurePage> {
-  final List<Product> _products = Product.generateItems(2);
   bool _showDetailClient = true;
   bool _showProprioMesures = true;
+  bool _isLoadingp = true;
   bool _isLoading = true;
   late Client _client;
   late Proprio _proprio;
@@ -91,24 +93,19 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
   }
 
   // pour afficher les proprietaire mesure
-  Future<List<ProprietaireMesure>> _fetchProprietaireMesure() async {
+  Future<void> _fetchProprietaireMesure() async {
     final url =
         'http://192.168.56.1:8010/proprio/getByClients/${widget.clientId}';
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Authorization': 'Bearer $_token',
-      },
-    );
 
-    // print('Response status: ${response.statusCode}');
-    // print('Response body: ${response.body}');
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $_token'},
+      );
 
-    if (response.statusCode == 202) {
-      try {
+      if (response.statusCode == 202) {
         final data = jsonDecode(response.body);
 
-        // Vérifiez si les champs attendus existent
         if (data == null ||
             data['data'] == null ||
             data['data']['content'] == null) {
@@ -126,18 +123,12 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
               'http://192.168.56.1:8010/mesure/loadByProprio/${proprietaire.id}';
           final mesureResponse = await http.get(
             Uri.parse(mesureUrl),
-            headers: {
-              'Authorization': 'Bearer $_token',
-            },
+            headers: {'Authorization': 'Bearer $_token'},
           );
-
-          // print('Mesure response status: ${mesureResponse.statusCode}');
-          // print('Mesure response body: ${mesureResponse.body}');
 
           if (mesureResponse.statusCode == 202) {
             final mesureData = jsonDecode(mesureResponse.body);
 
-            // Vérifiez si les champs attendus existent
             if (mesureData == null || mesureData['data'] == null) {
               throw Exception('Données des mesures manquantes ou incorrectes');
             }
@@ -153,16 +144,22 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
           }
         }
 
-        return listeDesprorios;
-      } catch (e) {
-        print('Erreur lors du décodage JSON: $e');
-        throw Exception('Erreur lors du décodage JSON');
+        setState(() {
+          _isLoadingp = false;
+          // _isLoadingproprio = false;
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text('Erreur lors du chargement des propros.'),
+        ));
+        throw Exception('Échec du chargement du client');
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Erreur lors du chargement des propros.'),
-      ));
-      throw Exception('Échec du chargement du client');
+    } catch (e) {
+      print('Erreur lors du chargement: $e');
+      setState(() {
+        _isLoadingp = false;
+        // _isLoadingproprio = false;
+      });
     }
   }
 
@@ -187,17 +184,47 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
     }
   }
 
+  // delete
+  Future<void> _delete(String id, String libelleurl) async {
+    final url = 'http://192.168.56.1:8010/${libelleurl}/${id}';
+    final response = await http.delete(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $_token',
+      },
+    );
+
+    if (response.statusCode == 202) {
+      setState(() {
+        _fetchProprietaireMesure();
+      });
+      final message = json.decode(response.body)['message'];
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('$message'),
+      ));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Erreur: Une erreur est produite.'),
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            Navigator.pop(context);
+            // Navigator.pop(context);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => NavigationBarPage()),
+            );
           },
           icon: Icon(
             Icons.keyboard_backspace,
-            size: 30,
+            size: 22.sp,
           ),
         ),
         backgroundColor: Theme.of(context)
@@ -207,42 +234,21 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
       body: ListView(
         // crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // LogoWidget(),
-          // Align(
-          //   alignment: Alignment.centerLeft,
-          //   child: IconButton(
-          //     onPressed: () {
-          //       // Action à effectuer lors du tapotement
-          //       // Navigator.push(
-          //       //   context,
-          //       //   MaterialPageRoute(
-          //       //     builder: (context) => NavigationBarPage(),
-          //       //   ),
-          //       // );
-          //       Navigator.pop(context);
-          //     },
-          //     icon: Icon(
-          //       Icons.keyboard_backspace,
-          //       size: 30,
-          //     ),
-          //   ),
-          // ),
-          // Center(
           // Centrer le texte
           SizedBox(
-            height: 20,
+            height: 2.h,
           ),
           SizedBox(
             // height: 50,
             width: double.infinity,
             child: Container(
-              margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+              margin: EdgeInsets.only(left: 1.h, right: 1.h),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
                 border: Border.all(
                   color:
                       Color.fromARGB(255, 206, 136, 5), // Couleur de la bordure
-                  width: 1, // Largeur de la bordure
+                  width: 0.4.w, // Largeur de la bordure
                 ),
                 borderRadius: BorderRadius.circular(1), // Bord arrondi
                 boxShadow: [
@@ -254,8 +260,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                 ],
               ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: EdgeInsets.symmetric(horizontal: 1.w, vertical: 0.5.h),
                 child: GestureDetector(
                   onTap: () {
                     // Action à effectuer lors du clic sur le texte
@@ -267,7 +272,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                     'Les informations personnels Client', // Ajoutez votre texte personnalisé ici
                     textAlign: TextAlign.center, // Centrer le texte
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.w700,
                       color: Theme.of(context).colorScheme.tertiary,
                     ),
@@ -278,7 +283,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
           ),
           // ),
           SizedBox(
-            height: 20,
+            height: 2.h,
           ),
           if (_showDetailClient)
             _isLoading
@@ -293,8 +298,8 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                         {'label': 'Email', 'value': _client.email},
                       ])
                         Padding(
-                          padding:
-                              EdgeInsets.symmetric(vertical: 5, horizontal: 20),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 0.5.h, horizontal: 3.w),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -303,7 +308,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                 child: Text(
                                   '${detail['label']}:',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 9.sp,
                                     fontWeight: FontWeight.w500,
                                     color:
                                         Theme.of(context).colorScheme.tertiary,
@@ -315,7 +320,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                 child: Text(
                                   '${detail['value']}',
                                   style: TextStyle(
-                                    fontSize: 11,
+                                    fontSize: 9.sp,
                                     fontWeight: FontWeight.w700,
                                     color:
                                         Theme.of(context).colorScheme.tertiary,
@@ -326,29 +331,70 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                           ),
                         ),
                       SizedBox(
-                        height: 5,
+                        height: 0.5.h,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           Container(
-                            margin: const EdgeInsets.only(right: 5.0),
+                            margin: EdgeInsets.only(left: 0.5.h, right: 1.h),
                             child: InkWell(
                               onTap: () {
                                 print("BUTTON cliqué !");
+                              },
+                              child: Container(
+                                margin: EdgeInsets.symmetric(horizontal: 1.w),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 0.5.h, horizontal: 1.w),
+                                decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                    color: Colors.red, // Couleur de la bordure
+                                    width: 0.4.w, // Largeur de la bordure
+                                  ),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      "Supprimer",
+                                      style: TextStyle(
+                                        fontSize: 8.sp,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(left: 0.5.h),
+                                      child: Icon(
+                                        Icons.delete_forever,
+                                        color: Colors.red,
+                                        size: 12.sp,
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.only(right: 2.h),
+                            child: InkWell(
+                              onTap: () {
+                                // print("BUTTON cliqué !");
                                 modifierClient();
                               },
                               child: Container(
-                                margin: EdgeInsets.symmetric(horizontal: 10),
+                                margin: EdgeInsets.symmetric(horizontal: 1.w),
                                 padding: EdgeInsets.symmetric(
-                                    vertical: 6, horizontal: 20),
+                                    vertical: 0.5.h, horizontal: 2.w),
                                 decoration: BoxDecoration(
                                   color: Colors.transparent,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: Color.fromARGB(255, 206, 163,
                                         5), // Couleur de la bordure
-                                    width: 1, // Largeur de la bordure
+                                    width: 0.4.w, // Largeur de la bordure
                                   ),
                                 ),
                                 child: Row(
@@ -356,7 +402,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                     Text(
                                       "Modifier",
                                       style: TextStyle(
-                                        fontSize: 13,
+                                        fontSize: 8.sp,
                                         fontWeight: FontWeight.bold,
                                         color: Color.fromARGB(255, 206, 136, 5),
                                       ),
@@ -366,49 +412,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                       child: Icon(
                                         Icons.border_color,
                                         color: Color.fromARGB(255, 206, 136, 5),
-                                        size: 17,
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            margin:
-                                const EdgeInsets.only(left: 5.0, right: 10.0),
-                            child: InkWell(
-                              onTap: () {
-                                print("BUTTON cliqué !");
-                              },
-                              child: Container(
-                                margin: EdgeInsets.symmetric(horizontal: 10),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 6, horizontal: 10),
-                                decoration: BoxDecoration(
-                                  color: Colors.transparent,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: Colors.red, // Couleur de la bordure
-                                    width: 1, // Largeur de la bordure
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      "Supprimer",
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.red,
-                                      ),
-                                    ),
-                                    Container(
-                                      margin: const EdgeInsets.only(left: 5.0),
-                                      child: Icon(
-                                        Icons.delete_forever,
-                                        color: Colors.red,
-                                        size: 17,
+                                        size: 12.sp,
                                       ),
                                     )
                                   ],
@@ -429,13 +433,13 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
             // height: 50,
             width: double.infinity,
             child: Container(
-              margin: const EdgeInsets.only(left: 20.0, right: 20.0),
+              margin: EdgeInsets.only(left: 2.h, right: 2.h),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.primary,
                 border: Border.all(
                   color:
                       Color.fromARGB(255, 206, 136, 5), // Couleur de la bordure
-                  width: 1, // Largeur de la bordure
+                  width: 0.4.w, // Largeur de la bordure
                 ),
                 borderRadius: BorderRadius.circular(1), // Bord arrondi
                 boxShadow: [
@@ -447,13 +451,12 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                 ],
               ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 0.5.h),
                 child: Text(
                   'les Mésures du client', // Ajoutez votre texte personnalisé ici
                   textAlign: TextAlign.center, // Centrer le texte
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                     color: Theme.of(context).colorScheme.tertiary,
                   ),
@@ -462,279 +465,268 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
             ),
           ),
 // ici la liste des mesures
-          SizedBox(height: 20),
+          SizedBox(height: 2.h),
           if (_showProprioMesures)
-            _isLoading
+            _isLoadingp
                 ? Center(child: CircularProgressIndicator())
-                : FutureBuilder<List<ProprietaireMesure>>(
-                    future: _fetchProprietaireMesure(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<List<ProprietaireMesure>> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(child: CircularProgressIndicator());
-                      } else if (snapshot.hasError) {
-                        return Center(child: Text('Erreur: ${snapshot.error}'));
-                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                        return Center(child: Text('Aucune mesure trouvée.'));
-                      } else {
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          physics: NeverScrollableScrollPhysics(),
-                          itemCount: listeDesprorios.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            final mesure = listeDesprorios[index];
-                            // Initialiser l'état d'expansion pour chaque ExpansionTile
-                            if (_isExpandedList.length <= index) {
-                              _isExpandedList.add(false);
-                            }
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 2.0, horizontal: 16.0),
-                              child: Card(
-                                elevation: 2, // Ombre légère pour le card
-                                shadowColor: Color.fromARGB(255, 206, 136, 5),
-                                // margin: EdgeInsets.all(
-                                //     0), // Marges nulle pour éviter les bordures autour du Card
-                                color: Theme.of(context).colorScheme.background,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                ),
-                                margin: EdgeInsets.symmetric(
-                                    vertical:
-                                        1.0), // Marge verticale autour du Card
-                                child: ExpansionTile(
-                                  key:
-                                      GlobalKey(), // Clé globale pour gérer l'état de cet ExpansionTile
-                                  // onExpansionChanged: (bool isExpanded) {
-                                  //   // Lorsque cet ExpansionTile est ouvert, fermer tous les autres
-                                  //   setState(() {
-                                  //     _isExpandedList = List.filled(
-                                  //         listeDesprorios.length, false);
-                                  //     _isExpandedList[index] = isExpanded;
-                                  //   });
-                                  // },
-                                  initiallyExpanded: _isExpandedList[index],
-                                  tilePadding:
-                                      EdgeInsets.symmetric(horizontal: 16.0),
-                                  title: Row(
-                                    children: [
-                                      Text(
-                                        mesure.proprio ?? 'Sans Nom',
-                                        style: TextStyle(
-                                          fontSize: 14.0,
-                                          fontWeight: FontWeight.bold,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .tertiary,
-                                        ),
-                                      ),
-                                      IconButton(
-                                        onPressed: () async {
-                                          setState(() {
-                                            _isLoadingproprio = true;
-                                          });
-                                          await _fetchProprio(
-                                              mesure.id ?? 'Sans id');
-                                          if (!_isLoadingproprio) {
-                                            modifierProprio();
-                                          }
-                                          print(
-                                              'Vous allez modifier le nom du proprietaire !');
-                                        },
-                                        icon: Icon(
-                                          Icons.edit,
-                                          size: 20,
-                                          color:
-                                              Color.fromARGB(255, 206, 136, 5),
-                                        ),
-                                      ),
-                                    ],
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: listeDesprorios.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final mesure = listeDesprorios[index];
+                      if (_isExpandedList.length <= index) {
+                        _isExpandedList.add(false);
+                      }
+                      return Padding(
+                        padding: EdgeInsets.symmetric(
+                            vertical: 1.h, horizontal: 4.w),
+                        child: Card(
+                          elevation: 2, // Ombre légère pour le card
+                          shadowColor: Color.fromARGB(255, 206, 136, 5),
+                          // margin: EdgeInsets.all(
+                          //     0), // Marges nulle pour éviter les bordures autour du Card
+                          color: Theme.of(context).colorScheme.background,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          margin: EdgeInsets.symmetric(
+                              vertical: 1.h), // Marge verticale autour du Card
+                          child: ExpansionTile(
+                            key:
+                                GlobalKey(), // Clé globale pour gérer l'état de cet ExpansionTile
+                            initiallyExpanded: _isExpandedList[index],
+                            tilePadding: EdgeInsets.symmetric(horizontal: 4.w),
+                            title: Row(
+                              children: [
+                                Text(
+                                  mesure.proprio ?? 'Sans Nom',
+                                  style: TextStyle(
+                                    fontSize: 9.sp,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.tertiary,
                                   ),
-                                  collapsedTextColor:
-                                      Theme.of(context).colorScheme.tertiary,
-                                  textColor:
-                                      Theme.of(context).colorScheme.tertiary,
-                                  iconColor:
-                                      Theme.of(context).colorScheme.tertiary,
-                                  childrenPadding: EdgeInsets.symmetric(
-                                      horizontal: 16.0, vertical: 1.0),
-                                  children: [
-                                    for (var mesureS in mesure.mesures)
-                                      ListTile(
-                                        title:
-                                            // Padding(
-                                            //   padding: EdgeInsets.symmetric(
-                                            //       vertical: 5, horizontal: 20),
-                                            //   child:
-                                            Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Expanded(
-                                              flex: 4,
-                                              child: Text(
-                                                '${mesureS.libelle}:',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .tertiary,
-                                                ),
-                                              ),
-                                            ),
-                                            Expanded(
-                                              flex: 3,
-                                              child: Text(
-                                                '${mesureS.valeur}',
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w700,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .tertiary,
-                                                ),
-                                              ),
-                                            ),
-                                            Expanded(
-                                              flex: 1,
-                                              child: IconButton(
-                                                onPressed: () {
-                                                  print('Mesure supprimer !');
-                                                },
-                                                icon: Icon(
-                                                  Icons.delete,
-                                                  size: 20,
-                                                  color: Colors.red,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
+                                ),
+                                IconButton(
+                                  onPressed: () async {
+                                    setState(() {
+                                      _isLoadingproprio = true;
+                                    });
+                                    await _fetchProprio(mesure.id ?? 'Sans id');
+                                    if (!_isLoadingproprio) {
+                                      modifierProprio();
+                                    }
+                                    // print(
+                                    //     'Vous allez modifier le nom du proprietaire !');
+                                  },
+                                  icon: Icon(
+                                    Icons.edit,
+                                    size: 14.sp,
+                                    color: Color.fromARGB(255, 206, 136, 5),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            collapsedTextColor:
+                                Theme.of(context).colorScheme.tertiary,
+                            textColor: Theme.of(context).colorScheme.tertiary,
+                            iconColor: Theme.of(context).colorScheme.tertiary,
+                            childrenPadding: EdgeInsets.symmetric(
+                                horizontal: 4.w, vertical: 0),
+                            children: [
+                              for (var mesureS in mesure.mesures)
+                                Container(
+                                  // padding: EdgeInsets.symmetric(
+                                  //     vertical:
+                                  //         0.5.h), // Adjusted padding
+                                  padding: EdgeInsets.all(0), // Removed padding
+                                  margin: EdgeInsets.all(0), // Removed margin
+                                  child: ListTile(
+                                    contentPadding: EdgeInsets
+                                        .zero, // Removed default padding
+
+                                    title:
+                                        // Padding(
+                                        //   padding: EdgeInsets.symmetric(
+                                        //       vertical: 5, horizontal: 20),
+                                        //   child:
+                                        Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: [
-                                        Container(
-                                          margin:
-                                              const EdgeInsets.only(right: 5.0),
-                                          child: InkWell(
-                                            onTap: () {
-                                              print("BUTTON cliqué !");
-                                            },
-                                            child: Container(
-                                              margin: EdgeInsets.symmetric(
-                                                  horizontal: 10),
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 6, horizontal: 20),
-                                              decoration: BoxDecoration(
-                                                color: Colors.transparent,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                border: Border.all(
-                                                  color: Color.fromARGB(
-                                                      255,
-                                                      206,
-                                                      163,
-                                                      5), // Couleur de la bordure
-                                                  width:
-                                                      1, // Largeur de la bordure
-                                                ),
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    "Ajouter",
-                                                    style: TextStyle(
-                                                      fontSize: 13,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Color.fromARGB(
-                                                          255, 206, 136, 5),
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    margin:
-                                                        const EdgeInsets.only(
-                                                            left: 5.0),
-                                                    child: Icon(
-                                                      Icons.add_circle,
-                                                      color: Color.fromARGB(
-                                                          255, 206, 136, 5),
-                                                      size: 17,
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
+                                        Expanded(
+                                          flex: 4,
+                                          child: Text(
+                                            '${mesureS.libelle}:',
+                                            style: TextStyle(
+                                              fontSize: 8.sp,
+                                              fontWeight: FontWeight.w500,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .tertiary,
                                             ),
                                           ),
                                         ),
-                                        Container(
-                                          margin: const EdgeInsets.only(
-                                              left: 5.0, right: 10.0),
-                                          child: InkWell(
-                                            onTap: () {
-                                              print("BUTTON cliqué !");
+                                        Expanded(
+                                          flex: 3,
+                                          child: Text(
+                                            '${mesureS.valeur}',
+                                            style: TextStyle(
+                                              fontSize: 8.sp,
+                                              fontWeight: FontWeight.w700,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .tertiary,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 1,
+                                          child: IconButton(
+                                            onPressed: () {
+                                              _delete(mesureS.id ?? 'Sans id',
+                                                  'mesure/supprimer');
+                                              // setState(() {
+                                              //   _fetchProprietaireMesure();
+                                              // });
                                             },
-                                            child: Container(
-                                              margin: EdgeInsets.symmetric(
-                                                  horizontal: 10),
-                                              padding: EdgeInsets.symmetric(
-                                                  vertical: 6, horizontal: 10),
-                                              decoration: BoxDecoration(
-                                                color: Colors.transparent,
-                                                borderRadius:
-                                                    BorderRadius.circular(10),
-                                                border: Border.all(
-                                                  color: Colors
-                                                      .red, // Couleur de la bordure
-                                                  width:
-                                                      1, // Largeur de la bordure
-                                                ),
-                                              ),
-                                              child: Row(
-                                                children: [
-                                                  Text(
-                                                    "Supprimer",
-                                                    style: TextStyle(
-                                                      fontSize: 11,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      color: Colors.red,
-                                                    ),
-                                                  ),
-                                                  Container(
-                                                    margin:
-                                                        const EdgeInsets.only(
-                                                            left: 5.0),
-                                                    child: Icon(
-                                                      Icons.delete_forever,
-                                                      color: Colors.red,
-                                                      size: 17,
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
+                                            icon: Icon(
+                                              Icons.delete,
+                                              size: 14.sp,
+                                              color: Colors.red,
                                             ),
                                           ),
                                         ),
                                       ],
                                     ),
+                                  ),
+                                ),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 1.h),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.only(
+                                          left: 0.5.h, right: 1.h),
+                                      child: InkWell(
+                                        onTap: () {
+                                          // print("BUTTON cliqué !");
+                                          _delete(mesure.id ?? 'Sans id',
+                                              'proprio/supprimer');
+                                          // setState(() {
+                                          //   _fetchProprietaireMesure();
+                                          // });
+                                        },
+                                        child: Container(
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 0.5.w),
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 0.5.h, horizontal: 1.w),
+                                          decoration: BoxDecoration(
+                                            color: Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            border: Border.all(
+                                              color: Colors
+                                                  .red, // Couleur de la bordure
+                                              width: 0.4
+                                                  .w, // Largeur de la bordure
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                "Supprimer",
+                                                style: TextStyle(
+                                                  fontSize: 8.sp,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                    left: 0.5.h),
+                                                child: Icon(
+                                                  Icons.delete_forever,
+                                                  color: Colors.red,
+                                                  size: 12.sp,
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    Container(
+                                      margin: EdgeInsets.only(right: 0.5.h),
+                                      child: InkWell(
+                                        onTap: () {
+                                          addmesure(mesure.id ?? "not id");
+                                          // print(
+                                          //     "BUTTON cliqué ! ajouter mesure");
+                                        },
+                                        child: Container(
+                                          margin: EdgeInsets.symmetric(
+                                              horizontal: 1.w),
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 0.5.h, horizontal: 2.w),
+                                          decoration: BoxDecoration(
+                                            color: Colors.transparent,
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            border: Border.all(
+                                              color: Color.fromARGB(
+                                                  255,
+                                                  206,
+                                                  163,
+                                                  5), // Couleur de la bordure
+                                              width: 0.4
+                                                  .w, // Largeur de la bordure
+                                            ),
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                "Ajouter",
+                                                style: TextStyle(
+                                                  fontSize: 8.sp,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Color.fromARGB(
+                                                      255, 206, 136, 5),
+                                                ),
+                                              ),
+                                              Container(
+                                                margin: EdgeInsets.only(
+                                                    left: 0.5.h),
+                                                child: Icon(
+                                                  Icons.add_circle,
+                                                  color: Color.fromARGB(
+                                                      255, 206, 136, 5),
+                                                  size: 12.sp,
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ),
-                            );
-                          },
-                        );
-                      }
+                            ],
+                          ),
+                        ),
+                      );
                     },
                   ),
 
           SizedBox(
-            height: 20,
+            height: 2.h,
           ),
           Container(
-            margin: const EdgeInsets.only(left: 5.0, right: 10.0),
+            margin: EdgeInsets.only(left: 0.5.h, right: 1.h),
             child: InkWell(
               onTap: () {
                 showBottomSheet(context);
@@ -746,7 +738,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                   Text(
                     "Ajouter un autre mesure pour ce client ",
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 9.sp,
                       fontWeight: FontWeight.bold,
                       color: Color.fromARGB(255, 206, 136, 5),
                     ),
@@ -756,7 +748,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                     child: Icon(
                       Icons.add_circle,
                       color: Color.fromARGB(255, 206, 136, 5),
-                      size: 20,
+                      size: 14.sp,
                     ),
                   )
                 ],
@@ -764,7 +756,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
             ),
           ),
           SizedBox(
-            height: 20,
+            height: 2.h,
           ),
         ],
       ),
@@ -774,18 +766,18 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
 // ajouter un nouveau proprietaireMesure et mesure
 
   List<String> items = [
-    'L.Pantalon',
-    'Ceinture',
-    'T.fesse',
-    'Cuisse',
-    'Patte',
-    'L.Chemise',
-    'L.Boubou',
-    'Poitrine',
+    'Longueur_Pantalon',
+    'Toure_Ceinture',
+    'Toure_Fesse',
+    'Toure_Cuisse',
+    'Toure_Patte',
+    'Longueur_Chemise',
+    'Longueur_Boubou',
+    'Toure_Poitrine',
     'Epaule',
-    'Manche.L',
-    'Manche.C',
-    'T.Manche',
+    'Manche.Long',
+    'Manche.Courte',
+    'Toure_Manche',
     'Encolure'
   ]; // Options du DropdownButton
   String? selectedItem; // Valeur sélectionnée du DropdownButton
@@ -804,6 +796,43 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
       {}; // Déclaration de la variable textFieldsValues
   List<Widget> textFieldsWidgets =
       []; // Liste pour stocker les widgets des champs de texte dynamiques
+  TextEditingController proprioownerController = TextEditingController();
+
+  Future<void> sendPostRequest(Map<String, dynamic> body) async {
+    final response = await http.post(
+      Uri.parse('http://192.168.56.1:8010/proprio/ajouter'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization':
+            'Bearer $_token', // Assurez-vous que $_token est défini et valide
+      },
+      body: json.encode(body),
+    );
+
+    if (response.statusCode == 202) {
+      final responseData = jsonDecode(response.body);
+      // print('Mise à jour réussie: ${responseData['message']}');
+      // print('Données mises à jour: ${responseData['data']}');
+      // Afficher un message de succès
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Mesure ajoutée avec succès'),
+      ));
+    } else if (response.statusCode == 400) {
+      final responseData = jsonDecode(response.body);
+      String message = responseData['message'];
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('$message'),
+      ));
+      throw Exception('Échec du chargement du client');
+    } else {
+      // print('Erreur lors de l\'ajout de la mesure: ${response.statusCode}');
+      // print('Message: ${response.body}');
+      // Afficher un message d'erreur
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Erreur lors de l\'ajout de la mesure'),
+      ));
+    }
+  }
 
   void showBottomSheet(BuildContext context) async {
     bool isModalClosed = await showModalBottomSheet(
@@ -811,31 +840,33 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
       builder: (BuildContext context) {
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setModalState) {
-            bool isOwnerFilled = false;
+            // bool isOwnerFilled = false;
             bool isTextFieldWidgetAdded = false;
+
             return SizedBox(
-              height: 1000,
+              height: 52.08.h,
               child: ListView(
                 children: [
-                  SizedBox(height: 10),
+                  SizedBox(height: 1.h),
                   Padding(
-                    padding: const EdgeInsets.all(10.0),
+                    padding: EdgeInsets.all(1.h),
                     child: Text(
                       'Ajouter un nouveau mesure pour ce client',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 15,
+                        fontSize: 12.sp,
                         fontWeight: FontWeight.bold,
                         color: Color.fromARGB(255, 206, 136, 5),
                       ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: EdgeInsets.all(0.8.h),
                     child: Form(
                       child: Column(
                         children: <Widget>[
                           TextFormField(
+                            controller: proprioownerController,
                             keyboardType: TextInputType.text,
                             decoration: InputDecoration(
                               prefixIcon: Icon(Icons.location_on),
@@ -843,24 +874,24 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                               hintText: "Entrer nom propriétaire",
                               hintStyle: TextStyle(
                                 color: Color.fromARGB(255, 132, 134, 135),
-                                fontSize: 12,
+                                fontSize: 10.sp,
                               ),
                               labelText: "Propriétaire",
                               labelStyle: TextStyle(
                                 color: Color.fromARGB(255, 132, 134, 135),
-                                fontSize: 12,
+                                fontSize: 8.sp,
                               ),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(
                                   color: Color.fromARGB(255, 206, 136, 5),
-                                  width: 1.5,
+                                  width: 0.4.w,
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: BorderSide(
                                   color: Color.fromARGB(255, 206, 136, 5),
-                                  width: 1.5,
+                                  width: 0.4.w,
                                 ),
                               ),
                               contentPadding:
@@ -872,7 +903,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                               });
                             },
                           ),
-                          SizedBox(height: 15),
+                          SizedBox(height: 1.h),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
@@ -887,19 +918,19 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                         hintStyle: TextStyle(
                                           color: Color.fromARGB(
                                               255, 132, 134, 135),
-                                          fontSize: 10,
+                                          fontSize: 8.sp,
                                         ),
                                         labelText: "Sélectionner",
                                         labelStyle: TextStyle(
                                           color: Color.fromARGB(
                                               255, 132, 134, 135),
-                                          fontSize: 10,
+                                          fontSize: 8.sp,
                                         ),
                                         enabledBorder: OutlineInputBorder(
                                           borderSide: BorderSide(
                                             color: Color.fromARGB(
                                                 255, 206, 136, 5),
-                                            width: 1.5,
+                                            width: 0.4.w,
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
@@ -908,11 +939,11 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                           borderSide: BorderSide(
                                             color: Color.fromARGB(
                                                 255, 206, 136, 5),
-                                            width: 1.5,
+                                            width: 0.4.w,
                                           ),
                                         ),
                                         contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 10),
+                                            horizontal: 1.h),
                                       ),
                                       value: selectedItem,
                                       onChanged: (newValue) {
@@ -931,12 +962,12 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                         return DropdownMenuItem<String>(
                                           value: value,
                                           child: Text(value,
-                                              style: TextStyle(fontSize: 12)),
+                                              style: TextStyle(fontSize: 8.sp)),
                                         );
                                       }).toList(),
                                     ),
                                   ),
-                                  SizedBox(width: 10),
+                                  SizedBox(width: 1.w),
                                   Expanded(
                                     child: TextFormField(
                                       onChanged: (value) {
@@ -959,13 +990,13 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                         hintStyle: TextStyle(
                                           color: Color.fromARGB(
                                               255, 132, 134, 135),
-                                          fontSize: 10,
+                                          fontSize: 8.sp,
                                         ),
                                         labelText: "Valeur",
                                         labelStyle: TextStyle(
                                           color: Color.fromARGB(
                                               255, 132, 134, 135),
-                                          fontSize: 10,
+                                          fontSize: 8.sp,
                                         ),
                                         enabledBorder: OutlineInputBorder(
                                           borderSide: BorderSide(
@@ -980,11 +1011,11 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                           borderSide: BorderSide(
                                             color: Color.fromARGB(
                                                 255, 206, 136, 5),
-                                            width: 1.5,
+                                            width: 0.4.w,
                                           ),
                                         ),
                                         contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 10),
+                                            horizontal: 1.h),
                                       ),
                                     ),
                                   ),
@@ -1024,7 +1055,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                                         child: Container(
                                                           margin:
                                                               EdgeInsets.only(
-                                                                  left: 10),
+                                                                  left: 1.h),
                                                           decoration:
                                                               BoxDecoration(
                                                             color: Colors.white,
@@ -1035,7 +1066,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                                                       206,
                                                                       136,
                                                                       5),
-                                                              width: 1,
+                                                              width: 0.4.w,
                                                             ),
                                                             borderRadius:
                                                                 BorderRadius
@@ -1043,22 +1074,22 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                                                         1),
                                                           ),
                                                           child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
+                                                            padding: EdgeInsets
+                                                                .symmetric(
                                                                     horizontal:
-                                                                        10,
+                                                                        1.w,
                                                                     vertical:
-                                                                        8),
+                                                                        0.8.h),
                                                             child: Text(
                                                               dropdownValue,
                                                               style: TextStyle(
-                                                                  fontSize: 10),
+                                                                  fontSize:
+                                                                      10.sp),
                                                             ),
                                                           ),
                                                         ),
                                                       ),
-                                                      SizedBox(width: 10),
+                                                      SizedBox(width: 1.w),
                                                       Expanded(
                                                         child: Container(
                                                           decoration:
@@ -1071,7 +1102,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                                                       206,
                                                                       136,
                                                                       5),
-                                                              width: 1,
+                                                              width: 0.4.w,
                                                             ),
                                                             borderRadius:
                                                                 BorderRadius
@@ -1079,22 +1110,22 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                                                         1),
                                                           ),
                                                           child: Padding(
-                                                            padding:
-                                                                const EdgeInsets
-                                                                    .symmetric(
+                                                            padding: EdgeInsets
+                                                                .symmetric(
                                                                     horizontal:
-                                                                        10,
+                                                                        1.w,
                                                                     vertical:
-                                                                        8),
+                                                                        0.8.h),
                                                             child: Text(
                                                               fieldValue,
                                                               style: TextStyle(
-                                                                  fontSize: 10),
+                                                                  fontSize:
+                                                                      8.sp),
                                                             ),
                                                           ),
                                                         ),
                                                       ),
-                                                      SizedBox(width: 10),
+                                                      SizedBox(width: 1.w),
                                                       IconButton(
                                                         onPressed: () {
                                                           setModalState(() {
@@ -1121,7 +1152,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                                         },
                                                         icon: Icon(
                                                           Icons.delete,
-                                                          size: 30,
+                                                          size: 20.sp,
                                                           color: Colors.red,
                                                         ),
                                                       ),
@@ -1136,18 +1167,18 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                         : null,
                                     icon: Icon(
                                       Icons.add_box,
-                                      size: 40,
+                                      size: 30.sp,
                                       color: Color.fromARGB(255, 206, 136, 5),
                                     ),
                                   ),
                                 ],
                               ),
-                              SizedBox(height: 10),
+                              SizedBox(height: 1.h),
                               Container(
                                 decoration: BoxDecoration(
                                   border: Border.all(
                                     color: Color.fromARGB(255, 206, 136, 5),
-                                    width: 1,
+                                    width: 0.4.w,
                                   ),
                                 ),
                                 child: Column(
@@ -1160,7 +1191,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 1.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -1174,7 +1205,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                           child: Text(
                             "Fermer",
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 8.sp,
                               letterSpacing: 2,
                             ),
                           ),
@@ -1185,16 +1216,38 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(0.8.h),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color.fromARGB(255, 206, 136, 5),
                             foregroundColor: Colors.white,
                           ),
-                          child: Text("Modifier"),
+                          child: Text("Ajouter"),
                           onPressed: isOwnerFilled || isTextFieldWidgetAdded
-                              ? () {
-                                  // Votre code de modification ici
+                              ? () async {
+                                  Map<String, dynamic> body = {
+                                    "proprietaireMesures": {
+                                      "proprio": proprioownerController.text,
+                                      "clients": {
+                                        "id": widget
+                                            .clientId // Remplacez par l'ID approprié
+                                      }
+                                    },
+                                    "mesuresList": selectedItems.map((item) {
+                                      return {
+                                        "libelle": item,
+                                        "valeur": textFieldsValues[item]
+                                      };
+                                    }).toList()
+                                  };
+
+                                  await sendPostRequest(
+                                      body); // Utilisez la fonction de requête ici
+                                  setState(() {
+                                    _fetchProprietaireMesure();
+                                  });
+                                  Navigator.of(context).pop(
+                                      true); // Fermer le modal et retourner true
                                 }
                               : null,
                         ),
@@ -1225,22 +1278,319 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
     }
   }
 
+//Ajouter un mesure a un proprio
+
+  Future<void> fonctionaddmesure(
+      String idproprio, String libelle, String valeur) async {
+    valeur = valeur + " cm";
+    final url = 'http://192.168.56.1:8010/mesure/newMesure';
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization':
+            'Bearer $_token', // Assurez-vous que $_token est défini et valide
+      },
+      body: jsonEncode({
+        "libelle": libelle,
+        "valeur": valeur,
+        "proprietaireMesures": {
+          "id": idproprio,
+        },
+      }),
+    );
+    if (response.statusCode == 202) {
+      final responseData = jsonDecode(response.body);
+      // print('Mise à jour réussie: ${responseData['message']}');
+      // print('Données mises à jour: ${responseData['data']}');
+      // Afficher un message de succès
+      setState(() {
+        _fetchProprietaireMesure();
+      });
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Mesure ajoutée avec succès'),
+      ));
+    } else if (response.statusCode == 400) {
+      final responseData = jsonDecode(response.body);
+      String message = responseData['message'];
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('$message'),
+      ));
+      throw Exception('Échec du chargement du client');
+    } else {
+      // print('Erreur lors de l\'ajout de la mesure: ${response.statusCode}');
+      // print('Message: ${response.body}');
+      // Afficher un message d'erreur
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Erreur lors de l\'ajout de la mesure'),
+      ));
+    }
+  }
+
+  void addmesure(String idproprio) {
+    String? libelle;
+    TextEditingController valeurController = TextEditingController();
+    final _formKeyaddmesure = GlobalKey<FormState>();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          scrollable: true,
+          title: Text(
+            'Ajouter un mesure pour le proprio',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold),
+          ),
+          content: Padding(
+            padding: EdgeInsets.all(0.8.h),
+            child: Form(
+              key: _formKeyaddmesure,
+              child: Column(
+                children: <Widget>[
+                  DropdownButtonFormField<String>(
+                    value:
+                        libelle, // Assurez-vous de définir la valeur initiale
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.category),
+                      hintText: "selectionner",
+                      hintStyle: TextStyle(
+                        color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 8.sp,
+                      ),
+                      labelText: "selectionner",
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 8.sp,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 206, 136, 5),
+                          width: 0.4.w,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 206, 136, 5),
+                          width: 0.4.w,
+                        ),
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red,
+                          width: 0.4.w,
+                        ),
+                      ),
+                      contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+                    ),
+                    items: [
+                      'Longueur_Pantalon',
+                      'Toure_Ceinture',
+                      'Toure_Fesse',
+                      'Toure_Cuisse',
+                      'Toure_Patte',
+                      'Longueur_Chemise',
+                      'Longueur_Boubou',
+                      'Toure_Poitrine',
+                      'Epaule',
+                      'Manche.Long',
+                      'Manche.Courte',
+                      'Toure_Manche',
+                      'Encolure'
+                    ].map((label) {
+                      return DropdownMenuItem<String>(
+                        value: label,
+                        child: Text(
+                          label,
+                          style: TextStyle(fontSize: 8.sp),
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        libelle =
+                            value!; // Mettre à jour la valeur sélectionnée
+                      });
+                      // Ajoutez votre logique pour traiter la sélection ici
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez sélectionner une spécialité';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 1.h),
+                  TextFormField(
+                    controller: valeurController,
+                    keyboardType: TextInputType.number,
+                    style: TextStyle(
+                        fontSize:
+                            8.sp), // Taille de police pour la valeur par défaut
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.account_circle),
+                      prefixIconColor: Color.fromARGB(255, 95, 95, 96),
+                      hintText: "valeur ",
+                      hintStyle: TextStyle(
+                        color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 8.sp,
+                      ),
+                      labelText: "Valeur",
+                      labelStyle: TextStyle(
+                        color: Color.fromARGB(255, 132, 134, 135),
+                        fontSize: 8.sp,
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(
+                              255, 206, 136, 5), // Couleur de la bordure
+                          width: 0.4.w, // Largeur de la bordure
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Color.fromARGB(255, 206, 136, 5),
+                          width: 0.4.w,
+                        ), // Couleur de la bordure lorsqu'elle est en état de focus
+                      ),
+                      errorBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        borderSide: BorderSide(
+                          color: Colors.red,
+                          width: 0.4.w,
+                        ), // Couleur de la bordure lorsqu'elle est en état de focus
+                      ),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 1.w,
+                      ), // Ajustez la valeur de la marge verticale selon vos besoins
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Veuillez entrer le prénom';
+                      }
+                      return null;
+                    },
+                    // onChanged: (value) {
+                    //   setState(() {});
+                    // },
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red, // background
+                foregroundColor: Colors.white, // foreground
+              ),
+              child: Text(
+                "Fermer",
+                style: TextStyle(
+                  fontSize: 8.sp,
+                  letterSpacing: 2,
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              }, // Désactive le bouton si aucun champ n'est modifié
+            ),
+            ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      Color.fromARGB(255, 206, 136, 5), // background
+                  foregroundColor: Colors.white, // foreground
+                ),
+                child: Text("Ajouter"),
+                onPressed: () {
+                  if (_formKeyaddmesure.currentState!.validate()) {
+                    // Les champs sont valides, récupérez les données ici
+                    String valeur = valeurController.text;
+                    fonctionaddmesure(idproprio, libelle!, valeur);
+
+                    // Ajoutez ici votre logique pour traiter les données
+                    Navigator.of(context).pop();
+                  }
+                  // print("vous aller Ajouter un mesure pour le proprio");
+                  // your code
+                })
+          ],
+        );
+      },
+    );
+  }
+
 // MOdifier le proprio
+
+  Future<void> updateProprios(
+      String id, Map<String, dynamic> updatedFields) async {
+    final url = 'http://192.168.56.1:8010/proprio/update/$id';
+    final response = await http.put(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization':
+            'Bearer $_token', // Assurez-vous que $_token est défini et valide
+      },
+      body: jsonEncode(updatedFields),
+    );
+
+    if (response.statusCode == 202) {
+      final responseData = jsonDecode(response.body);
+      // print('Mise à jour réussie: ${responseData['message']}');
+      // print('Données mises à jour: ${responseData['data']}');
+      // Faites quelque chose avec les données mises à jour, comme mettre à jour l'état de l'application
+    } else if (response.statusCode == 400) {
+      final responseData = jsonDecode(response.body);
+      String message = responseData['message'];
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('$message'),
+      ));
+      throw Exception('Échec du chargement du client');
+    } else {
+      // print('Erreur lors de la mise à jour du client: ${response.statusCode}');
+      // print('Message: ${response.body}');
+      // Gérez l'erreur comme nécessaire
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Erreur lors de la mise à jour : ${response.statusCode}'),
+      ));
+    }
+  }
+
+  void _updateProprioInfo(Proprio updateProprios) {
+    setState(() {
+      _proprio = updateProprios;
+    });
+  }
+
   void modifierProprio() {
     // Valeurs par défaut pour les champs
+    String id = _proprio.id;
     final proprioController = TextEditingController(text: _proprio.proprio);
+    // Déclarer la variable ici
+    Proprio? updatedProprios;
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
+      context: context,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+          bool isModified() {
+            return proprioController.text != _proprio.proprio;
+          }
+
           return AlertDialog(
             scrollable: true,
             title: Text(
               'Le proprietaire de mesure',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold),
             ),
             content: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: EdgeInsets.all(0.8.h),
               child: Form(
                 child: Column(
                   children: <Widget>[
@@ -1248,45 +1598,45 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                       controller: proprioController,
                       keyboardType: TextInputType.name,
                       style: TextStyle(
-                          fontSize:
-                              10), // Taille de police pour la valeur par défaut
+                          fontSize: 8
+                              .sp), // Taille de police pour la valeur par défaut
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.account_circle),
                         prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                         hintText: "Entrez le proprio ",
                         hintStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
-                          fontSize: 12,
+                          fontSize: 8.sp,
                         ),
                         labelText: "Proprio",
                         labelStyle: TextStyle(
-                          color: Color.fromARGB(255, 132, 134, 135),
-                          fontSize: 12,
+                          color: Color.fromRGBO(132, 134, 135, 1),
+                          fontSize: 8.sp,
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
                             color: Color.fromARGB(
                                 255, 206, 136, 5), // Couleur de la bordure
-                            width: 1.5, // Largeur de la bordure
+                            width: 0.4.w, // Largeur de la bordure
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
                             color: Color.fromARGB(255, 206, 136, 5),
-                            width: 1.5,
+                            width: 0.4.w,
                           ), // Couleur de la bordure lorsqu'elle est en état de focus
                         ),
                         errorBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10),
                           borderSide: BorderSide(
                             color: Colors.red,
-                            width: 1.5,
+                            width: 0.4.w,
                           ), // Couleur de la bordure lorsqu'elle est en état de focus
                         ),
                         contentPadding: EdgeInsets.symmetric(
-                          vertical: 10,
+                          vertical: 1.w,
                         ), // Ajustez la valeur de la marge verticale selon vos besoins
                       ),
                       validator: (value) {
@@ -1312,7 +1662,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                 child: Text(
                   "Fermer",
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 8.sp,
                     letterSpacing: 2,
                   ),
                 ),
@@ -1321,21 +1671,222 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                 }, // Désactive le bouton si aucun champ n'est modifié
               ),
               ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        Color.fromARGB(255, 206, 136, 5), // background
-                    foregroundColor: Colors.white, // foreground
-                  ),
-                  child: Text("Modifier"),
-                  onPressed: () {
-                    // your code
-                  })
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      Color.fromARGB(255, 206, 136, 5), // background
+                  foregroundColor: Colors.white, // foreground
+                ),
+                child: Text("Modifier"),
+                onPressed: isModified()
+                    ? () async {
+                        final updatedFields = <String, String>{};
+
+                        if (proprioController.text != _proprio.proprio) {
+                          updatedFields['proprio'] = proprioController.text;
+                        }
+
+                        // Appel de la méthode pour mettre à jour le propriétaire
+                        await updateProprios(id, updatedFields);
+
+                        // Crée un nouveau propriétaire avec les nouvelles valeurs
+                        updatedProprios = Proprio(
+                          id: id,
+                          proprio: proprioController.text,
+                        );
+
+                        // Met à jour les informations affichées
+                        if (updatedProprios != null) {
+                          _updateProprioInfo(updatedProprios!);
+                          setState(() {
+                            _fetchProprietaireMesure();
+                          });
+                        }
+                        Navigator.of(context).pop();
+                      }
+                    : null, // Désactive le bouton si aucun champ n'est modifié
+              )
             ],
           );
         });
+      },
+    );
   }
 
 //modifier un client
+
+  Future<void> updateClient(Map<String, dynamic> updatedFields) async {
+    final url = 'http://192.168.56.1:8010/clients/update/${widget.clientId}';
+    final response = await http.put(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization':
+            'Bearer $_token', // Assurez-vous que $_token est défini et valide
+      },
+      body: jsonEncode(updatedFields),
+    );
+
+    if (response.statusCode == 202) {
+      final responseData = jsonDecode(response.body);
+      // print('Mise à jour réussie: ${responseData['message']}');
+      // print('Données mises à jour: ${responseData['data']}');
+      // Faites quelque chose avec les données mises à jour, comme mettre à jour l'état de l'application
+      // Navigator.pop(context, true);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Container(
+            padding: EdgeInsets.all(8),
+            height: 8.h,
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 43, 158, 47),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.white,
+                  size: 20.sp,
+                ),
+                SizedBox(
+                  width: 3.w,
+                ),
+                Expanded(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Success :",
+                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                    ),
+                    Spacer(),
+                    Text(
+                      'Client modifier avec success ...!',
+                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ))
+              ],
+            ),
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+      );
+    } else if (response.statusCode == 400) {
+      final responseData = jsonDecode(response.body);
+      String message = responseData['message'];
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Container(
+            padding: EdgeInsets.all(8),
+            height: 8.h,
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 194, 7, 7),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  color: Colors.white,
+                  size: 20.sp,
+                ),
+                SizedBox(
+                  width: 3.w,
+                ),
+                Expanded(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Opps. Erreur :",
+                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                    ),
+                    Spacer(),
+                    Text(
+                      'Cet téléphone appartient à autre client',
+                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ))
+              ],
+            ),
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+      );
+      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //   content: Text('$message'),
+      // ));
+      throw Exception('Échec du chargement du client');
+    } else {
+      // print('Erreur lors de la mise à jour du client: ${response.statusCode}');
+      // print('Message: ${response.body}');
+      // Gérez l'erreur comme nécessaire
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Container(
+            padding: EdgeInsets.all(8),
+            height: 8.h,
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 194, 7, 7),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  color: Colors.white,
+                  size: 20.sp,
+                ),
+                SizedBox(
+                  width: 3.w,
+                ),
+                Expanded(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Opps. Erreur :",
+                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                    ),
+                    Spacer(),
+                    Text(
+                      'Erreur lors de la mise à jour : ${response.statusCode}',
+                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ))
+              ],
+            ),
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+      );
+      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //   content: Text('Erreur lors de la mise à jour : ${response.statusCode}'),
+      // ));
+    }
+  }
+
+  void _updateClientInfo(Client updatedClient) {
+    setState(() {
+      _client = updatedClient;
+    });
+  }
+
   void modifierClient() {
     // Valeurs par défaut pour les champs
     final nomController = TextEditingController(text: _client.nom);
@@ -1361,12 +1912,12 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
               title: Text(
                 'Modifier le client',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold),
               ),
               content: SizedBox(
-                width: 950, // Ajustez la largeur ici
+                width: 52.08.w, // Ajustez la largeur ici
                 child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(0.8.h),
                   child: Form(
                     child: Column(
                       children: <Widget>[
@@ -1374,38 +1925,38 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                           controller: nomController,
                           keyboardType: TextInputType.name,
                           style: TextStyle(
-                              fontSize:
-                                  10), // Taille de police pour la valeur par défaut
+                              fontSize: 8
+                                  .sp), // Taille de police pour la valeur par défaut
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.account_circle),
                             prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                             hintText: "Entrez le nom ",
                             hintStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 12,
+                              fontSize: 1.sp,
                             ),
                             labelText: "Nom",
                             labelStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 12,
+                              fontSize: 8.sp,
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Color.fromARGB(
                                     255, 206, 136, 5), // Couleur de la bordure
-                                width: 1.5, // Largeur de la bordure
+                                width: 0.4.w, // Largeur de la bordure
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Color.fromARGB(255, 206, 136, 5),
-                                width: 1.5,
+                                width: 0.4.w,
                               ), // Couleur de la bordure lorsqu'elle est en état de focus
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                              vertical: 10,
+                              vertical: 1.w,
                             ), // Ajustez la valeur de la marge verticale selon vos besoins
                           ),
                           validator: (value) {
@@ -1418,50 +1969,50 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                             setState(() {});
                           },
                         ),
-                        SizedBox(height: 15),
+                        SizedBox(height: 1.h),
                         TextFormField(
                           controller: prenomController,
                           keyboardType: TextInputType.name,
                           style: TextStyle(
-                              fontSize:
-                                  10), // Taille de police pour la valeur par défaut
+                              fontSize: 8
+                                  .sp), // Taille de police pour la valeur par défaut
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.account_circle),
                             prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                             hintText: "Entrez le prénom ",
                             hintStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 12,
+                              fontSize: 8.sp,
                             ),
                             labelText: "Prénom",
                             labelStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 12,
+                              fontSize: 8.sp,
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Color.fromARGB(
                                     255, 206, 136, 5), // Couleur de la bordure
-                                width: 1.5, // Largeur de la bordure
+                                width: 0.4.w, // Largeur de la bordure
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Color.fromARGB(255, 206, 136, 5),
-                                width: 1.5,
+                                width: 0.4.w,
                               ), // Couleur de la bordure lorsqu'elle est en état de focus
                             ),
                             errorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Colors.red,
-                                width: 1.5,
+                                width: 0.4.w,
                               ), // Couleur de la bordure lorsqu'elle est en état de focus
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                              vertical: 10,
+                              vertical: 1.w,
                             ), // Ajustez la valeur de la marge verticale selon vos besoins
                           ),
                           validator: (value) {
@@ -1474,92 +2025,92 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                             setState(() {});
                           },
                         ),
-                        SizedBox(height: 15),
+                        SizedBox(height: 1.h),
                         TextFormField(
                           controller: emailController,
                           keyboardType: TextInputType.emailAddress,
                           style: TextStyle(
-                              fontSize:
-                                  10), // Taille de police pour la valeur par défaut
+                              fontSize: 8
+                                  .sp), // Taille de police pour la valeur par défaut
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.email),
                             prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                             hintText: "exemple@gmail.com",
                             hintStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 12,
+                              fontSize: 8.sp,
                             ),
                             labelText: "Email",
                             labelStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 12,
+                              fontSize: 8.sp,
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Color.fromARGB(
                                     255, 206, 136, 5), // Couleur de la bordure
-                                width: 1.5, // Largeur de la bordure
+                                width: 0.4.w, // Largeur de la bordure
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Color.fromARGB(255, 206, 136, 5),
-                                width: 1.5,
+                                width: 0.4.w,
                               ), // Couleur de la bordure lorsqu'elle est en état de focus
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                              vertical: 10,
+                              vertical: 1.w,
                             ), // Ajustez la valeur de la marge verticale selon vos besoins
                           ),
                           onChanged: (value) {
                             setState(() {});
                           },
                         ),
-                        SizedBox(height: 15),
+                        SizedBox(height: 1.h),
                         TextFormField(
                           controller: telephoneController,
                           keyboardType: TextInputType.phone,
                           style: TextStyle(
-                              fontSize:
-                                  10), // Taille de police pour la valeur par défaut
+                              fontSize: 8
+                                  .sp), // Taille de police pour la valeur par défaut
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.phone),
                             prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                             hintText: "+XXXXXXXXXXX",
                             hintStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 12,
+                              fontSize: 8.sp,
                             ),
                             labelText: "Téléphone",
                             labelStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 12,
+                              fontSize: 8.sp,
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Color.fromARGB(255, 206, 136, 5),
-                                width: 1.5,
+                                width: 0.4.w,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Color.fromARGB(255, 206, 136, 5),
-                                width: 1.5,
+                                width: 0.4.w,
                               ),
                             ),
                             errorBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Colors.red,
-                                width: 1.5,
+                                width: 0.4.w,
                               ), // Couleur de la bordure lorsqu'elle est en état de focus
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                              vertical: 10,
+                              vertical: 1.w,
                             ),
                           ),
                           validator: (value) {
@@ -1572,42 +2123,42 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                             setState(() {});
                           },
                         ),
-                        SizedBox(height: 15),
+                        SizedBox(height: 1.h),
                         TextFormField(
                           controller: adresseController,
                           keyboardType: TextInputType.text,
                           style: TextStyle(
-                              fontSize:
-                                  10), // Taille de police pour la valeur par défaut
+                              fontSize: 8
+                                  .sp), // Taille de police pour la valeur par défaut
                           decoration: InputDecoration(
                             prefixIcon: Icon(Icons.location_on),
                             prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                             hintText: "Entrer l'adresse",
                             hintStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 12,
+                              fontSize: 8.sp,
                             ),
                             labelText: "Adresse",
                             labelStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 12,
+                              fontSize: 8.sp,
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Color.fromARGB(255, 206, 136, 5),
-                                width: 1.5,
+                                width: 0.4.w,
                               ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10),
                               borderSide: BorderSide(
                                 color: Color.fromARGB(255, 206, 136, 5),
-                                width: 1.5,
+                                width: 0.4.w,
                               ),
                             ),
                             contentPadding: EdgeInsets.symmetric(
-                              vertical: 10,
+                              vertical: 1.w,
                             ),
                           ),
                           onChanged: (value) {
@@ -1628,7 +2179,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                   child: Text(
                     "Fermer",
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 8.sp,
                       letterSpacing: 2,
                     ),
                   ),
@@ -1645,13 +2196,45 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                   child: Text(
                     "Modifier",
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 8.sp,
                       letterSpacing: 2,
                     ),
                   ),
                   onPressed: isModified()
-                      ? () {
-                          // votre code
+                      ? () async {
+                          final updatedFields = <String, String>{};
+
+                          if (nomController.text != _client.nom) {
+                            updatedFields['nom'] = nomController.text;
+                          }
+                          if (prenomController.text != _client.prenom) {
+                            updatedFields['prenom'] = prenomController.text;
+                          }
+                          if (emailController.text != _client.email) {
+                            updatedFields['email'] = emailController.text;
+                          }
+                          if (telephoneController.text != _client.numero) {
+                            updatedFields['numero'] = telephoneController.text;
+                          }
+                          if (adresseController.text != _client.adresse) {
+                            updatedFields['adresse'] = adresseController.text;
+                          }
+
+                          // Appel de la méthode pour mettre à jour le client
+                          await updateClient(updatedFields);
+                          Navigator.of(context).pop();
+                          // Crée un nouveau client avec les nouvelles valeurs
+                          final updatedClient = Client(
+                            id: widget.clientId,
+                            nom: nomController.text,
+                            prenom: prenomController.text,
+                            email: emailController.text,
+                            numero: telephoneController.text,
+                            adresse: adresseController.text,
+                          );
+
+                          // Appelle le callback pour mettre à jour les informations affichées
+                          _updateClientInfo(updatedClient);
                         }
                       : null, // Désactive le bouton si aucun champ n'est modifié
                 ),
