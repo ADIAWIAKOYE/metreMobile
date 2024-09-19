@@ -1,7 +1,14 @@
+import 'dart:convert';
+
+import 'package:Metre/bottom_navigationbar/navigation_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:Metre/widgets/logo.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sizer/sizer.dart';
+import 'package:http/http.dart' as http;
 
 class AddMesurePage extends StatefulWidget {
   const AddMesurePage({super.key});
@@ -69,6 +76,18 @@ class _AddMesurePageState extends State<AddMesurePage> {
   void initState() {
     super.initState();
     selectedItem = items.first; // Sélectionner la première option par défaut
+    _loadUserData().then((_) {});
+  }
+
+  String? _id;
+  String? _token;
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _id = prefs.getString('id');
+      _token = prefs.getString('token');
+    });
   }
 
   int _currentStep = 0;
@@ -315,6 +334,12 @@ class _AddMesurePageState extends State<AddMesurePage> {
                       vertical: 10,
                     ),
                   ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer l\'adresse';
+                    }
+                    return null;
+                  },
                 ),
               ],
             ),
@@ -560,6 +585,23 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                     IconButton(
                                       onPressed: () {
                                         setState(() {
+                                          // Suppression de l'élément correspondant
+                                          // String dropdownValue = selectedItem;
+
+                                          // Supprimer de selectedItems et des textFieldsValues
+                                          selectedItems.remove(dropdownValue);
+                                          textFieldsValues
+                                              .remove(dropdownValue);
+
+                                          // Supprimer l'élément visuellement
+                                          textFieldsWidgets
+                                              .removeWhere((widget) {
+                                            // Supposons que chaque widget a une structure unique, ici on peut vérifier la valeur
+                                            return widget is Row &&
+                                                widget.children.contains(
+                                                    Text(dropdownValue));
+                                          });
+
                                           textFieldsWidgets.removeLast();
                                           if (textFieldsWidgets.isEmpty) {
                                             isTextFieldWidgetAdded =
@@ -805,11 +847,113 @@ class _AddMesurePageState extends State<AddMesurePage> {
     );
   }
 
+  Future<void> addClient(
+      BuildContext context, // Ajout du contexte pour showDialog
+      String nom,
+      String prenom,
+      String telephone,
+      String email,
+      String adresse,
+      String proprietaire,
+      List<Map<String, String>> mesures) async {
+    if (_id != null && _token != null) {
+      final url = 'http://192.168.56.1:8010/clients/ajouter';
+      try {
+        final response = await http.post(
+          Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization':
+                'Bearer $_token', // Assurez-vous que $_token est défini et valide
+          },
+          body: jsonEncode({
+            "clients": {
+              "nom": nom,
+              "prenom": prenom,
+              "numero": telephone,
+              "email": email,
+              "adresse": adresse,
+              "utilisateur": {
+                "id": _id // Remplace par l'ID réel de l'utilisateur
+              }
+            },
+            "proprietaireMesures": {
+              "proprio": proprietaire,
+            },
+            "mesuresList": mesures
+          }),
+        );
+
+        if (response.statusCode == 202 || response.statusCode == 200) {
+          final responseData = jsonDecode(response.body);
+          String message = responseData['message'];
+          // Succès, afficher un message
+          print('Données envoyées avec succès');
+          // Afficher un message de succès à l'utilisateur
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(
+                  "Succès",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                ),
+                content: Text(
+                  message,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    style: ButtonStyle(
+                        backgroundColor: MaterialStatePropertyAll(
+                      Color.fromARGB(255, 206, 136, 5),
+                    )),
+                    onPressed: () {
+                      Navigator.of(context)
+                          .pop(); // Fermer la boîte de dialogue
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => NavigationBarPage()),
+                      );
+                    },
+                    child: Text(
+                      "OK",
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ],
+              );
+            },
+          );
+        } else {
+          // Échec, afficher un message d'erreurù
+          final responseData = jsonDecode(response.body);
+          String message = responseData['message'];
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('$message'),
+          ));
+          print('Erreur: ${response.body}');
+        }
+      } catch (e) {
+        // Gérer l'erreur
+        print('Erreur lors de l\'envoi des données: $e');
+      }
+    } else {
+      print('id et token nulle');
+    }
+  }
+
   void envoyerDonnees() {
     // Capturer les valeurs des champs
     String nom = nomController.text;
     String prenom = prenomController.text;
-    String email = emailController.text;
+    String email =
+        emailController.text.isNotEmpty ? emailController.text : 'neant';
     String telephone = telephoneController.text;
     String adresse = adresseController.text;
     String proprietaire = proprietaireController.text;
@@ -817,29 +961,61 @@ class _AddMesurePageState extends State<AddMesurePage> {
     // Créer une liste de mesures avec les champs sélectionnés et leurs valeurs
     List<Map<String, String>> mesures = [];
     selectedItems.forEach((champ) {
-      String valeur = textFieldsValues[champ] ?? ""; // Valeur par défaut
+      String valeur =
+          textFieldsValues[champ] ?? ""; // Valeur par défaut si vide
       mesures.add({'champ': champ, 'valeur': valeur});
     });
 
-    // Afficher les valeurs dans le popup ou effectuer d'autres actions nécessaires
-    showDialog(
+    // Afficher les valeurs dans le modal bottom sheet
+    showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Les champs renseignés'),
-          backgroundColor: Color.fromARGB(255, 254, 254,
-              254), // Modification de la couleur de l'arrière-plan
-          content: Column(
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+            left: 10.w,
+            right: 10.w,
+            top: 2.h,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'Les champs renseignés',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14.sp,
+                  ),
+                ),
+              ),
+              SizedBox(height: 1.h),
+              const Text(
+                'Les informations personnels :',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               Text('Nom : $nom'),
               Text('Prénom : $prenom'),
               Text('Email : $email'),
               Text('Téléphone : $telephone'),
               Text('Adresse : $adresse'),
-              Text('Mesures :',
-                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold)),
-              Text('Propriétaire : $proprietaire'),
+              SizedBox(height: 1.h),
+              const Text(
+                'Propriétaire des mésures :',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(proprietaire),
+              SizedBox(height: 1.h),
+              const Text(
+                'Les Mesures :',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: List.generate(mesures.length, (index) {
@@ -848,16 +1024,63 @@ class _AddMesurePageState extends State<AddMesurePage> {
                   return Text('$champ : $valeur');
                 }),
               ),
+              SizedBox(height: 2.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 5.h),
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                      ),
+                      child: Text(
+                        "Fermer",
+                        style: TextStyle(
+                          fontSize: 8.sp,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context)
+                            .pop(true); // Fermer le modal et retourner true
+                      },
+                    ),
+                  ),
+                  SizedBox(
+                    width: 3.w,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(0.8.h),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(horizontal: 5.h),
+                        backgroundColor: Color.fromARGB(255, 206, 136, 5),
+                        foregroundColor: Colors.white,
+                      ),
+                      child: Text(
+                        "Ajouter",
+                        style: TextStyle(
+                          fontSize: 8.sp,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      onPressed: () {
+                        // ::::::::::::::::::::::::::::::::::::::::
+                        addClient(context, nom, prenom, telephone, email,
+                            adresse, proprietaire, mesures);
+                        //:::::::::::::::::::::::::::::::::::::::::::
+                        Navigator.of(context)
+                            .pop(); // Fermer la boîte de dialogue
+                      },
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
-          actions: [
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('Fermer'),
-            ),
-          ],
         );
       },
     );

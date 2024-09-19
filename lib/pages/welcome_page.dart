@@ -49,7 +49,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   child: Text(
                     "Bienvenue sur Mètre pour la gestion des mesures de vos clients en toute facilité ...... ",
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -71,7 +71,7 @@ class _WelcomePageState extends State<WelcomePage> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .tertiary, // Couleur du texte
-                            fontSize: 12.sp,
+                            fontSize: 10.sp,
                             decoration:
                                 TextDecoration.none, // Pas de décoration
                           ),
@@ -82,7 +82,7 @@ class _WelcomePageState extends State<WelcomePage> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .tertiary, // Couleur du texte cliquable
-                            fontSize: 12.sp,
+                            fontSize: 10.sp,
                             decoration:
                                 TextDecoration.underline, // Souligner le texte
                           ),
@@ -119,7 +119,7 @@ class _WelcomePageState extends State<WelcomePage> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .tertiary, // Couleur du texte
-                            fontSize: 12.sp,
+                            fontSize: 10.sp,
                             decoration:
                                 TextDecoration.none, // Pas de décoration
                           ),
@@ -130,7 +130,7 @@ class _WelcomePageState extends State<WelcomePage> {
                             color: Theme.of(context)
                                 .colorScheme
                                 .tertiary, // Couleur du texte cliquable
-                            fontSize: 12.sp,
+                            fontSize: 10.sp,
                             decoration:
                                 TextDecoration.underline, // Souligner le texte
                           ),
@@ -153,7 +153,7 @@ class _WelcomePageState extends State<WelcomePage> {
               SizedBox(height: spaceBetweenSections),
               // Partie des buttons
               SizedBox(
-                height: h40px,
+                height: 5.h,
                 width: 85
                     .w, // Définissez la largeur du bouton en fonction de la largeur de l'écran
                 child: ElevatedButton(
@@ -175,7 +175,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   child: Text(
                     "Se connecter",
                     style: TextStyle(
-                      fontSize: 12.sp,
+                      fontSize: 10.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -184,7 +184,7 @@ class _WelcomePageState extends State<WelcomePage> {
               ),
               SizedBox(height: 2.5.h),
               SizedBox(
-                height: h40px,
+                height: 5.h,
                 width: 85
                     .w, // Définissez la largeur du bouton en fonction de la largeur de l'écran
                 child: ElevatedButton(
@@ -207,7 +207,7 @@ class _WelcomePageState extends State<WelcomePage> {
                   child: Text(
                     "S'inscrire",
                     style: TextStyle(
-                      fontSize: 12.sp,
+                      fontSize: 10.sp,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),

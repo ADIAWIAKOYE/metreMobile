@@ -1,3 +1,4 @@
+import 'package:Metre/pages/clientSupprimer_page.dart';
 import 'package:Metre/utilitaires/taille_des_polices.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -94,7 +95,7 @@ class _ProfilePageState extends State<ProfilePage> {
             context,
             icon: Icons.person_add_disabled,
             label: "Client Supprimer",
-            onTap: () => _navigateToPage(context, const ChangerPasswordPage()),
+            onTap: () => _navigateToPage(context, const ClientSupprimerPage()),
           ),
           SizedBox(
             height: 7.h,

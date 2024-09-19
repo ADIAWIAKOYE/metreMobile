@@ -3,14 +3,14 @@ import 'dart:convert';
 import 'package:Metre/models/clients_model.dart';
 import 'package:Metre/models/mesure_model.dart';
 import 'package:Metre/models/proprioMesures_model.dart';
-import 'package:Metre/pages/mesure_page.dart';
+// import 'package:Metre/pages/mesure_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:Metre/bottom_navigationbar/navigation_page.dart';
-import 'package:Metre/models/client_model.dart';
-import 'package:Metre/models/product.dart';
-import 'package:Metre/widgets/logo.dart';
+// import 'package:Metre/models/client_model.dart';
+// import 'package:Metre/models/product.dart';
+// import 'package:Metre/widgets/logo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
@@ -341,6 +341,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                             child: InkWell(
                               onTap: () {
                                 print("BUTTON cliqué !");
+                                deleteClient();
                               },
                               child: Container(
                                 margin: EdgeInsets.symmetric(horizontal: 1.w),
@@ -1708,6 +1709,160 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
             ],
           );
         });
+      },
+    );
+  }
+
+  // delete
+  Future<void> _FunctiondeleteClient() async {
+    final url = 'http://192.168.56.1:8010/clients/delete/${widget.clientId}';
+    final response = await http.delete(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $_token',
+      },
+    );
+
+    if (response.statusCode == 202) {
+      // setState(() {
+      //   _fetchProprietaireMesure();
+      // });
+      final message = json.decode(response.body)['message'];
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Container(
+            padding: EdgeInsets.all(8),
+            height: 8.h,
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 43, 158, 47),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.white,
+                  size: 20.sp,
+                ),
+                SizedBox(
+                  width: 3.w,
+                ),
+                Expanded(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Success :",
+                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                    ),
+                    Spacer(),
+                    Text(
+                      '$message',
+                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ))
+              ],
+            ),
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+      );
+
+      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //   content: Text('$message'),
+      // ));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Erreur: Une erreur est produite.'),
+      ));
+    }
+  }
+
+  // supprimer un  client
+  void deleteClient() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            "Attention",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+          ),
+          content: Text(
+            "Vous allez supprimer ce client",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+          ),
+          actions: [
+            SizedBox(height: 2.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Padding(
+                //   padding: const EdgeInsets.all(8.0),
+                //   child:
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 2.h),
+                    backgroundColor: Color.fromARGB(255, 206, 136, 5),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(
+                    "Annuler",
+                    style: TextStyle(
+                      fontSize: 8.sp,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Fermer la boîte de dialogue
+                  },
+                ),
+                // ),
+                SizedBox(
+                  width: 3.w,
+                ),
+                // Padding(
+                //   padding: EdgeInsets.all(0.8.h),
+                // child:
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 2.h),
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(
+                    "Spprimer",
+                    style: TextStyle(
+                      fontSize: 8.sp,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  onPressed: () {
+                    // ::::::::::::::::::::::::::::::::::::::::
+                    _FunctiondeleteClient();
+                    //:::::::::::::::::::::::::::::::::::::::::::
+                    Navigator.of(context).pop(); // Fermer la boîte de dialogue
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => NavigationBarPage()),
+                    );
+                  },
+                ),
+                // ),
+              ],
+            ),
+          ],
+        );
       },
     );
   }

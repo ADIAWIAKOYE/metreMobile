@@ -31,6 +31,12 @@ class _MesurePageState extends State<MesurePage> {
     });
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _fetchClients(); // Appel à la récupération des clients chaque fois que la page est visible
+  }
+
   Future<void> _loadUserData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
