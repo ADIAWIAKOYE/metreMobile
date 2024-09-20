@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:Metre/models/user_model.dart';
 import 'package:Metre/pages/clientSupprimer_page.dart';
 import 'package:Metre/utilitaires/taille_des_polices.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,6 +9,8 @@ import 'package:flutter/widgets.dart';
 import 'package:Metre/pages/changer_password_page.dart';
 import 'package:Metre/pages/mon_compte_page.dart';
 import 'package:Metre/widgets/logo.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -16,6 +21,66 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  late Utilisateur_model user;
+  bool isLoading = true;
+
+  String? _id;
+  String? _token;
+
+  @override
+  void initState() {
+    super.initState();
+    // Ajoute un délai de 2 secondes avant de charger les données utilisateur
+    // Future.delayed(Duration(seconds: 2), () {
+    _loadUserData().then((_) {
+      _getUserByIduser();
+    });
+    // });
+  }
+
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   _getUserByIduser();
+  // }
+
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _id = prefs.getString('id');
+      _token = prefs.getString('token');
+    });
+    // print('ID: $_id, Token: $_token'); // Débogage
+  }
+
+  Future<void> _getUserByIduser() async {
+    if (_id != null && _token != null) {
+      final url = 'http://192.168.56.1:8010/user/loadById/$_id';
+
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $_token'},
+      );
+      // print('Code de statut: ${response.statusCode}');
+      // print(
+      //     'Contenu de la réponse : ${response.body}'); // Ajoute ceci pour déboguer
+
+      if (response.statusCode == 202) {
+        final jsonData = json.decode(response.body)['data'];
+        setState(() {
+          user = Utilisateur_model.fromJson(
+              jsonData); // Utilisation du modèle User
+          isLoading = false;
+        });
+      } else {
+        print(
+            'Erreur lors du chargement des données utilisateur : ${response.statusCode}');
+      }
+    } else {
+      print('id ou token null');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -26,107 +91,106 @@ class _ProfilePageState extends State<ProfilePage> {
             .colorScheme
             .background, // Changez cette couleur selon vos besoins
       ),
-      body: ListView(
-        // crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // LogoWidget(),
-          // SizedBox(height: 10),
-          Padding(
-            padding: EdgeInsets.only(
-                // top: MediaQuery.of(context).padding.top,
-                left: 10),
-            child: Row(
-              children: [
-                Expanded(
-                  // flex: 1,
-                  child: CircleAvatar(
-                    radius: 70,
-                    backgroundImage: AssetImage('assets/image/avatar.png'),
-                    // backgroundColor: Colors.transparent,
-                  ),
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : user == null
+              ? const Center(child: Text('Aucune donnée disponible.'))
+              : ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 50,
+                          backgroundImage: user!.profile == ""
+                              ? AssetImage('assets/image/avatar.png')
+                              : NetworkImage(user!.profile) as ImageProvider,
+                        ),
+                        SizedBox(width: 5.w),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user?.nom ?? 'Nom non disponible',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(
+                              height: h6px,
+                            ),
+                            Text(
+                              user?.specialite ?? 'Spécialité non disponible',
+                              style: TextStyle(fontSize: 10.sp),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: h20px,
+                    ),
+                    _buildMenuOption(
+                      context,
+                      icon: Icons.person,
+                      label: "Mon Compte",
+                      onTap: () =>
+                          _navigateToPage(context, const MonComptePage()),
+                    ),
+                    SizedBox(
+                      height: 4.h,
+                    ),
+                    // Changer mot de passe
+                    _buildMenuOption(
+                      context,
+                      icon: Icons.lock,
+                      label: "Changer mot de passe",
+                      onTap: () =>
+                          _navigateToPage(context, const ChangerPasswordPage()),
+                    ),
+                    SizedBox(
+                      height: 4.h,
+                    ),
+                    // Changer mot de passe
+                    _buildMenuOption(
+                      context,
+                      icon: Icons.person_add_disabled,
+                      label: "Client Supprimer",
+                      onTap: () =>
+                          _navigateToPage(context, const ClientSupprimerPage()),
+                    ),
+                    SizedBox(
+                      height: 7.h,
+                    ),
+                    Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ElevatedButton(
+                          child: Text(
+                            'Deconnecter',
+                            style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 2,
+                                fontSize: 13),
+                          ),
+                          style: ButtonStyle(
+                              backgroundColor:
+                                  MaterialStateProperty.all<Color>(Colors.red),
+                              shape: MaterialStateProperty.all<
+                                      RoundedRectangleBorder>(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.zero,
+                                      side: BorderSide(color: Colors.red)))),
+                          onPressed: () {
+                            print('Vous allez vous deconnecter');
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                Expanded(
-                  flex: 3,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Text(
-                        'MonStyle couture',
-                        style: TextStyle(
-                            fontSize: s14px, fontWeight: FontWeight.w700),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        'Couture Homme & Femme & Enfant',
-                        style: TextStyle(fontSize: 8.sp),
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: h20px,
-          ),
-          _buildMenuOption(
-            context,
-            icon: Icons.person,
-            label: "Mon Compte",
-            onTap: () => _navigateToPage(context, const MonComptePage()),
-          ),
-          SizedBox(
-            height: 4.h,
-          ),
-          // Changer mot de passe
-          _buildMenuOption(
-            context,
-            icon: Icons.lock,
-            label: "Changer mot de passe",
-            onTap: () => _navigateToPage(context, const ChangerPasswordPage()),
-          ),
-          SizedBox(
-            height: 4.h,
-          ),
-          // Changer mot de passe
-          _buildMenuOption(
-            context,
-            icon: Icons.person_add_disabled,
-            label: "Client Supprimer",
-            onTap: () => _navigateToPage(context, const ClientSupprimerPage()),
-          ),
-          SizedBox(
-            height: 7.h,
-          ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                child: Text(
-                  'Deconnecter',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 2,
-                      fontSize: 13),
-                ),
-                style: ButtonStyle(
-                    backgroundColor:
-                        MaterialStateProperty.all<Color>(Colors.red),
-                    shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
-                            side: BorderSide(color: Colors.red)))),
-                onPressed: () {
-                  print('Vous allez vous deconnecter');
-                },
-              ),
-            ],
-          ),
-        ],
-      ),
     );
   }
 
