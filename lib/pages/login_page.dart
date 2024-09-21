@@ -79,10 +79,56 @@ class _LoginPageState extends State<LoginPage> {
             MaterialPageRoute(builder: (context) => NavigationBarPage()),
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content:
-                Text('Erreur de connexion. numero ou mot de passe incorrect.'),
-          ));
+          final message = json.decode(response.body)['data'];
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Container(
+                padding: EdgeInsets.all(8),
+                height: 10.h,
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.all(Radius.circular(10)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.highlight_off,
+                      color: Colors.white,
+                      size: 20.sp,
+                    ),
+                    SizedBox(
+                      width: 3.w,
+                    ),
+                    Expanded(
+                        child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Erreur :",
+                          style:
+                              TextStyle(fontSize: 12.sp, color: Colors.white),
+                        ),
+                        Spacer(),
+                        Text(
+                          '$message',
+                          style:
+                              TextStyle(fontSize: 10.sp, color: Colors.white),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ))
+                  ],
+                ),
+              ),
+              behavior: SnackBarBehavior.floating,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+            ),
+          );
+          // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          //   content: Text('$message'),
+          // ));
         }
       } catch (e) {
         print('Error: $e');
@@ -123,14 +169,122 @@ class _LoginPageState extends State<LoginPage> {
     });
   }
 
-  void _submitFormOubliPassword() {
+  Future<void> _submitFormOubliPassword() async {
     String _phone = phoneMO.text;
     String _email = email.text;
-    if (_formKeyMO.currentState!.validate()) {
-      _formKeyMO.currentState!.save();
-      print('Numero de telephone: $_phone');
-      print('l\'email : $_email');
+    print("le telephone est : $_phone");
+    print("le email est : $_email");
+    // if (_formKeyMO.currentState!.validate()) {
+    //   _formKeyMO.currentState!.save();
+    final url = 'http://192.168.56.1:8010/user/resetPassword';
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json', // Ajout de l'en-tête
+        },
+        body: jsonEncode({
+          "username": _phone,
+          "email": _email,
+        }),
+      );
+      if (response.statusCode == 202 || response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        String message = responseData['data'];
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text(
+                "Bien fait",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+              content: Text(
+                "$message",
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.tertiary,
+                ),
+              ),
+              actions: [
+                SizedBox(height: 2.h),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 2.h),
+                    backgroundColor: Color.fromARGB(255, 206, 136, 5),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(
+                    "Ok",
+                    style: TextStyle(
+                      fontSize: 8.sp,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Fermer la boîte de dialogue
+                  },
+                ),
+              ],
+            );
+          },
+        );
+      } else {
+        final responseData = jsonDecode(response.body);
+        String message = responseData['data'];
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Container(
+              padding: EdgeInsets.all(8),
+              height: 10.h,
+              decoration: BoxDecoration(
+                color: Colors.red,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.highlight_off,
+                    color: Colors.white,
+                    size: 20.sp,
+                  ),
+                  SizedBox(
+                    width: 3.w,
+                  ),
+                  Expanded(
+                      child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Erreur :",
+                        style: TextStyle(fontSize: 12.sp, color: Colors.white),
+                      ),
+                      Spacer(),
+                      Text(
+                        '$message',
+                        style: TextStyle(fontSize: 10.sp, color: Colors.white),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ))
+                ],
+              ),
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+          ),
+        );
+      }
+    } catch (e) {
+      print('Erreur lors de l\'envoi des données: $e');
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text("Erreur lors de la modification du mot de passe."),
+      ));
     }
+    // }
   }
 
   void _resetForm() {
@@ -313,7 +467,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: 2.h),
                     SizedBox(
-                      height: 6.h,
+                      height: 5.h,
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _login,
@@ -332,7 +486,7 @@ class _LoginPageState extends State<LoginPage> {
                             : Text(
                                 'Se connecter',
                                 style: TextStyle(
-                                  fontSize: 12.sp,
+                                  fontSize: 10.sp,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -352,6 +506,7 @@ class _LoginPageState extends State<LoginPage> {
                     TextFormField(
                       controller: phoneMO,
                       keyboardType: TextInputType.phone,
+                      style: TextStyle(fontSize: 10.sp),
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.phone),
                         hintText: "Entrez le numéro de votre entreprise",
@@ -401,6 +556,7 @@ class _LoginPageState extends State<LoginPage> {
                     TextFormField(
                       controller: email,
                       keyboardType: TextInputType.emailAddress,
+                      style: TextStyle(fontSize: 10.sp),
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.mail),
                         hintText: "Entrez votre adresse mail",
@@ -474,7 +630,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: 2.h),
                     SizedBox(
-                      height: 6.h,
+                      height: 5.h,
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _submitFormOubliPassword,
@@ -488,7 +644,7 @@ class _LoginPageState extends State<LoginPage> {
                         child: Text(
                           'Envoyer',
                           style: TextStyle(
-                            fontSize: 12.sp,
+                            fontSize: 10.sp,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

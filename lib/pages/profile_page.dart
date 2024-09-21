@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:Metre/models/user_model.dart';
 import 'package:Metre/pages/clientSupprimer_page.dart';
+import 'package:Metre/pages/login_page.dart';
 import 'package:Metre/utilitaires/taille_des_polices.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -185,6 +186,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       side: BorderSide(color: Colors.red)))),
                           onPressed: () {
                             print('Vous allez vous deconnecter');
+                            seDeconnecter();
                           },
                         ),
                       ],
@@ -238,6 +240,138 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => page),
+    );
+  }
+
+  // supprimer un  client
+  void seDeconnecter() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            "Attention",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+          ),
+          content: Text(
+            "Vous allez vous deconnectés si vous cliquez sur 'Se Deconnecter' ",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+          ),
+          actions: [
+            SizedBox(height: 2.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Padding(
+                //   padding: const EdgeInsets.all(8.0),
+                //   child:
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 2.h),
+                    backgroundColor: Color.fromARGB(255, 206, 136, 5),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(
+                    "Annuler",
+                    style: TextStyle(
+                      fontSize: 8.sp,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Fermer la boîte de dialogue
+                  },
+                ),
+                // ),
+                SizedBox(
+                  width: 3.w,
+                ),
+                // Padding(
+                //   padding: EdgeInsets.all(0.8.h),
+                // child:
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 2.h),
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(
+                    "Se Deconnecter",
+                    style: TextStyle(
+                      fontSize: 8.sp,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  onPressed: () async {
+                    // ::::::::::::::::::::::::::::::::::::::::
+                    // Vider le cache (SharedPreferences)
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    await prefs.clear(); // Supprimer toutes les données
+                    //:::::::::::::::::::::::::::::::::::::::::::
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Container(
+                          padding: EdgeInsets.all(8),
+                          height: 8.h,
+                          decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 43, 158, 47),
+                            borderRadius: BorderRadius.all(Radius.circular(10)),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.check_circle,
+                                color: Colors.white,
+                                size: 20.sp,
+                              ),
+                              SizedBox(
+                                width: 3.w,
+                              ),
+                              Expanded(
+                                  child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Success :",
+                                    style: TextStyle(
+                                        fontSize: 14.sp, color: Colors.white),
+                                  ),
+                                  Spacer(),
+                                  Text(
+                                    'Vous avez été deconnecter',
+                                    style: TextStyle(
+                                        fontSize: 12.sp, color: Colors.white),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ))
+                            ],
+                          ),
+                        ),
+                        behavior: SnackBarBehavior.floating,
+                        backgroundColor: Colors.transparent,
+                        elevation: 0,
+                      ),
+                    );
+                  },
+                ),
+                // ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 }

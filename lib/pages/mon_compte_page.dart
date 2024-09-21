@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:Metre/models/user_model.dart';
+import 'package:Metre/pages/login_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -8,6 +10,9 @@ import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:mime/mime.dart';
+import 'package:http_parser/http_parser.dart';
 
 class MonComptePage extends StatefulWidget {
   const MonComptePage({super.key});
@@ -42,6 +47,10 @@ class _MonComptePageState extends State<MonComptePage> {
   String? initialAdresse;
   String? initialSpecialite;
   String? initialEmail;
+
+  File? _selectedImage; // Stocker l'image sélectionnée
+  bool isUploading =
+      false; // État pour savoir si le téléchargement est en cours
 
   @override
   void initState() {
@@ -196,11 +205,104 @@ class _MonComptePageState extends State<MonComptePage> {
     if (updatedFields.isNotEmpty) {
       await _updateUserField(updatedFields);
     } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Container(
+          padding: EdgeInsets.all(8),
+          height: 8.h,
+          decoration: BoxDecoration(
+            color: Color.fromARGB(255, 255, 196, 59),
+            borderRadius: BorderRadius.all(Radius.circular(10)),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                Icons.warning,
+                color: Colors.white,
+                size: 20.sp,
+              ),
+              SizedBox(
+                width: 3.w,
+              ),
+              Expanded(
+                  child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Oupss :",
+                    style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                  ),
+                  Spacer(),
+                  Text(
+                    'Aucune modification détectée',
+                    style: TextStyle(fontSize: 12.sp, color: Colors.white),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ))
+            ],
+          ),
+        ),
+        behavior: SnackBarBehavior.floating,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ));
       print('Aucune modification détectée');
     }
   }
 
   // :::::::::::::::::::::::::::::::::::::::::::::::::
+
+  // ////////////////////////////////////////////////////////
+  // Fonction pour sélectionner une image
+  Future<void> _selectImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedImage = File(pickedFile.path);
+        isUploading = true; // Début du chargement
+      });
+
+      // Téléchargement de l'image
+      await _uploadProfileImage(_selectedImage!);
+
+      setState(() {
+        isUploading = false; // Fin du chargement
+      });
+    }
+  }
+
+// Fonction pour uploader l'image
+  Future<void> _uploadProfileImage(File imageFile) async {
+    final url = Uri.parse('http://192.168.56.1:8010/user/modifierPhotoProfile');
+    var mimeTypeData = lookupMimeType(imageFile.path)?.split('/');
+    var request = http.MultipartRequest('POST', url);
+
+    request.headers['Authorization'] = 'Bearer $_token';
+    request.fields['telephone'] = usernameController.text;
+
+    var image = await http.MultipartFile.fromPath(
+      'file',
+      imageFile.path,
+      contentType: MediaType(mimeTypeData![0], mimeTypeData[1]),
+    );
+
+    request.files.add(image);
+
+    var response = await request.send();
+    if (response.statusCode == 200) {
+      var responseBody = await response.stream.bytesToString();
+      var decodedJson = json.decode(responseBody);
+      print('Profil modifié avec succès : ${decodedJson['message']}');
+
+      // Récupération des nouvelles données de l'utilisateur après l'upload
+      await _getUserById();
+    } else {
+      print('Erreur lors de la mise à jour du profil : ${response.statusCode}');
+    }
+  }
+  //////////////////////////////////////////////////////////
 
   @override
   Widget build(BuildContext context) {
@@ -230,10 +332,26 @@ class _MonComptePageState extends State<MonComptePage> {
               color: Theme.of(context).colorScheme.tertiary,
             ),
           )),
-      body: isLoading
-          ? Center(
-              child:
-                  CircularProgressIndicator()) // Affiche un loader si en cours de chargement
+      body: isUploading // Vérifie si l'image est en cours de chargement
+          ? Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Center(
+                  child:
+                      CircularProgressIndicator(), // Affiche l'indicateur de chargement
+                ),
+                SizedBox(height: 20),
+                Text(
+                  'En attente du chargement...',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black54,
+                  ),
+                ),
+              ],
+            )
           : Container(
               padding: EdgeInsets.only(left: 15, top: 20, right: 15),
               child: GestureDetector(
@@ -271,18 +389,21 @@ class _MonComptePageState extends State<MonComptePage> {
                           Positioned(
                             bottom: 0,
                             right: 0,
-                            child: Container(
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                border:
-                                    Border.all(width: 4, color: Colors.white),
-                                color: Color.fromARGB(255, 206, 136, 5),
-                              ),
-                              child: IconButton(
-                                onPressed: () {},
-                                icon: Icon(
+                            child: InkWell(
+                              onTap: () async {
+                                // Appel de la fonction pour sélectionner une image
+                                await _selectImage();
+                              },
+                              child: Container(
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border:
+                                      Border.all(width: 2, color: Colors.white),
+                                  color: Color.fromARGB(255, 206, 136, 5),
+                                ),
+                                child: Icon(
                                   Icons.edit,
                                   color: Colors.white,
                                 ),
@@ -292,13 +413,13 @@ class _MonComptePageState extends State<MonComptePage> {
                         ],
                       ),
                     ),
-                    SizedBox(height: 30),
+                    SizedBox(height: 2.h),
                     buildTextField('Nom :', nomController),
                     buildTextField('Téléphone :', usernameController),
                     buildTextField('Adresse :', adresseController),
                     buildTextField('Email :', emailController),
                     buildTextField('Spécialité :', specialiteController),
-                    SizedBox(height: 30),
+                    SizedBox(height: 2.h),
                     _buildActionButtons(),
                   ],
                 ),
@@ -309,31 +430,41 @@ class _MonComptePageState extends State<MonComptePage> {
 
   Widget buildTextField(String labelText, TextEditingController controller) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 1.h),
-      child: Row(
+      padding: EdgeInsets.only(bottom: 1.5.h),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            flex: 1,
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 3.w),
             child: Text(
               labelText,
               style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.w500),
             ),
           ),
-          Expanded(
-            flex: 3,
-            child: Container(
-              margin: EdgeInsets.only(right: 1.w),
-              child: TextField(
-                controller: controller,
-                style: TextStyle(fontSize: 10.sp),
-                decoration: InputDecoration(
-                  contentPadding: EdgeInsets.only(bottom: 0.5.h),
-                  hintText: labelText,
-                  hintStyle: TextStyle(
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
+          SizedBox(height: 1.h),
+          TextField(
+            controller: controller,
+            style: TextStyle(fontSize: 10.sp),
+            decoration: InputDecoration(
+              contentPadding: EdgeInsets.symmetric(horizontal: 3.w),
+              hintText: labelText,
+              hintStyle: TextStyle(
+                fontSize: 10.sp,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.tertiary,
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  width: 0.3.w,
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.tertiary,
+                  width: 0.3.w,
                 ),
               ),
             ),
@@ -347,6 +478,21 @@ class _MonComptePageState extends State<MonComptePage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
+        ElevatedButton(
+          onPressed: () {
+            deleteUser();
+          },
+          child: const Text(
+            'Supprimer',
+            style:
+                TextStyle(fontSize: 12, letterSpacing: 2, color: Colors.white),
+          ),
+          style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20))),
+        ),
         OutlinedButton(
           onPressed: () {
             setState(() {
@@ -362,7 +508,7 @@ class _MonComptePageState extends State<MonComptePage> {
             ),
           ),
           style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 40),
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20))),
         ),
@@ -375,7 +521,7 @@ class _MonComptePageState extends State<MonComptePage> {
           ),
           style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromARGB(255, 206, 136, 5),
-              padding: const EdgeInsets.symmetric(horizontal: 40),
+              padding: EdgeInsets.symmetric(horizontal: 5.w),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20))),
         ),
@@ -383,6 +529,163 @@ class _MonComptePageState extends State<MonComptePage> {
     );
   }
 
+  // supprimer un  client
+  void deleteUser() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            "Attention",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+          ),
+          content: Text(
+            "Vous allez supprimer votre compte si vous cliquez sur 'supprimer' ",
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.tertiary,
+            ),
+          ),
+          actions: [
+            SizedBox(height: 2.h),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Padding(
+                //   padding: const EdgeInsets.all(8.0),
+                //   child:
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 2.h),
+                    backgroundColor: Color.fromARGB(255, 206, 136, 5),
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(
+                    "Annuler",
+                    style: TextStyle(
+                      fontSize: 8.sp,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Fermer la boîte de dialogue
+                  },
+                ),
+                // ),
+                SizedBox(
+                  width: 3.w,
+                ),
+                // Padding(
+                //   padding: EdgeInsets.all(0.8.h),
+                // child:
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 2.h),
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: Text(
+                    "Supprimer",
+                    style: TextStyle(
+                      fontSize: 8.sp,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                  onPressed: () async {
+                    // ::::::::::::::::::::::::::::::::::::::::
+                    _FunctiondeleteUser();
+                    //:::::::::::::::::::::::::::::::::::::::::::
+                    Navigator.of(context).pop(); // Fermer la boîte de dialogue
+
+                    // Vider le cache (SharedPreferences)
+                    SharedPreferences prefs =
+                        await SharedPreferences.getInstance();
+                    await prefs.clear(); // Supprimer toutes les données
+                    //:::::::::::::::::::::::::::::::::::::::::::
+
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LoginPage()),
+                    );
+                  },
+                ),
+                // ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _FunctiondeleteUser() async {
+    final url = 'http://192.168.56.1:8010/user/delete/$_id';
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $_token',
+      },
+    );
+    if (response.statusCode == 202) {
+      // setState(() {
+      //   _fetchProprietaireMesure();
+      // });
+      final message = json.decode(response.body)['message'];
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Container(
+            padding: EdgeInsets.all(8),
+            height: 8.h,
+            decoration: BoxDecoration(
+              color: Color.fromARGB(255, 43, 158, 47),
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.white,
+                  size: 20.sp,
+                ),
+                SizedBox(
+                  width: 3.w,
+                ),
+                Expanded(
+                    child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Success :",
+                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
+                    ),
+                    Spacer(),
+                    Text(
+                      '$message',
+                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ))
+              ],
+            ),
+          ),
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+      );
+
+      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      //   content: Text('$message'),
+      // ));
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text('Erreur: Une erreur est produite.'),
+      ));
+    }
+  }
   // Widget buildTextField(
   //     String labelText, String placeholder, bool isPassWordTextField) {
   //   if (labelText == 'Specialité :') {

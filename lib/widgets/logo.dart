@@ -7,7 +7,7 @@ class LogoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    // var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return Padding(
       padding: EdgeInsets.only(
         top: MediaQuery.of(context).padding.top,

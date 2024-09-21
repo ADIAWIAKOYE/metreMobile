@@ -1,4 +1,4 @@
-import 'package:Metre/utilitaires/taille_des_polices.dart';
+// import 'package:Metre/utilitaires/taille_des_polices.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:Metre/pages/login_page.dart';
