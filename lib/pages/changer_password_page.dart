@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
@@ -119,20 +120,17 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
         } else {
           final responseData = jsonDecode(response.body);
           String message = responseData['data'];
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text(message),
-          ));
+          CustomSnackBar.show(context, message: '$message', isError: true);
         }
       } catch (e) {
-        print('Erreur lors de l\'envoi des données: $e');
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text("Erreur lors de la modification du mot de passe."),
-        ));
+        CustomSnackBar.show(context,
+            message:
+                'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+            isError: true);
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Erreur d'authentification. Veuillez vous reconnecter."),
-      ));
+      CustomSnackBar.show(context,
+          message: 'Une erreur s\'est produite....!', isError: true);
     }
   }
 

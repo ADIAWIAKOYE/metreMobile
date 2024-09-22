@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:Metre/bottom_navigationbar/navigation_page.dart';
@@ -80,61 +81,14 @@ class _LoginPageState extends State<LoginPage> {
           );
         } else {
           final message = json.decode(response.body)['data'];
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Container(
-                padding: EdgeInsets.all(8),
-                height: 10.h,
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.all(Radius.circular(10)),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.highlight_off,
-                      color: Colors.white,
-                      size: 20.sp,
-                    ),
-                    SizedBox(
-                      width: 3.w,
-                    ),
-                    Expanded(
-                        child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Erreur :",
-                          style:
-                              TextStyle(fontSize: 12.sp, color: Colors.white),
-                        ),
-                        Spacer(),
-                        Text(
-                          '$message',
-                          style:
-                              TextStyle(fontSize: 10.sp, color: Colors.white),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ))
-                  ],
-                ),
-              ),
-              behavior: SnackBarBehavior.floating,
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-            ),
-          );
-          // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          //   content: Text('$message'),
-          // ));
+          CustomSnackBar.show(context, message: '$message', isError: true);
         }
       } catch (e) {
         print('Error: $e');
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Une erreur s\'est produite. Veuillez réessayer.'),
-        ));
+        CustomSnackBar.show(context,
+            message:
+                'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+            isError: true);
       } finally {
         setState(() {
           _isLoading = false;
@@ -160,11 +114,8 @@ class _LoginPageState extends State<LoginPage> {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', newToken);
       } else {
-        // Handle token refresh error
-        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        //   content: Text('votre token est expirer .'),
-        // ));
-        print('votre token est expirer .');
+        final message = json.decode(response.body)['message'];
+        CustomSnackBar.show(context, message: '$message', isError: true);
       }
     });
   }
@@ -233,56 +184,14 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         final responseData = jsonDecode(response.body);
         String message = responseData['data'];
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Container(
-              padding: EdgeInsets.all(8),
-              height: 10.h,
-              decoration: BoxDecoration(
-                color: Colors.red,
-                borderRadius: BorderRadius.all(Radius.circular(10)),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.highlight_off,
-                    color: Colors.white,
-                    size: 20.sp,
-                  ),
-                  SizedBox(
-                    width: 3.w,
-                  ),
-                  Expanded(
-                      child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Erreur :",
-                        style: TextStyle(fontSize: 12.sp, color: Colors.white),
-                      ),
-                      Spacer(),
-                      Text(
-                        '$message',
-                        style: TextStyle(fontSize: 10.sp, color: Colors.white),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ))
-                ],
-              ),
-            ),
-            behavior: SnackBarBehavior.floating,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-          ),
-        );
+        CustomSnackBar.show(context, message: '$message', isError: true);
       }
     } catch (e) {
-      print('Erreur lors de l\'envoi des données: $e');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Erreur lors de la modification du mot de passe."),
-      ));
+      // print('Erreur lors de l\'envoi des données: $e');
+      CustomSnackBar.show(context,
+          message:
+              'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+          isError: true);
     }
     // }
   }
@@ -335,7 +244,7 @@ class _LoginPageState extends State<LoginPage> {
                       keyboardType: TextInputType.phone,
                       decoration: InputDecoration(
                         prefixIcon: Icon(Icons.phone),
-                        hintText: "Entrez le numéro de votre entreprise",
+                        hintText: "Exp: +22375468913",
                         hintStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
                           fontSize: 10.sp,
@@ -435,6 +344,8 @@ class _LoginPageState extends State<LoginPage> {
                       validator: (value) {
                         if (value == null || value.isEmpty) {
                           return 'Veuillez entrer votre mot de passe';
+                        } else if (value.length < 6) {
+                          return "Le mot de passe doit être supérieur à 6 carractères";
                         }
                         return null;
                       },
@@ -613,7 +524,7 @@ class _LoginPageState extends State<LoginPage> {
                                 text: 'Se connecter?',
                                 style: TextStyle(
                                   color: Color.fromARGB(255, 206, 136, 5),
-                                  fontSize: 12.sp,
+                                  fontSize: 10.sp,
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {

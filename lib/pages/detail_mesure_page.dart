@@ -3,14 +3,11 @@ import 'dart:convert';
 import 'package:Metre/models/clients_model.dart';
 import 'package:Metre/models/mesure_model.dart';
 import 'package:Metre/models/proprioMesures_model.dart';
-// import 'package:Metre/pages/mesure_page.dart';
+import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:Metre/bottom_navigationbar/navigation_page.dart';
-// import 'package:Metre/models/client_model.dart';
-// import 'package:Metre/models/product.dart';
-// import 'package:Metre/widgets/logo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
@@ -74,21 +71,29 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
 // pour afficher le client
   Future<void> _fetchClientDetails() async {
     final url = 'http://192.168.56.1:8010/clients/loadbyid/${widget.clientId}';
-    final response = await http.get(
-      Uri.parse(url),
-      headers: {
-        'Authorization': 'Bearer $_token',
-      },
-    );
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $_token',
+        },
+      );
 
-    if (response.statusCode == 202) {
-      final data = json.decode(response.body)['data'];
-      setState(() {
-        _client = Client.fromJson(data);
-        _isLoading = false;
-      });
-    } else {
-      throw Exception('Échec du chargement du client');
+      if (response.statusCode == 202) {
+        final data = json.decode(response.body)['data'];
+        setState(() {
+          _client = Client.fromJson(data);
+          _isLoading = false;
+        });
+      } else {
+        CustomSnackBar.show(context,
+            message: 'Échec du chargement du client', isError: true);
+      }
+    } catch (e) {
+      CustomSnackBar.show(context,
+          message:
+              'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+          isError: true);
     }
   }
 
@@ -130,7 +135,10 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
             final mesureData = jsonDecode(mesureResponse.body);
 
             if (mesureData == null || mesureData['data'] == null) {
-              throw Exception('Données des mesures manquantes ou incorrectes');
+              CustomSnackBar.show(context,
+                  message:
+                      'Une erreur s\'est produite.  mesures manquantes ou incorrectes .',
+                  isError: true);
             }
 
             final mesures = (mesureData['data'] as List)
@@ -139,8 +147,10 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
 
             proprietaire.mesures = mesures;
           } else {
-            throw Exception(
-                'Échec du chargement des mesures pour le propriétaire: ${proprietaire.id}');
+            CustomSnackBar.show(context,
+                message:
+                    'Une erreur s\'est produite. du chargement des mesures.',
+                isError: true);
           }
         }
 
@@ -149,13 +159,14 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
           // _isLoadingproprio = false;
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Erreur lors du chargement des propros.'),
-        ));
-        throw Exception('Échec du chargement du client');
+        CustomSnackBar.show(context,
+            message: 'Erreur lors du chargement !', isError: true);
       }
     } catch (e) {
-      print('Erreur lors du chargement: $e');
+      CustomSnackBar.show(context,
+          message:
+              'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+          isError: true);
       setState(() {
         _isLoadingp = false;
         // _isLoadingproprio = false;
@@ -180,33 +191,37 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
         _isLoadingproprio = false;
       });
     } else {
-      throw Exception('Échec du chargement du proprio');
+      CustomSnackBar.show(context,
+          message: 'Erreur lors du chargement !', isError: true);
     }
   }
 
   // delete
   Future<void> _delete(String id, String libelleurl) async {
     final url = 'http://192.168.56.1:8010/${libelleurl}/${id}';
-    final response = await http.delete(
-      Uri.parse(url),
-      headers: {
-        'Authorization': 'Bearer $_token',
-      },
-    );
+    try {
+      final response = await http.delete(
+        Uri.parse(url),
+        headers: {
+          'Authorization': 'Bearer $_token',
+        },
+      );
 
-    if (response.statusCode == 202) {
-      setState(() {
-        _fetchProprietaireMesure();
-      });
-      final message = json.decode(response.body)['message'];
-
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('$message'),
-      ));
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Erreur: Une erreur est produite.'),
-      ));
+      if (response.statusCode == 202) {
+        setState(() {
+          _fetchProprietaireMesure();
+        });
+        final message = json.decode(response.body)['message'];
+        CustomSnackBar.show(context, message: '$message', isError: false);
+      } else {
+        final message = json.decode(response.body)['message'];
+        CustomSnackBar.show(context, message: '$message', isError: true);
+      }
+    } catch (e) {
+      CustomSnackBar.show(context,
+          message:
+              'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+          isError: true);
     }
   }
 
@@ -340,7 +355,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                             margin: EdgeInsets.only(left: 0.5.h, right: 1.h),
                             child: InkWell(
                               onTap: () {
-                                print("BUTTON cliqué !");
+                                // print("BUTTON cliqué !");
                                 deleteClient();
                               },
                               child: Container(
@@ -538,21 +553,13 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                             children: [
                               for (var mesureS in mesure.mesures)
                                 Container(
-                                  // padding: EdgeInsets.symmetric(
-                                  //     vertical:
-                                  //         0.5.h), // Adjusted padding
                                   padding: EdgeInsets.all(0), // Removed padding
                                   margin: EdgeInsets.all(0), // Removed margin
                                   child: ListTile(
                                     contentPadding: EdgeInsets
                                         .zero, // Removed default padding
 
-                                    title:
-                                        // Padding(
-                                        //   padding: EdgeInsets.symmetric(
-                                        //       vertical: 5, horizontal: 20),
-                                        //   child:
-                                        Row(
+                                    title: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
@@ -731,7 +738,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
             child: InkWell(
               onTap: () {
                 showBottomSheet(context);
-                print("BUTTON cliqué !");
+                // print("BUTTON cliqué !");
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -811,27 +818,24 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
     );
 
     if (response.statusCode == 202) {
-      final responseData = jsonDecode(response.body);
+      // final responseData = jsonDecode(response.body);
       // print('Mise à jour réussie: ${responseData['message']}');
       // print('Données mises à jour: ${responseData['data']}');
       // Afficher un message de succès
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Mesure ajoutée avec succès'),
-      ));
+      CustomSnackBar.show(context,
+          message: 'Mesure ajoutée avec succès.', isError: false);
+      ;
     } else if (response.statusCode == 400) {
       final responseData = jsonDecode(response.body);
+
       String message = responseData['message'];
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('$message'),
-      ));
-      throw Exception('Échec du chargement du client');
+      CustomSnackBar.show(context, message: '$message', isError: true);
     } else {
       // print('Erreur lors de l\'ajout de la mesure: ${response.statusCode}');
       // print('Message: ${response.body}');
       // Afficher un message d'erreur
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Erreur lors de l\'ajout de la mesure'),
-      ));
+      CustomSnackBar.show(context,
+          message: 'Erreur lors de l\'ajout de la mesure', isError: true);
     }
   }
 
@@ -1285,46 +1289,48 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
       String idproprio, String libelle, String valeur) async {
     valeur = valeur + " cm";
     final url = 'http://192.168.56.1:8010/mesure/newMesure';
-    final response = await http.post(
-      Uri.parse(url),
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization':
-            'Bearer $_token', // Assurez-vous que $_token est défini et valide
-      },
-      body: jsonEncode({
-        "libelle": libelle,
-        "valeur": valeur,
-        "proprietaireMesures": {
-          "id": idproprio,
+    try {
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':
+              'Bearer $_token', // Assurez-vous que $_token est défini et valide
         },
-      }),
-    );
-    if (response.statusCode == 202) {
-      final responseData = jsonDecode(response.body);
-      // print('Mise à jour réussie: ${responseData['message']}');
-      // print('Données mises à jour: ${responseData['data']}');
-      // Afficher un message de succès
-      setState(() {
-        _fetchProprietaireMesure();
-      });
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Mesure ajoutée avec succès'),
-      ));
-    } else if (response.statusCode == 400) {
-      final responseData = jsonDecode(response.body);
-      String message = responseData['message'];
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('$message'),
-      ));
-      throw Exception('Échec du chargement du client');
-    } else {
-      // print('Erreur lors de l\'ajout de la mesure: ${response.statusCode}');
-      // print('Message: ${response.body}');
-      // Afficher un message d'erreur
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Erreur lors de l\'ajout de la mesure'),
-      ));
+        body: jsonEncode({
+          "libelle": libelle,
+          "valeur": valeur,
+          "proprietaireMesures": {
+            "id": idproprio,
+          },
+        }),
+      );
+      if (response.statusCode == 202) {
+        // final responseData = jsonDecode(response.body);
+        // print('Mise à jour réussie: ${responseData['message']}');
+        // print('Données mises à jour: ${responseData['data']}');
+        // Afficher un message de succès
+        setState(() {
+          _fetchProprietaireMesure();
+        });
+        CustomSnackBar.show(context,
+            message: 'Mesure ajoutée avec succès', isError: false);
+      } else if (response.statusCode == 400) {
+        final responseData = jsonDecode(response.body);
+        String message = responseData['message'];
+        CustomSnackBar.show(context, message: '$message', isError: true);
+      } else {
+        // print('Erreur lors de l\'ajout de la mesure: ${response.statusCode}');
+        // print('Message: ${response.body}');
+        // Afficher un message d'erreur
+        CustomSnackBar.show(context,
+            message: 'Erreur lors de l\'ajout de la mesure', isError: true);
+      }
+    } catch (e) {
+      CustomSnackBar.show(context,
+          message:
+              'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+          isError: true);
     }
   }
 
@@ -1542,23 +1548,19 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
 
     if (response.statusCode == 202) {
       final responseData = jsonDecode(response.body);
-      // print('Mise à jour réussie: ${responseData['message']}');
-      // print('Données mises à jour: ${responseData['data']}');
+      String message = responseData['message'];
+      CustomSnackBar.show(context, message: '$message', isError: false);
       // Faites quelque chose avec les données mises à jour, comme mettre à jour l'état de l'application
     } else if (response.statusCode == 400) {
       final responseData = jsonDecode(response.body);
       String message = responseData['message'];
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('$message'),
-      ));
-      throw Exception('Échec du chargement du client');
+      CustomSnackBar.show(context, message: '$message', isError: true);
     } else {
       // print('Erreur lors de la mise à jour du client: ${response.statusCode}');
       // print('Message: ${response.body}');
       // Gérez l'erreur comme nécessaire
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Erreur lors de la mise à jour : ${response.statusCode}'),
-      ));
+      CustomSnackBar.show(context,
+          message: 'Erreur lors de la mise à jour !', isError: true);
     }
   }
 
@@ -1727,59 +1729,16 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
       // setState(() {
       //   _fetchProprietaireMesure();
       // });
+
       final message = json.decode(response.body)['message'];
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Container(
-            padding: EdgeInsets.all(8),
-            height: 8.h,
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, 43, 158, 47),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  color: Colors.white,
-                  size: 20.sp,
-                ),
-                SizedBox(
-                  width: 3.w,
-                ),
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Success :",
-                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                    ),
-                    Spacer(),
-                    Text(
-                      '$message',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ))
-              ],
-            ),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-      );
+      CustomSnackBar.show(context, message: '$message', isError: false);
 
       // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       //   content: Text('$message'),
       // ));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Erreur: Une erreur est produite.'),
-      ));
+      CustomSnackBar.show(context,
+          message: 'Erreur: Une erreur est produite.', isError: true);
     }
   }
 
@@ -1882,157 +1841,16 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
     );
 
     if (response.statusCode == 202) {
-      final responseData = jsonDecode(response.body);
-      // print('Mise à jour réussie: ${responseData['message']}');
-      // print('Données mises à jour: ${responseData['data']}');
-      // Faites quelque chose avec les données mises à jour, comme mettre à jour l'état de l'application
-      // Navigator.pop(context, true);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Container(
-            padding: EdgeInsets.all(8),
-            height: 8.h,
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, 43, 158, 47),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  color: Colors.white,
-                  size: 20.sp,
-                ),
-                SizedBox(
-                  width: 3.w,
-                ),
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Success :",
-                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                    ),
-                    Spacer(),
-                    Text(
-                      'Client modifier avec success ...!',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ))
-              ],
-            ),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-      );
+      CustomSnackBar.show(context,
+          message: 'Client modifier avec success ...!', isError: false);
     } else if (response.statusCode == 400) {
-      final responseData = jsonDecode(response.body);
-      String message = responseData['message'];
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Container(
-            padding: EdgeInsets.all(8),
-            height: 8.h,
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, 194, 7, 7),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  color: Colors.white,
-                  size: 20.sp,
-                ),
-                SizedBox(
-                  width: 3.w,
-                ),
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Opps. Erreur :",
-                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                    ),
-                    Spacer(),
-                    Text(
-                      'Cet téléphone appartient à autre client',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ))
-              ],
-            ),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-      );
-      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      //   content: Text('$message'),
-      // ));
-      throw Exception('Échec du chargement du client');
+      CustomSnackBar.show(context,
+          message: 'Cet téléphone appartient à autre client...!',
+          isError: true);
     } else {
-      // print('Erreur lors de la mise à jour du client: ${response.statusCode}');
-      // print('Message: ${response.body}');
       // Gérez l'erreur comme nécessaire
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Container(
-            padding: EdgeInsets.all(8),
-            height: 8.h,
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, 194, 7, 7),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.error_outline,
-                  color: Colors.white,
-                  size: 20.sp,
-                ),
-                SizedBox(
-                  width: 3.w,
-                ),
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Opps. Erreur :",
-                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                    ),
-                    Spacer(),
-                    Text(
-                      'Erreur lors de la mise à jour : ${response.statusCode}',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ))
-              ],
-            ),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-      );
-      // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      //   content: Text('Erreur lors de la mise à jour : ${response.statusCode}'),
-      // ));
+      CustomSnackBar.show(context,
+          message: 'Erreur lors de la mise à jour...!', isError: true);
     }
   }
 

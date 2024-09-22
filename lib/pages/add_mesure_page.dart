@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:Metre/bottom_navigationbar/navigation_page.dart';
+import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -934,14 +935,16 @@ class _AddMesurePageState extends State<AddMesurePage> {
           // Échec, afficher un message d'erreurù
           final responseData = jsonDecode(response.body);
           String message = responseData['message'];
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('$message'),
-          ));
-          print('Erreur: ${response.body}');
+          CustomSnackBar.show(context, message: '$message', isError: true);
+
+          // print('Erreur: ${response.body}');
         }
       } catch (e) {
         // Gérer l'erreur
-        print('Erreur lors de l\'envoi des données: $e');
+        CustomSnackBar.show(context,
+            message:
+                'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+            isError: true);
       }
     } else {
       print('id et token nulle');

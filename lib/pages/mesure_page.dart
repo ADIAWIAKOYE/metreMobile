@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:Metre/models/clients_model.dart';
+import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/material.dart';
 import 'package:Metre/pages/detail_mesure_page.dart';
 import 'package:Metre/widgets/logo.dart';
@@ -67,18 +68,20 @@ class _MesurePageState extends State<MesurePage> {
             isLoading = false; // Fin du chargement
           });
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Erreur lors du chargement des clients.'),
-          ));
+          CustomSnackBar.show(context,
+              message: 'Erreur lors du chargement des clients.', isError: true);
           setState(() {
             isLoading = false; // Fin du chargement même en cas d'erreur
           });
         }
       } catch (e) {
-        print('Error: $e');
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Une erreur s\'est produite. Veuillez réessayer.'),
-        ));
+        // print('Error: $e');
+
+        CustomSnackBar.show(context,
+            message:
+                'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+            isError: true);
+
         setState(() {
           isLoading = false; // Fin du chargement même en cas d'erreur
         });

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:Metre/models/user_model.dart';
 import 'package:Metre/pages/login_page.dart';
+import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -106,8 +107,10 @@ class _MonComptePageState extends State<MonComptePage> {
       setState(() {
         isLoading = false;
       });
-      print(
-          'Erreur lors du chargement des données utilisateur : ${response.statusCode}');
+      CustomSnackBar.show(context,
+          message:
+              'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+          isError: true);
     }
   }
 
@@ -126,50 +129,8 @@ class _MonComptePageState extends State<MonComptePage> {
 
     if (response.statusCode == 200 || response.statusCode == 202) {
       print('Mise à jour réussie');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Container(
-            padding: EdgeInsets.all(8),
-            height: 8.h,
-            decoration: BoxDecoration(
-              color: Color.fromARGB(255, 43, 158, 47),
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-            ),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.check_circle,
-                  color: Colors.white,
-                  size: 20.sp,
-                ),
-                SizedBox(
-                  width: 3.w,
-                ),
-                Expanded(
-                    child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Success :",
-                      style: TextStyle(fontSize: 14.sp, color: Colors.white),
-                    ),
-                    Spacer(),
-                    Text(
-                      'Mise à jour réussie',
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ))
-              ],
-            ),
-          ),
-          behavior: SnackBarBehavior.floating,
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-      );
+      CustomSnackBar.show(context,
+          message: 'Mise à jour réussie .', isError: false);
     } else {
       final message = json.decode(response.body)['message'];
       print('Erreur lors de la mise à jour : ${response.statusCode}');
@@ -247,7 +208,7 @@ class _MonComptePageState extends State<MonComptePage> {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ));
-      print('Aucune modification détectée');
+      // print('Aucune modification détectée');
     }
   }
 
@@ -681,9 +642,10 @@ class _MonComptePageState extends State<MonComptePage> {
       //   content: Text('$message'),
       // ));
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text('Erreur: Une erreur est produite.'),
-      ));
+      CustomSnackBar.show(context,
+          message:
+              'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+          isError: true);
     }
   }
   // Widget buildTextField(

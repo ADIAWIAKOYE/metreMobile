@@ -1,7 +1,7 @@
-// import 'package:Metre/theme/theme.dart';
+import 'package:Metre/pages/SplashScreen.dart';
 import 'package:Metre/theme/theme_provider.dart';
+import 'package:Metre/widgets/ConnectivityWrapper.dart';
 import 'package:flutter/material.dart';
-import 'package:Metre/pages/welcome_page.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
@@ -15,7 +15,6 @@ void main() {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return Sizer(builder: (context, orientation, deviceType) {
@@ -24,12 +23,15 @@ class MyApp extends StatelessWidget {
       var themeProvider = Provider.of<ThemeProvider>(context);
       var themeData =
           isDarkMode ? themeProvider.darkTheme : themeProvider.lightTheme;
+
       return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Flutter Demo',
-          // theme: Provider.of<ThemeProvider>(context).themeData,
-          theme: themeData,
-          home: WelcomePage());
+        debugShowCheckedModeBanner: false,
+        title: 'Metre App',
+        theme: themeData,
+        home: ConnectivityWrapper(
+          child: SplashScreen(), // Afficher la SplashScreen d'abord
+        ),
+      );
     });
   }
 }

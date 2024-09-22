@@ -4,6 +4,7 @@ import 'package:Metre/models/user_model.dart';
 import 'package:Metre/pages/clientSupprimer_page.dart';
 import 'package:Metre/pages/login_page.dart';
 import 'package:Metre/utilitaires/taille_des_polices.dart';
+import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -74,8 +75,10 @@ class _ProfilePageState extends State<ProfilePage> {
           isLoading = false;
         });
       } else {
-        print(
-            'Erreur lors du chargement des données utilisateur : ${response.statusCode}');
+        CustomSnackBar.show(context,
+            message:
+                'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+            isError: true);
       }
     } else {
       print('id ou token null');

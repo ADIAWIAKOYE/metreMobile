@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:Metre/pages/login_page.dart';
@@ -89,24 +90,23 @@ class _SignupPageState extends State<SignupPage> {
         Navigator.of(context).pop();
 
         if (response.statusCode == 200) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Inscription réussie !'),
-          ));
+          CustomSnackBar.show(context,
+              message: 'Inscription réussie. Veuillez vous connectés',
+              isError: false);
           Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => LoginPage()),
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Erreur lors de l\'inscription. Veuillez réessayer.'),
-          ));
+          final message = json.decode(response.body)['data'];
+          CustomSnackBar.show(context, message: '$message', isError: true);
         }
       } catch (e) {
         Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(
-              'Une erreur s\'est produite. Veuillez vérifier votre connexion.'),
-        ));
+        CustomSnackBar.show(context,
+            message:
+                'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+            isError: true);
       }
     }
   }
@@ -118,7 +118,7 @@ class _SignupPageState extends State<SignupPage> {
       body: ListView(
         children: [
           Container(
-            margin: EdgeInsets.all(3.h),
+            margin: EdgeInsets.all(2.h),
             child: Form(
               key: _formKey, // Clé pour le formulaire
               child: Column(
@@ -131,7 +131,7 @@ class _SignupPageState extends State<SignupPage> {
                   Text(
                     "Inscrivez-vous",
                     style: TextStyle(
-                      fontSize: 14.sp,
+                      fontSize: 12.sp,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -147,7 +147,7 @@ class _SignupPageState extends State<SignupPage> {
                     keyboardType: TextInputType.name,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.account_circle),
-                      hintText: "Entrez votre nom de l'entreprise",
+                      hintText: "Exp: MonStyl Couture",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
                         fontSize: 10.sp,
@@ -204,7 +204,7 @@ class _SignupPageState extends State<SignupPage> {
                     keyboardType: TextInputType.text,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.location_on),
-                      hintText: "Entrez l'adresse de votre entreprise",
+                      hintText: "Exp: Bamako, yirimadio, 1008logt",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
                         fontSize: 10.sp,
@@ -260,7 +260,7 @@ class _SignupPageState extends State<SignupPage> {
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.phone),
-                      hintText: "Entrez le numéro votre entreprise",
+                      hintText: "Exp: +22375468913",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
                         fontSize: 10.sp,
@@ -321,7 +321,7 @@ class _SignupPageState extends State<SignupPage> {
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       prefixIcon: Icon(Icons.mail),
-                      hintText: "Entrez l'email votre entreprise",
+                      hintText: "Exp: exemple@gmail.com",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
                         fontSize: 10.sp,
@@ -593,7 +593,7 @@ class _SignupPageState extends State<SignupPage> {
                   ),
 
                   SizedBox(
-                    height: 6.h,
+                    height: 5.h,
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () {
@@ -620,7 +620,7 @@ class _SignupPageState extends State<SignupPage> {
                       child: Text(
                         "S'inscrire",
                         style: TextStyle(
-                          fontSize: 12.sp,
+                          fontSize: 10.sp,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),

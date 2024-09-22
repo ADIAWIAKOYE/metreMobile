@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:Metre/bottom_navigationbar/navigation_page.dart';
 import 'package:Metre/models/clients_model.dart';
+import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -68,18 +69,21 @@ class _ClientSupprimerPageState extends State<ClientSupprimerPage> {
             isLoading = false; // Fin du chargement
           });
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            content: Text('Erreur lors du chargement des clients.'),
-          ));
+          CustomSnackBar.show(context,
+              message: 'Erreur lors du chargement des clients.', isError: true);
+
           setState(() {
             isLoading = false; // Fin du chargement même en cas d'erreur
           });
         }
       } catch (e) {
-        print('Error: $e');
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text('Une erreur s\'est produite. Veuillez réessayer.'),
-        ));
+        CustomSnackBar.show(context,
+            message: 'Une erreur s\'est produite. Veuillez réessayer.',
+            isError: true);
+        // print('Error: $e');
+        // ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        //   content: Text('Une erreur s\'est produite. Veuillez réessayer.'),
+        // ));
         setState(() {
           isLoading = false; // Fin du chargement même en cas d'erreur
         });
