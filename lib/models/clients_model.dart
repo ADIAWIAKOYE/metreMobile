@@ -34,6 +34,7 @@ class Client {
   final String numero;
   final String adresse;
   final String email;
+  final Utilisateur utilisateur;
 
   Client({
     required this.id,
@@ -42,6 +43,7 @@ class Client {
     required this.numero,
     required this.adresse,
     required this.email,
+    required this.utilisateur,
   });
 
   factory Client.fromJson(Map<String, dynamic> json) {
@@ -52,6 +54,39 @@ class Client {
       numero: json['numero'],
       adresse: json['adresse'],
       email: json['email'],
+      utilisateur: Utilisateur.fromJson(json['utilisateur']),
+    );
+  }
+}
+
+class Utilisateur {
+  final String id;
+  final String nom;
+  final String adresse;
+  final String specialite;
+  final String profile;
+  final String email;
+  final String username;
+
+  Utilisateur({
+    required this.id,
+    required this.nom,
+    required this.adresse,
+    required this.specialite,
+    required this.profile,
+    required this.email,
+    required this.username,
+  });
+
+  factory Utilisateur.fromJson(Map<String, dynamic> json) {
+    return Utilisateur(
+      id: json['id'],
+      nom: json['nom'],
+      adresse: json['adresse'],
+      specialite: json['specialite'],
+      profile: json['profile'],
+      email: json['email'],
+      username: json['username'],
     );
   }
 }

@@ -311,6 +311,10 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                         {'label': 'Téléphone', 'value': _client.numero},
                         {'label': 'Adresse', 'value': _client.adresse},
                         {'label': 'Email', 'value': _client.email},
+                        {
+                          'label': 'Créer par',
+                          'value': _client.utilisateur.nom
+                        },
                       ])
                         Padding(
                           padding: EdgeInsets.symmetric(
@@ -1867,6 +1871,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
     final emailController = TextEditingController(text: _client.email);
     final telephoneController = TextEditingController(text: _client.numero);
     final adresseController = TextEditingController(text: _client.adresse);
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -2197,6 +2202,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                           await updateClient(updatedFields);
                           Navigator.of(context).pop();
                           // Crée un nouveau client avec les nouvelles valeurs
+
                           final updatedClient = Client(
                             id: widget.clientId,
                             nom: nomController.text,
@@ -2204,6 +2210,14 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                             email: emailController.text,
                             numero: telephoneController.text,
                             adresse: adresseController.text,
+                            utilisateur: Utilisateur(
+                                id: "id",
+                                nom: "nom",
+                                adresse: "adresse",
+                                specialite: "specialite",
+                                profile: "profile",
+                                email: "email",
+                                username: "username"),
                           );
 
                           // Appelle le callback pour mettre à jour les informations affichées

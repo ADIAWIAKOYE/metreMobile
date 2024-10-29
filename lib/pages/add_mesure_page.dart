@@ -95,12 +95,12 @@ class _AddMesurePageState extends State<AddMesurePage> {
   bool isCompleted = false;
   List<Step> stepList() => [
         Step(
-          title: const Text(
+          title: Text(
             'Données personnels',
             style: TextStyle(
               // color: Colors.black,
               fontWeight: FontWeight.w700,
-              fontSize: 12,
+              fontSize: 10.sp,
             ),
           ),
           isActive: _currentStep >= 0,
@@ -113,18 +113,21 @@ class _AddMesurePageState extends State<AddMesurePage> {
                   controller: nomController,
                   keyboardType: TextInputType.name,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.account_circle),
+                    prefixIcon: Icon(
+                      Icons.account_circle,
+                      size: 15.sp,
+                    ),
                     prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                     hintText: "Entrez le nom ",
                     hintStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
-                      fontSize: 12,
+                      fontSize: 10.sp,
                     ),
 
                     labelText: "Nom",
                     labelStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
-                      fontSize: 12,
+                      fontSize: 10.sp,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -143,8 +146,8 @@ class _AddMesurePageState extends State<AddMesurePage> {
                     ),
 
                     contentPadding: EdgeInsets.symmetric(
-                        vertical:
-                            10), // Ajustez la valeur de la marge verticale selon vos besoins
+                        vertical: 1
+                            .h), // Ajustez la valeur de la marge verticale selon vos besoins
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -154,24 +157,27 @@ class _AddMesurePageState extends State<AddMesurePage> {
                   },
                 ),
                 SizedBox(
-                  height: 15,
+                  height: 2.h,
                 ),
                 TextFormField(
                   controller: prenomController,
                   keyboardType: TextInputType.name,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.account_circle),
+                    prefixIcon: Icon(
+                      Icons.account_circle,
+                      size: 15.sp,
+                    ),
                     prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                     hintText: "Entrez le prenom ",
                     hintStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
-                      fontSize: 12,
+                      fontSize: 10.sp,
                     ),
 
                     labelText: "prenom",
                     labelStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
-                      fontSize: 12,
+                      fontSize: 10.sp,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -196,8 +202,8 @@ class _AddMesurePageState extends State<AddMesurePage> {
                       ), // Couleur de la bordure lorsqu'elle est en état de focus
                     ),
                     contentPadding: EdgeInsets.symmetric(
-                        vertical:
-                            10), // Ajustez la valeur de la marge verticale selon vos besoins
+                        vertical: 1
+                            .h), // Ajustez la valeur de la marge verticale selon vos besoins
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -207,24 +213,27 @@ class _AddMesurePageState extends State<AddMesurePage> {
                   },
                 ),
                 SizedBox(
-                  height: 15,
+                  height: 2.h,
                 ),
                 TextFormField(
                   controller: emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.email),
+                    prefixIcon: Icon(
+                      Icons.email,
+                      size: 15.sp,
+                    ),
                     prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                     hintText: "exemple@gmail.com",
                     hintStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
-                      fontSize: 12,
+                      fontSize: 10.sp,
                     ),
 
                     labelText: "Email",
                     labelStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
-                      fontSize: 12,
+                      fontSize: 10.sp,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -242,29 +251,32 @@ class _AddMesurePageState extends State<AddMesurePage> {
                       ), // Couleur de la bordure lorsqu'elle est en état de focus
                     ),
                     contentPadding: EdgeInsets.symmetric(
-                        vertical:
-                            10), // Ajustez la valeur de la marge verticale selon vos besoins
+                        vertical: 1
+                            .h), // Ajustez la valeur de la marge verticale selon vos besoins
                   ),
                 ),
                 SizedBox(
-                  height: 15,
+                  height: 2.h,
                 ),
                 TextFormField(
                   controller: telephoneController,
                   keyboardType: TextInputType
                       .phone, // Clavier téléphonique pour permettre la saisie de l'indicatif de pays
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.phone),
+                    prefixIcon: Icon(
+                      Icons.phone,
+                      size: 15.sp,
+                    ),
                     prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                     hintText: "+XXXXXXXXXXX",
                     hintStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
-                      fontSize: 12,
+                      fontSize: 10.sp,
                     ),
                     labelText: "Téléphone",
                     labelStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
-                      fontSize: 12,
+                      fontSize: 10.sp,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -288,7 +300,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                       ), // Couleur de la bordure lorsqu'elle est en état de focus
                     ),
                     contentPadding: EdgeInsets.symmetric(
-                      vertical: 10,
+                      vertical: 1.h,
                     ),
                   ),
                   validator: (value) {
@@ -299,23 +311,26 @@ class _AddMesurePageState extends State<AddMesurePage> {
                   },
                 ),
                 SizedBox(
-                  height: 15,
+                  height: 2.h,
                 ),
                 TextFormField(
                   controller: adresseController,
                   keyboardType: TextInputType.text,
                   decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.location_on),
+                    prefixIcon: Icon(
+                      Icons.location_on,
+                      size: 15.sp,
+                    ),
                     prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                     hintText: "Entrer l'adresse",
                     hintStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
-                      fontSize: 12,
+                      fontSize: 10.sp,
                     ),
                     labelText: "Adresse",
                     labelStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
-                      fontSize: 12,
+                      fontSize: 10.sp,
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
@@ -332,7 +347,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                       ),
                     ),
                     contentPadding: EdgeInsets.symmetric(
-                      vertical: 10,
+                      vertical: 1.h,
                     ),
                   ),
                   validator: (value) {
@@ -352,7 +367,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
             style: TextStyle(
               // color: Colors.black,
               fontWeight: FontWeight.w700,
-              fontSize: 12,
+              fontSize: 10.sp,
             ),
           ),
           isActive: _currentStep >= 1,
@@ -364,17 +379,20 @@ class _AddMesurePageState extends State<AddMesurePage> {
                 controller: proprietaireController,
                 keyboardType: TextInputType.text,
                 decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.location_on),
+                  prefixIcon: Icon(
+                    Icons.person_2_outlined,
+                    size: 15.sp,
+                  ),
                   prefixIconColor: Colors.transparent,
                   hintText: "Entrer nom propriétaire",
                   hintStyle: TextStyle(
                     color: Color.fromARGB(255, 132, 134, 135),
-                    fontSize: 12,
+                    fontSize: 10.sp,
                   ),
                   labelText: "Proprietaire",
                   labelStyle: TextStyle(
                     color: Color.fromARGB(255, 132, 134, 135),
-                    fontSize: 12,
+                    fontSize: 10.sp,
                   ),
                   enabledBorder: OutlineInputBorder(
                     // borderRadius: BorderRadius.circular(10),
@@ -391,7 +409,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                     ),
                   ),
                   contentPadding: EdgeInsets.symmetric(
-                    vertical: 10,
+                    vertical: 1.h,
                   ),
                 ),
                 onChanged: (value) {
@@ -401,7 +419,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                 },
               ),
               SizedBox(
-                height: 15,
+                height: 2.h,
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -416,12 +434,12 @@ class _AddMesurePageState extends State<AddMesurePage> {
                             hintText: "Selectonner",
                             hintStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 10,
+                              fontSize: 10.sp,
                             ),
                             labelText: "Selectonner",
                             labelStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 10,
+                              fontSize: 10.sp,
                             ),
                             enabledBorder: OutlineInputBorder(
                               // borderRadius: BorderRadius.circular(10),
@@ -438,7 +456,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                               ),
                             ),
                             contentPadding:
-                                EdgeInsets.symmetric(horizontal: 10),
+                                EdgeInsets.symmetric(horizontal: 1.5.w),
                           ),
                           // value: selectedItem,
                           onChanged: (newValue) {
@@ -462,7 +480,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                           }).toList(),
                         ),
                       ),
-                      SizedBox(width: 10),
+                      SizedBox(width: 1.w),
                       Expanded(
                         child: TextFormField(
                           onChanged: (value) {
@@ -482,12 +500,12 @@ class _AddMesurePageState extends State<AddMesurePage> {
                             hintText: "Valeur",
                             hintStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 10,
+                              fontSize: 10.sp,
                             ),
                             labelText: "Valeur",
                             labelStyle: TextStyle(
                               color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 10,
+                              fontSize: 10.sp,
                             ),
                             enabledBorder: OutlineInputBorder(
                               // borderRadius: BorderRadius.circular(10),
@@ -504,7 +522,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                               ),
                             ),
                             contentPadding:
-                                EdgeInsets.symmetric(horizontal: 10),
+                                EdgeInsets.symmetric(horizontal: 1.5.w),
                           ),
                         ),
                       ),
@@ -550,16 +568,16 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                               BorderRadius.circular(1),
                                         ),
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 8),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 1.5.w, vertical: 1.h),
                                           child: Text(
                                             dropdownValue,
-                                            style: TextStyle(fontSize: 10),
+                                            style: TextStyle(fontSize: 10.sp),
                                           ),
                                         ),
                                       ),
                                     ),
-                                    SizedBox(width: 10),
+                                    SizedBox(width: 1.w),
                                     Expanded(
                                       child: Container(
                                         decoration: BoxDecoration(
@@ -573,16 +591,16 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                               BorderRadius.circular(1),
                                         ),
                                         child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                              horizontal: 10, vertical: 8),
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 1.5.w, vertical: 1.h),
                                           child: Text(
                                             fieldValue,
-                                            style: TextStyle(fontSize: 10),
+                                            style: TextStyle(fontSize: 10.sp),
                                           ),
                                         ),
                                       ),
                                     ),
-                                    SizedBox(width: 10),
+                                    SizedBox(width: 1.w),
                                     IconButton(
                                       onPressed: () {
                                         setState(() {
@@ -612,7 +630,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                       },
                                       icon: Icon(
                                         Icons.delete,
-                                        size: 30,
+                                        size: 25.sp,
                                         color: Colors.red,
                                       ),
                                     ),
@@ -629,13 +647,13 @@ class _AddMesurePageState extends State<AddMesurePage> {
                         },
                         icon: Icon(
                           Icons.add_box,
-                          size: 40,
+                          size: 30.sp,
                           color: Color.fromARGB(255, 206, 136, 5),
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 1.h),
                   Container(
                     decoration: BoxDecoration(
                       border: Border.all(
@@ -671,7 +689,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
         children: [
           // LogoWidget(),
           SizedBox(
-              height: 10), // Ajouter un espacement entre le logo et le texte
+              height: 1.h), // Ajouter un espacement entre le logo et le texte
           SizedBox(
             // height: 50,
             width: double.infinity,
@@ -694,13 +712,12 @@ class _AddMesurePageState extends State<AddMesurePage> {
                 ],
               ),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                padding: EdgeInsets.symmetric(horizontal: 2.h, vertical: 5),
                 child: Text(
                   'Ajouter un nouveau Client', // Ajoutez votre texte personnalisé ici
                   textAlign: TextAlign.center, // Centrer le texte
                   style: TextStyle(
-                    fontSize: 14,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w700,
                     color: Theme.of(context).colorScheme.tertiary,
                   ),
@@ -708,7 +725,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
               ),
             ),
           ),
-          SizedBox(height: 10),
+          SizedBox(height: 1.h),
           // Assurez-vous que ce widget a une taille définie
           Expanded(
             child: Padding(
@@ -765,7 +782,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                         color: Colors.white,
                                         fontWeight: FontWeight.w700,
                                         letterSpacing: 2,
-                                        fontSize: 13),
+                                        fontSize: 10.sp),
                                   ),
                                   style: ButtonStyle(
                                     backgroundColor:
@@ -794,7 +811,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                         color: Colors.white,
                                         fontWeight: FontWeight.w700,
                                         letterSpacing: 2,
-                                        fontSize: 13),
+                                        fontSize: 10.sp),
                                   ),
                                   style: ButtonStyle(
                                     backgroundColor:
@@ -825,7 +842,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                                     color: Colors.white,
                                     fontWeight: FontWeight.w700,
                                     letterSpacing: 2,
-                                    fontSize: 13),
+                                    fontSize: 10.sp),
                               ),
                               style: ButtonStyle(
                                 backgroundColor:
@@ -966,7 +983,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
     selectedItems.forEach((champ) {
       String valeur =
           textFieldsValues[champ] ?? ""; // Valeur par défaut si vide
-      mesures.add({'champ': champ, 'valeur': valeur});
+      mesures.add({'libelle': champ, 'valeur': valeur});
     });
 
     // Afficher les valeurs dans le modal bottom sheet
@@ -1022,7 +1039,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: List.generate(mesures.length, (index) {
-                  String champ = mesures[index]['champ']!;
+                  String champ = mesures[index]['libelle']!;
                   String valeur = mesures[index]['valeur']!;
                   return Text('$champ : $valeur');
                 }),

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:Metre/models/user_model.dart';
 import 'package:Metre/pages/clientSupprimer_page.dart';
+import 'package:Metre/pages/collaborateur_page.dart';
 import 'package:Metre/pages/login_page.dart';
 import 'package:Metre/utilitaires/taille_des_polices.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
@@ -25,6 +26,8 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   late Utilisateur_model user;
   bool isLoading = true;
+
+  late String messages;
 
   String? _id;
   String? _token;
@@ -57,7 +60,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> _getUserByIduser() async {
     if (_id != null && _token != null) {
-      final url = 'http://192.168.56.1:8010/user/loadById/$_id';
+      final url = 'http://192.168.56.1:8010/user/getUserPrincipale/$_id';
 
       final response = await http.get(
         Uri.parse(url),
@@ -69,6 +72,8 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (response.statusCode == 202) {
         final jsonData = json.decode(response.body)['data'];
+        final message = json.decode(response.body)['message'];
+        messages = message;
         setState(() {
           user = Utilisateur_model.fromJson(
               jsonData); // Utilisation du modèle User
@@ -153,19 +158,32 @@ class _ProfilePageState extends State<ProfilePage> {
                       onTap: () =>
                           _navigateToPage(context, const ChangerPasswordPage()),
                     ),
+                    if (messages == "ok")
+                      SizedBox(
+                        height: 4.h,
+                      ),
+                    // Changer mot de passe
+                    if (messages == "ok")
+                      _buildMenuOption(
+                        context,
+                        icon: Icons.person_add_disabled,
+                        label: "Client Supprimer",
+                        onTap: () => _navigateToPage(
+                            context, const ClientSupprimerPage()),
+                      ),
                     SizedBox(
                       height: 4.h,
                     ),
-                    // Changer mot de passe
-                    _buildMenuOption(
-                      context,
-                      icon: Icons.person_add_disabled,
-                      label: "Client Supprimer",
-                      onTap: () =>
-                          _navigateToPage(context, const ClientSupprimerPage()),
-                    ),
+                    if (messages == "ok")
+                      _buildMenuOption(
+                        context,
+                        icon: Icons.people_outline_outlined,
+                        label: "Mes Collaborateurs",
+                        onTap: () =>
+                            _navigateToPage(context, const CollaborateurPage()),
+                      ),
                     SizedBox(
-                      height: 7.h,
+                      height: 4.h,
                     ),
                     Column(
                       mainAxisSize: MainAxisSize.min,
@@ -174,21 +192,28 @@ class _ProfilePageState extends State<ProfilePage> {
                           child: Text(
                             'Deconnecter',
                             style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 2,
-                                fontSize: 13),
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 2,
+                              fontSize: 10.sp,
+                            ),
                           ),
                           style: ButtonStyle(
-                              backgroundColor:
-                                  MaterialStateProperty.all<Color>(Colors.red),
-                              shape: MaterialStateProperty.all<
-                                      RoundedRectangleBorder>(
-                                  RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.zero,
-                                      side: BorderSide(color: Colors.red)))),
+                            backgroundColor:
+                                MaterialStateProperty.all<Color>(Colors.red),
+                            shape: MaterialStateProperty.all<
+                                    RoundedRectangleBorder>(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.zero,
+                                    side: BorderSide(color: Colors.red))),
+                            padding:
+                                MaterialStateProperty.all<EdgeInsetsGeometry>(
+                              EdgeInsets.symmetric(
+                                  vertical: 1.h,
+                                  horizontal: 3.w), // Ajout du padding
+                            ),
+                          ),
                           onPressed: () {
-                            print('Vous allez vous deconnecter');
                             seDeconnecter();
                           },
                         ),

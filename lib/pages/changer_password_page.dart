@@ -163,7 +163,7 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
             'Changer mon mot de passe',
             // style: Theme.of(context).textTheme.headline4,
             // textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
           ),
         ),
         actions: [
@@ -222,37 +222,37 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                       hintText: "Entrez le nouveau mot de passe ",
                       hintStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
-                          fontSize: 12),
+                          fontSize: 10.sp),
 
                       labelText: "Nouveau mot de passe",
                       labelStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
-                          fontSize: 12),
+                          fontSize: 10.sp),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
                               255, 206, 136, 5), // Couleur de la bordure
-                          width: 1.5, // Largeur de la bordure
+                          width: 0.4.w, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(255, 206, 136, 5),
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Colors.red,
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
                       contentPadding: EdgeInsets.symmetric(
-                          vertical:
-                              10), // Ajustez la valeur de la marge verticale selon vos besoins
+                          vertical: 1
+                              .h), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -262,7 +262,7 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                     },
                   ),
                   SizedBox(
-                    height: 30,
+                    height: 3.h,
                   ),
                   TextFormField(
                     controller: confirmeNewPassword,
@@ -288,37 +288,37 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                       hintText: "Entrez le mot de passe confirmer ",
                       hintStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
-                          fontSize: 12),
+                          fontSize: 10.sp),
 
                       labelText: "confirmer le mot de passe",
                       labelStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
-                          fontSize: 12),
+                          fontSize: 10.sp),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(
                               255, 206, 136, 5), // Couleur de la bordure
-                          width: 1.5, // Largeur de la bordure
+                          width: 0.4.w, // Largeur de la bordure
                         ),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Color.fromARGB(255, 206, 136, 5),
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
                           color: Colors.red,
-                          width: 1.5,
+                          width: 0.4.w,
                         ), // Couleur de la bordure lorsqu'elle est en état de focus
                       ),
                       contentPadding: EdgeInsets.symmetric(
-                          vertical:
-                              10), // Ajustez la valeur de la marge verticale selon vos besoins
+                          vertical: 1
+                              .h), // Ajustez la valeur de la marge verticale selon vos besoins
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -328,7 +328,7 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                     },
                   ),
                   SizedBox(
-                    height: 50,
+                    height: 5.h,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -344,7 +344,7 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                         child: Text(
                           'Annuler',
                           style: TextStyle(
-                            fontSize: 13,
+                            fontSize: 10.sp,
                             letterSpacing: 2,
                             color: Theme.of(context).colorScheme.tertiary,
                           ),
@@ -364,7 +364,7 @@ class _ChangerPasswordPageState extends State<ChangerPasswordPage> {
                         child: Text(
                           'Modifier',
                           style: TextStyle(
-                              fontSize: 13,
+                              fontSize: 10.sp,
                               letterSpacing: 2,
                               color: Colors.white),
                         ),

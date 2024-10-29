@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:Metre/pages/add_mesure_page.dart';
 import 'package:Metre/pages/mesure_page.dart';
 import 'package:Metre/pages/profile_page.dart';
+import 'package:sizer/sizer.dart';
 
 class NavigationBarPage extends StatefulWidget {
   const NavigationBarPage({super.key});
@@ -37,10 +38,10 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
                 selectedItemColor: Color.fromARGB(255, 206, 136, 5),
                 selectedLabelStyle: TextStyle(color: Colors.black),
                 unselectedItemColor: Theme.of(context).colorScheme.tertiary,
-                selectedFontSize: 12,
+                selectedFontSize: 8.sp,
                 showSelectedLabels: true,
                 showUnselectedLabels: false,
-                iconSize: 30, // Taille des icônes
+                iconSize: 20.sp, // Taille des icônes
                 onTap: (index) {
                   setState(() {
                     myCurrentIndex = index;

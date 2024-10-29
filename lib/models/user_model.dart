@@ -21,6 +21,7 @@ class Utilisateur_model {
   final String email;
   final String username;
   final bool isActive;
+  final bool isDeleted;
   final List<Role> roles;
 
   Utilisateur_model({
@@ -32,6 +33,7 @@ class Utilisateur_model {
     required this.email,
     required this.username,
     required this.isActive,
+    required this.isDeleted,
     required this.roles,
   });
 
@@ -48,6 +50,7 @@ class Utilisateur_model {
       email: json['email'] ?? '',
       username: json['username'],
       isActive: json['isActive'],
+      isDeleted: json['isDeleted'],
       roles: rolesList,
     );
   }

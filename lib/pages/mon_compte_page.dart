@@ -80,9 +80,6 @@ class _MonComptePageState extends State<MonComptePage> {
       Uri.parse(url),
       headers: {'Authorization': 'Bearer $_token'},
     );
-    // print('Code de statut: ${response.statusCode}');
-    // print(
-    //     'Contenu de la réponse : ${response.body}'); // Ajoute ceci pour déboguer
     if (response.statusCode == 202) {
       final jsonData = json.decode(response.body)['data'];
       setState(() {
@@ -407,7 +404,10 @@ class _MonComptePageState extends State<MonComptePage> {
             controller: controller,
             style: TextStyle(fontSize: 10.sp),
             decoration: InputDecoration(
-              contentPadding: EdgeInsets.symmetric(horizontal: 3.w),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 3.w,
+                vertical: 2.w,
+              ),
               hintText: labelText,
               hintStyle: TextStyle(
                 fontSize: 10.sp,
@@ -428,6 +428,9 @@ class _MonComptePageState extends State<MonComptePage> {
                   width: 0.3.w,
                 ),
               ),
+              // contentPadding: EdgeInsets.symmetric(
+              //     vertical: 2.w,
+              //   ),
             ),
           ),
         ],
@@ -443,14 +446,17 @@ class _MonComptePageState extends State<MonComptePage> {
           onPressed: () {
             deleteUser();
           },
-          child: const Text(
+          child: Text(
             'Supprimer',
-            style:
-                TextStyle(fontSize: 12, letterSpacing: 2, color: Colors.white),
+            style: TextStyle(
+                fontSize: 10.sp, letterSpacing: 2, color: Colors.white),
           ),
           style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
-              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              padding: EdgeInsets.symmetric(
+                horizontal: 5.w,
+                vertical: 1.w,
+              ),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20))),
         ),
@@ -463,26 +469,32 @@ class _MonComptePageState extends State<MonComptePage> {
           child: Text(
             'Annuler',
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 10.sp,
               letterSpacing: 2,
               color: Theme.of(context).colorScheme.tertiary,
             ),
           ),
           style: OutlinedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              padding: EdgeInsets.symmetric(
+                horizontal: 5.w,
+                vertical: 1.w,
+              ),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20))),
         ),
         ElevatedButton(
           onPressed: _saveChanges,
-          child: const Text(
+          child: Text(
             'Modifier',
-            style:
-                TextStyle(fontSize: 12, letterSpacing: 2, color: Colors.white),
+            style: TextStyle(
+                fontSize: 10.sp, letterSpacing: 2, color: Colors.white),
           ),
           style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromARGB(255, 206, 136, 5),
-              padding: EdgeInsets.symmetric(horizontal: 5.w),
+              padding: EdgeInsets.symmetric(
+                horizontal: 5.w,
+                vertical: 1.w,
+              ),
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20))),
         ),
@@ -582,7 +594,7 @@ class _MonComptePageState extends State<MonComptePage> {
 
   Future<void> _FunctiondeleteUser() async {
     final url = 'http://192.168.56.1:8010/user/delete/$_id';
-    final response = await http.post(
+    final response = await http.delete(
       Uri.parse(url),
       headers: {
         'Authorization': 'Bearer $_token',

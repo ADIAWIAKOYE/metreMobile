@@ -73,14 +73,14 @@ class _LoginPageState extends State<LoginPage> {
           await prefs.setString('username', _username);
           await prefs.setString('id', id);
 
-          _startTokenRefreshTimer(refreshToken);
+          // _startTokenRefreshTimer(refreshToken);
 
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => NavigationBarPage()),
           );
         } else {
-          final message = json.decode(response.body)['data'];
+          final message = json.decode(response.body)['message'];
           CustomSnackBar.show(context, message: '$message', isError: true);
         }
       } catch (e) {
@@ -97,28 +97,28 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _startTokenRefreshTimer(String refreshToken) {
-    Timer.periodic(Duration(milliseconds: 360000), (timer) async {
-      final String url = 'http://192.168.56.1:8010/user/refreshtoken';
+  // void _startTokenRefreshTimer(String refreshToken) {
+  //   Timer.periodic(Duration(milliseconds: 300000), (timer) async {
+  //     final String url = 'http://192.168.56.1:8010/user/refreshtoken';
 
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'refreshToken': refreshToken}),
-      );
+  //     final response = await http.post(
+  //       Uri.parse(url),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode({'refreshToken': refreshToken}),
+  //     );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final String newToken = data['accessToken'];
+  //     if (response.statusCode == 200) {
+  //       final data = jsonDecode(response.body);
+  //       final String newToken = data['accessToken'];
 
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', newToken);
-      } else {
-        final message = json.decode(response.body)['message'];
-        CustomSnackBar.show(context, message: '$message', isError: true);
-      }
-    });
-  }
+  //       final prefs = await SharedPreferences.getInstance();
+  //       await prefs.setString('token', newToken);
+  //     } else {
+  //       final message = json.decode(response.body)['message'];
+  //       CustomSnackBar.show(context, message: '$message', isError: true);
+  //     }
+  //   });
+  // }
 
   Future<void> _submitFormOubliPassword() async {
     String _phone = phoneMO.text;

@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:Metre/models/clients_model.dart';
+import 'package:Metre/models/user_model.dart';
+import 'package:Metre/pages/login_page.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/material.dart';
 import 'package:Metre/pages/detail_mesure_page.dart';
@@ -10,25 +13,43 @@ import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
 
 class MesurePage extends StatefulWidget {
-  const MesurePage({Key? key});
+  const MesurePage({Key? key}) : super(key: key);
 
   @override
   State<MesurePage> createState() => _MesurePageState();
 }
 
 class _MesurePageState extends State<MesurePage> {
+  Utilisateur_model? user;
+  bool isActive = false;
+  bool isDeleted = false;
+
   List<ClientsModels> listeDesClients = [];
   List<ClientsModels> displayedListe = [];
   bool isLoading = true; // Indicateur de chargement
+  bool isLoadingMore =
+      false; // Indicateur de chargement des pages supplémentaires
+  bool isLastPage = false; // Indicateur si nous avons atteint la dernière page
+
+  int currentPage = 0; // La page actuelle
+  int pageSize = 10; // Le nombre d'éléments à afficher par page
+  final ScrollController _scrollController = ScrollController();
 
   String? _id;
   String? _token;
+  String? _refreshToken;
+  Timer? _refreshTimer; // Timer pour le rafraîchissement du token
 
   @override
   void initState() {
     super.initState();
     _loadUserData().then((_) {
       _fetchClients();
+      _scrollController.removeListener(
+          _onScroll); // Retirer le listener à la destruction du widget
+      if (_refreshToken != null) {
+        _startTokenRefreshTimer(_refreshToken!); // Démarrer le timer
+      }
     });
   }
 
@@ -43,12 +64,22 @@ class _MesurePageState extends State<MesurePage> {
     setState(() {
       _id = prefs.getString('id');
       _token = prefs.getString('token');
+      _refreshToken =
+          prefs.getString('refreshToken'); // Charger le refreshToken
     });
   }
 
-  Future<void> _fetchClients() async {
+  Future<void> _fetchClients({bool isLoadMore = false}) async {
     if (_id != null && _token != null) {
       final url = 'http://192.168.56.1:8010/clients/getByUser/$_id';
+
+      setState(() {
+        if (isLoadMore) {
+          isLoadingMore = true;
+        } else {
+          isLoading = true;
+        }
+      });
 
       try {
         final response = await http.get(
@@ -60,13 +91,24 @@ class _MesurePageState extends State<MesurePage> {
           final data = jsonDecode(response.body);
           final clientsData = data['data']['content'] as List;
 
-          setState(() {
-            listeDesClients = clientsData
-                .map((clientJson) => ClientsModels.fromJson(clientJson))
-                .toList();
-            displayedListe = List.from(listeDesClients);
-            isLoading = false; // Fin du chargement
-          });
+          if (clientsData.isNotEmpty) {
+            setState(() {
+              listeDesClients.addAll(clientsData
+                  .map((clientJson) => ClientsModels.fromJson(clientJson))
+                  .toList());
+              displayedListe = List.from(listeDesClients);
+              currentPage++; // Incrémenter la page
+              isLastPage = clientsData.length <
+                  pageSize; // Si moins d'éléments que pageSize, dernière page
+              isLoading = false;
+              isLoadingMore = false;
+            });
+          } else {
+            setState(() {
+              isLastPage = true; // Aucune donnée supplémentaire à charger
+              isLoadingMore = false;
+            });
+          }
         } else {
           CustomSnackBar.show(context,
               message: 'Erreur lors du chargement des clients.', isError: true);
@@ -81,11 +123,21 @@ class _MesurePageState extends State<MesurePage> {
             message:
                 'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
             isError: true);
-
+      } finally {
         setState(() {
-          isLoading = false; // Fin du chargement même en cas d'erreur
+          isLoading = false;
+          isLoadingMore = false;
         });
       }
+    }
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent &&
+        !isLastPage &&
+        !isLoadingMore) {
+      _fetchClients(isLoadMore: true); // Charger plus de clients
     }
   }
 
@@ -106,6 +158,109 @@ class _MesurePageState extends State<MesurePage> {
       }).toList();
     });
   }
+
+  // Fonction pour démarrer le rafraîchissement du token à intervalles réguliers
+  void _startTokenRefreshTimer(String refreshToken) {
+    _refreshTimer =
+        Timer.periodic(Duration(milliseconds: 300000), (timer) async {
+      final String url = 'http://192.168.56.1:8010/user/refreshtoken';
+
+      final response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'refreshToken': refreshToken}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final String newToken = data['accessToken'];
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('token', newToken);
+
+        // _getUserById(newToken);
+      } else {
+        final message = json.decode(response.body)['message'];
+        CustomSnackBar.show(context, message: '$message', isError: true);
+      }
+    });
+  }
+
+  Future<void> _getUserById(String token) async {
+    final url = 'http://192.168.56.1:8010/user/loadById/$_id';
+
+    try {
+      final response = await http.get(
+        Uri.parse(url),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 202) {
+        final jsonData = json.decode(response.body)['data'];
+
+        Utilisateur_model utilisateur = Utilisateur_model.fromJson(jsonData);
+        bool active = utilisateur.isActive;
+        bool deleted = utilisateur.isDeleted;
+
+        // Vérifier si le widget est monté avant d'appeler setState
+        if (mounted) {
+          setState(() {
+            user = utilisateur;
+            isActive = active;
+            isDeleted = deleted;
+          });
+        }
+
+        if (!isActive || isDeleted) {
+          if (mounted) {
+            // Utiliser un délai pour s'assurer que la navigation est bien déclenchée
+            Future.delayed(Duration.zero, () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            });
+          }
+
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.clear();
+
+          if (mounted) {
+            CustomSnackBar.show(
+              context,
+              message: 'Désolé, votre compte a été supprimé ou désactivé !',
+              isError: false,
+            );
+          }
+        }
+      } else {
+        if (mounted) {
+          CustomSnackBar.show(
+            context,
+            message:
+                'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+            isError: true,
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        CustomSnackBar.show(
+          context,
+          message:
+              'Une erreur s\'est produite. Veuillez vérifier votre connexion.',
+          isError: true,
+        );
+      }
+    }
+  }
+
+  // @override
+  // void dispose() {
+  //   // Annuler le Timer lorsqu'il n'est plus nécessaire
+  //   _refreshTimer?.cancel();
+  //   super.dispose();
+  // }
 
   @override
   Widget build(BuildContext context) {

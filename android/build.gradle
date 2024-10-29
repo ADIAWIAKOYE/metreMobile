@@ -9,7 +9,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version" // Ajout de Kotlin
     }
 }
-
+////////////////////////
 allprojects {
     repositories {
         google()
