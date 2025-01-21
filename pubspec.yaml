@@ -36,6 +36,11 @@ dependencies:
   shared_preferences: ^2.2.3
   sizer: ^2.0.15
   shimmer: ^3.0.0
+  flutter_form_builder:
+  form_builder_validators:
+  form_builder_file_picker:
+  file_picker:
+  intl:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

@@ -2,6 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:Metre/models/clients_model.dart';
 import 'package:Metre/models/user_model.dart';
+import 'package:Metre/models/utilisateur_model.dart';
+import 'package:Metre/pages/add_mesure_page.dart';
 import 'package:Metre/pages/login_page.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/material.dart';
@@ -24,8 +26,8 @@ class _MesurePageState extends State<MesurePage> {
   bool isActive = false;
   bool isDeleted = false;
 
-  List<ClientsModels> listeDesClients = [];
-  List<ClientsModels> displayedListe = [];
+  List<UtilisateurModel> listeDesClients = [];
+  List<UtilisateurModel> displayedListe = [];
   bool isLoading = true; // Indicateur de chargement
   bool isLoadingMore =
       false; // Indicateur de chargement des pages supplémentaires
@@ -47,9 +49,9 @@ class _MesurePageState extends State<MesurePage> {
       _fetchClients();
       _scrollController.removeListener(
           _onScroll); // Retirer le listener à la destruction du widget
-      if (_refreshToken != null) {
-        _startTokenRefreshTimer(_refreshToken!); // Démarrer le timer
-      }
+      // if (_refreshToken != null) {
+      //   _startTokenRefreshTimer(_refreshToken!); // Démarrer le timer
+      // }
     });
   }
 
@@ -71,7 +73,7 @@ class _MesurePageState extends State<MesurePage> {
 
   Future<void> _fetchClients({bool isLoadMore = false}) async {
     if (_id != null && _token != null) {
-      final url = 'http://192.168.56.1:8010/clients/getByUser/$_id';
+      final url = 'http://192.168.56.1:8010/user/getallclient/client/$_id';
 
       setState(() {
         if (isLoadMore) {
@@ -89,12 +91,12 @@ class _MesurePageState extends State<MesurePage> {
 
         if (response.statusCode == 202) {
           final data = jsonDecode(response.body);
-          final clientsData = data['data']['content'] as List;
+          final clientsData = data['data'] as List;
 
           if (clientsData.isNotEmpty) {
             setState(() {
               listeDesClients.addAll(clientsData
-                  .map((clientJson) => ClientsModels.fromJson(clientJson))
+                  .map((clientJson) => UtilisateurModel.fromJson(clientJson))
                   .toList());
               displayedListe = List.from(listeDesClients);
               currentPage++; // Incrémenter la page
@@ -144,47 +146,49 @@ class _MesurePageState extends State<MesurePage> {
   void updateListe(String value) {
     setState(() {
       displayedListe = listeDesClients.where((element) {
-        final fullName = "${element.nom} ${element.prenom}";
+        final fullName = "${element.nom}";
         final searchTerms = value.toLowerCase().split(' ');
         bool containsAllSearchTerms = true;
         for (final term in searchTerms) {
           containsAllSearchTerms = containsAllSearchTerms &&
-              (element.nom!.toLowerCase().contains(term) ||
-                  element.prenom!.toLowerCase().contains(term));
+              (element.nom!.toLowerCase().contains(term)
+              // ||
+              //     element.prenom!.toLowerCase().contains(term)
+              );
         }
         return containsAllSearchTerms ||
             fullName.toLowerCase().contains(value.toLowerCase()) ||
-            element.numero!.toLowerCase().contains(value.toLowerCase());
+            element.username!.toLowerCase().contains(value.toLowerCase());
       }).toList();
     });
   }
 
   // Fonction pour démarrer le rafraîchissement du token à intervalles réguliers
-  void _startTokenRefreshTimer(String refreshToken) {
-    _refreshTimer =
-        Timer.periodic(Duration(milliseconds: 300000), (timer) async {
-      final String url = 'http://192.168.56.1:8010/user/refreshtoken';
+  // void _startTokenRefreshTimer(String refreshToken) {
+  //   _refreshTimer =
+  //       Timer.periodic(Duration(milliseconds: 300000), (timer) async {
+  //     final String url = 'http://192.168.56.1:8010/user/refreshtoken';
 
-      final response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'refreshToken': refreshToken}),
-      );
+  //     final response = await http.post(
+  //       Uri.parse(url),
+  //       headers: {'Content-Type': 'application/json'},
+  //       body: jsonEncode({'refreshToken': refreshToken}),
+  //     );
 
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        final String newToken = data['accessToken'];
+  //     if (response.statusCode == 200) {
+  //       final data = jsonDecode(response.body);
+  //       final String newToken = data['accessToken'];
 
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', newToken);
+  //       final prefs = await SharedPreferences.getInstance();
+  //       await prefs.setString('token', newToken);
 
-        // _getUserById(newToken);
-      } else {
-        final message = json.decode(response.body)['message'];
-        CustomSnackBar.show(context, message: '$message', isError: true);
-      }
-    });
-  }
+  //       // _getUserById(newToken);
+  //     } else {
+  //       final message = json.decode(response.body)['message'];
+  //       CustomSnackBar.show(context, message: '$message', isError: true);
+  //     }
+  //   });
+  // }
 
   Future<void> _getUserById(String token) async {
     final url = 'http://192.168.56.1:8010/user/loadById/$_id';
@@ -300,14 +304,17 @@ class _MesurePageState extends State<MesurePage> {
                   width: 0.4.w,
                 ), // Couleur de la bordure lorsqu'elle est en état de focus
               ),
-              hintText: "Rechercher",
+              hintText: "Rechercher un client...",
               hintStyle: TextStyle(
                 color: Theme.of(context).colorScheme.secondary,
                 fontSize: 10.sp,
               ),
               prefixIcon: Icon(Icons.search),
               prefixIconColor: Theme.of(context).colorScheme.secondary,
-              contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              // contentPadding: EdgeInsets.symmetric(vertical: 1.h),
             ),
           ),
         ),
@@ -360,111 +367,362 @@ class _MesurePageState extends State<MesurePage> {
                         )
                       : ListView.builder(
                           itemCount: displayedListe.length,
-                          itemBuilder: (context, index) => Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
-                              border: Border.all(
-                                color: Color.fromARGB(
-                                    255, 206, 136, 5), // Couleur de la bordure
-                                width: 0.4.w, // Largeur de la bordure
+                          itemBuilder: (context, index) {
+                            final collaborator = displayedListe[index];
+                            return Card(
+                              elevation: 3,
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 1.5.h, horizontal: 3.w),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
                               ),
-                              borderRadius:
-                                  BorderRadius.circular(5), // Bord arrondi
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey,
-                                  blurRadius: 1,
-                                  offset: Offset(1, 2), // Shadow position
-                                ),
-                              ],
-                            ),
-                            margin: EdgeInsets.symmetric(
-                                vertical: 1.h, horizontal: 5.w),
-                            child: ListTile(
-                              contentPadding: EdgeInsets.all(1.h),
-                              title: Text(
-                                displayedListe[index].prenom! +
-                                    " " +
-                                    displayedListe[index].nom!,
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.tertiary,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 9.sp,
-                                ),
-                              ),
-                              subtitle: Row(
-                                children: [
-                                  Text(
-                                    displayedListe[index].numero!,
-                                    style: TextStyle(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .tertiary,
-                                      fontSize: 8.sp,
-                                    ),
-                                  ),
-                                  Spacer(), // Ajouter un espace flexible entre les deux éléments
-
-                                  InkWell(
-                                    onTap: () {
-                                      // Action à effectuer lors du tapotement
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              DetailMesurePage(
-                                            // client: displayedListe[index],
-                                            clientId: displayedListe[index].id!,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    borderRadius: BorderRadius.circular(10),
-                                    child: Container(
-                                      margin:
-                                          EdgeInsets.symmetric(horizontal: 2.h),
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 0.5.h, horizontal: 2.w),
-                                      decoration: BoxDecoration(
-                                        color: Colors.transparent,
-                                        borderRadius: BorderRadius.circular(10),
-                                        border: Border.all(
-                                          color: Color.fromARGB(255, 206, 136,
-                                              5), // Couleur de la bordure
-                                          width: 0.4.w, // Largeur de la bordure
-                                        ),
-                                      ),
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            'Voir plus ',
+                              child: Padding(
+                                padding: EdgeInsets.all(4.w),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        CircleAvatar(
+                                          backgroundColor:
+                                              Color.fromARGB(255, 206, 136, 5),
+                                          radius: 5.w,
+                                          child: Text(
+                                            collaborator.nom != null &&
+                                                    collaborator.nom!.isNotEmpty
+                                                ? collaborator.nom!
+                                                    .substring(0, 1)
+                                                    .toUpperCase()
+                                                : "N", // Met une lettre par défaut si le nom est nul ou vide
                                             style: TextStyle(
-                                              color: Color.fromARGB(
-                                                  255, 206, 136, 5),
-                                              fontWeight: FontWeight.w600,
-                                              fontSize: 6.sp,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                              fontSize: 14.sp,
                                             ),
                                           ),
-                                          Icon(
-                                            Icons.arrow_forward,
-                                            color: Color.fromARGB(
-                                                255, 206, 136, 5),
-                                            size: 12.sp,
+                                        ),
+                                        SizedBox(width: 4.w),
+                                        Text(
+                                          collaborator.nom ?? "nom",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 12.sp,
                                           ),
-                                        ],
-                                      ),
+                                        ),
+                                        SizedBox(width: 4.w),
+                                        Text(
+                                          collaborator.isActive == true
+                                              ? "Activé"
+                                              : "Déactivé",
+                                          style: TextStyle(
+                                              fontSize: 10.sp,
+                                              color: Colors.grey),
+                                        ),
+                                        SizedBox(width: 4.w),
+                                        Text(
+                                          collaborator.isDeleted == true
+                                              ? "Supprimer"
+                                              : "",
+                                          style: TextStyle(
+                                              fontSize: 10.sp,
+                                              color: Colors.red),
+                                        )
+                                      ],
                                     ),
-                                  )
-                                ],
+                                    SizedBox(height: 1.h),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Expanded(
+                                          flex: 3,
+                                          child: Column(
+                                            children: [
+                                              Text(
+                                                'Numéro : ${collaborator.username}',
+                                                style: TextStyle(
+                                                    color: Colors.grey[700],
+                                                    fontSize: 10.sp),
+                                              ),
+                                              SizedBox(height: 1.h),
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.mark_email_read,
+                                                      color: Color.fromARGB(
+                                                          255, 206, 136, 5),
+                                                      size: 14.sp),
+                                                  SizedBox(width: 2.w),
+                                                  Text(
+                                                    'Email : ${collaborator.email}',
+                                                    style: TextStyle(
+                                                      color: Colors.grey[800],
+                                                      fontSize: 9.sp,
+                                                      fontStyle:
+                                                          FontStyle.italic,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Expanded(
+                                          flex: 1,
+                                          child: Column(
+                                            children: [
+                                              Container(
+                                                // margin: EdgeInsets.only(right: 2.h),
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    // Action à effectuer lors du tapotement
+                                                    Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            DetailMesurePage(
+                                                          // client: displayedListe[index],
+                                                          clientId:
+                                                              displayedListe[
+                                                                      index]
+                                                                  .id!,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: Container(
+                                                    margin:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 1.w),
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            vertical: 0.5.h),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.transparent,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              10),
+                                                      border: Border.all(
+                                                        color: Color.fromARGB(
+                                                            255,
+                                                            206,
+                                                            136,
+                                                            5), // Couleur de la bordure
+                                                        width: 0.4
+                                                            .w, // Largeur de la bordure
+                                                      ),
+                                                    ),
+                                                    child: Center(
+                                                      child: Text(
+                                                        "Voir plus",
+                                                        style: TextStyle(
+                                                          fontSize: 8.sp,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          // letterSpacing: 2,
+                                                          color: Color.fromARGB(
+                                                              255, 206, 136, 5),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    // if (collaborator.isActive == false)
+                                    //   Container(
+                                    //     margin: EdgeInsets.only(top: 2.h),
+                                    //     child: InkWell(
+                                    //       onTap: () {
+                                    //         print("BUTTON cliqué !");
+                                    //         deleteUser(collaborator.id ?? "id");
+                                    //       },
+                                    //       child: Container(
+                                    //         margin: EdgeInsets.symmetric(
+                                    //             horizontal: 20.w),
+                                    //         padding:
+                                    //             EdgeInsets.symmetric(vertical: 0.5.h),
+                                    //         decoration: BoxDecoration(
+                                    //           color: Colors.red,
+                                    //           borderRadius: BorderRadius.circular(10),
+                                    //         ),
+                                    //         child: Center(
+                                    //           child: Text(
+                                    //             "Supprimer",
+                                    //             style: TextStyle(
+                                    //               fontSize: 8.sp,
+                                    //               fontWeight: FontWeight.bold,
+                                    //               color: Colors.white,
+                                    //               letterSpacing: 2,
+                                    //             ),
+                                    //           ),
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                    // if (collaborator.isDeleted == true)
+                                    //   Container(
+                                    //     margin: EdgeInsets.only(top: 2.h),
+                                    //     child: InkWell(
+                                    //       onTap: () {
+                                    //         _retrouverCollaborateur(
+                                    //             collaborator.id ?? "id");
+                                    //       },
+                                    //       child: Container(
+                                    //         margin: EdgeInsets.symmetric(
+                                    //             horizontal: 20.w),
+                                    //         padding:
+                                    //             EdgeInsets.symmetric(vertical: 0.5.h),
+                                    //         decoration: BoxDecoration(
+                                    //           color: Color.fromARGB(255, 206, 136, 5),
+                                    //           borderRadius: BorderRadius.circular(10),
+                                    //         ),
+                                    //         child: Center(
+                                    //           child: Text(
+                                    //             "Rétrouver",
+                                    //             style: TextStyle(
+                                    //               fontSize: 8.sp,
+                                    //               fontWeight: FontWeight.bold,
+                                    //               color: Colors.white,
+                                    //               letterSpacing: 2,
+                                    //             ),
+                                    //           ),
+                                    //         ),
+                                    //       ),
+                                    //     ),
+                                    //   ),
+                                  ],
+                                ),
                               ),
-                              leading:
-                                  Image.asset('assets/image/customer1.png'),
-                            ),
-                          ),
+                            );
+                          },
                         ),
+          // ListView.builder(
+          //     itemCount: displayedListe.length,
+          //     itemBuilder: (context, index) => Container(
+          //       decoration: BoxDecoration(
+          //         color: Theme.of(context).colorScheme.primary,
+          //         border: Border.all(
+          //           color: Color.fromARGB(
+          //               255, 206, 136, 5), // Couleur de la bordure
+          //           width: 0.4.w, // Largeur de la bordure
+          //         ),
+          //         borderRadius:
+          //             BorderRadius.circular(5), // Bord arrondi
+          //         boxShadow: [
+          //           BoxShadow(
+          //             color: Colors.grey,
+          //             blurRadius: 1,
+          //             offset: Offset(1, 2), // Shadow position
+          //           ),
+          //         ],
+          //       ),
+          //       margin: EdgeInsets.symmetric(
+          //           vertical: 1.h, horizontal: 5.w),
+          //       child: ListTile(
+          //         contentPadding: EdgeInsets.all(1.h),
+          //         title: Text(
+          //           // displayedListe[index].prenom! +
+          //           //     " " +
+          //           displayedListe[index].nom!,
+          //           style: TextStyle(
+          //             color: Theme.of(context).colorScheme.tertiary,
+          //             fontWeight: FontWeight.w700,
+          //             fontSize: 9.sp,
+          //           ),
+          //         ),
+          //         subtitle: Row(
+          //           children: [
+          //             Text(
+          //               displayedListe[index].username!,
+          //               style: TextStyle(
+          //                 color: Theme.of(context)
+          //                     .colorScheme
+          //                     .tertiary,
+          //                 fontSize: 8.sp,
+          //               ),
+          //             ),
+          //             Spacer(), // Ajouter un espace flexible entre les deux éléments
+
+          //             InkWell(
+          //               onTap: () {
+          //                 // Action à effectuer lors du tapotement
+          //                 Navigator.push(
+          //                   context,
+          //                   MaterialPageRoute(
+          //                     builder: (context) =>
+          //                         DetailMesurePage(
+          //                       // client: displayedListe[index],
+          //                       clientId: displayedListe[index].id!,
+          //                     ),
+          //                   ),
+          //                 );
+          //               },
+          //               borderRadius: BorderRadius.circular(10),
+          //               child: Container(
+          //                 margin:
+          //                     EdgeInsets.symmetric(horizontal: 2.h),
+          //                 padding: EdgeInsets.symmetric(
+          //                     vertical: 0.5.h, horizontal: 2.w),
+          //                 decoration: BoxDecoration(
+          //                   color: Colors.transparent,
+          //                   borderRadius: BorderRadius.circular(10),
+          //                   border: Border.all(
+          //                     color: Color.fromARGB(255, 206, 136,
+          //                         5), // Couleur de la bordure
+          //                     width: 0.4.w, // Largeur de la bordure
+          //                   ),
+          //                 ),
+          //                 child: Row(
+          //                   mainAxisSize: MainAxisSize.min,
+          //                   children: [
+          //                     Text(
+          //                       'Voir plus ',
+          //                       style: TextStyle(
+          //                         color: Color.fromARGB(
+          //                             255, 206, 136, 5),
+          //                         fontWeight: FontWeight.w600,
+          //                         fontSize: 6.sp,
+          //                       ),
+          //                     ),
+          //                     Icon(
+          //                       Icons.arrow_forward,
+          //                       color: Color.fromARGB(
+          //                           255, 206, 136, 5),
+          //                       size: 12.sp,
+          //                     ),
+          //                   ],
+          //                 ),
+          //               ),
+          //             )
+          //           ],
+          //         ),
+          //         leading:
+          //             Image.asset('assets/image/customer1.png'),
+          //       ),
+          //     ),
+          //   ),
         ),
       ]),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddMesurePage(),
+            ),
+          );
+        },
+        backgroundColor: Color.fromARGB(255, 206, 136, 5),
+        icon: Icon(Icons.add, size: 20.sp),
+        label: Text(
+          "Ajouter un Client",
+          style: TextStyle(fontSize: 10.sp),
+        ),
+      ),
     );
   }
 }

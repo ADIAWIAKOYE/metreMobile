@@ -268,28 +268,29 @@ class _MonComptePageState extends State<MonComptePage> {
 
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Theme.of(context)
-              .colorScheme
-              .background, // Changez cette couleur selon vos besoins
-          leading: IconButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            icon: Icon(
-              Icons.keyboard_backspace,
-              size: 30,
-            ),
+        backgroundColor: Theme.of(context)
+            .colorScheme
+            .background, // Changez cette couleur selon vos besoins
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.keyboard_backspace,
+            size: 30,
           ),
-          title: Text(
-            'Mon Compte',
-            // style: Theme.of(context).textTheme.headline4,
-            // textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 12.sp,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.tertiary,
-            ),
-          )),
+        ),
+        title: Text(
+          'Mon Compte',
+          // style: Theme.of(context).textTheme.headline4,
+          // textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+        ),
+      ),
       body: isUploading // Vérifie si l'image est en cours de chargement
           ? Column(
               mainAxisAlignment: MainAxisAlignment.center,

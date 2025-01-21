@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:Metre/models/clients_model.dart';
 import 'package:Metre/models/mesure_model.dart';
 import 'package:Metre/models/proprioMesures_model.dart';
+import 'package:Metre/pages/CreateCommandePage.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
   bool _showProprioMesures = true;
   bool _isLoadingp = true;
   bool _isLoading = true;
-  late Client _client;
+  late Utilisateur _client;
   late Proprio _proprio;
   bool _isLoadingproprio =
       true; // Ajoutez une variable pour gérer l'état de chargement
@@ -70,7 +71,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
 
 // pour afficher le client
   Future<void> _fetchClientDetails() async {
-    final url = 'http://192.168.56.1:8010/clients/loadbyid/${widget.clientId}';
+    final url = 'http://192.168.56.1:8010/user/loadById/${widget.clientId}';
     try {
       final response = await http.get(
         Uri.parse(url),
@@ -82,7 +83,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
       if (response.statusCode == 202) {
         final data = json.decode(response.body)['data'];
         setState(() {
-          _client = Client.fromJson(data);
+          _client = Utilisateur.fromJson(data);
           _isLoading = false;
         });
       } else {
@@ -232,10 +233,11 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
         leading: IconButton(
           onPressed: () {
             // Navigator.pop(context);
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => NavigationBarPage()),
-            );
+            // Navigator.pushReplacement(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => NavigationBarPage()),
+            // );
+            Navigator.pop(context);
           },
           icon: Icon(
             Icons.keyboard_backspace,
@@ -307,14 +309,15 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                     children: [
                       for (var detail in [
                         {'label': 'Nom', 'value': _client.nom},
-                        {'label': 'Prénom', 'value': _client.prenom},
-                        {'label': 'Téléphone', 'value': _client.numero},
+                        // {'label': 'Prénom', 'value': _client.prenom},
+                        {'label': 'Téléphone', 'value': _client.username},
                         {'label': 'Adresse', 'value': _client.adresse},
                         {'label': 'Email', 'value': _client.email},
-                        {
-                          'label': 'Créer par',
-                          'value': _client.utilisateur.nom
-                        },
+                        {'label': 'Profession', 'value': _client.specialite},
+                        // {
+                        //   'label': 'Créer par',
+                        //   'value': _client.utilisateur.nom
+                        // },
                       ])
                         Padding(
                           padding: EdgeInsets.symmetric(
@@ -546,6 +549,69 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                     color: Color.fromARGB(255, 206, 136, 5),
                                   ),
                                 ),
+
+                                // :::::::::::::::::::
+                                Container(
+                                  margin: EdgeInsets.only(right: 0.5.h),
+                                  child: InkWell(
+                                    onTap: () {
+                                      // Navigator.push(
+                                      //   context,
+                                      //   MaterialPageRoute(
+                                      //     builder: (context) =>
+                                      //         CreateCommandePage(),
+                                      //   ),
+                                      // );
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              CreateCommandePage(
+                                            // client: displayedListe[index],
+                                            proprioId: mesure.id!,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      margin:
+                                          EdgeInsets.symmetric(horizontal: 1.w),
+                                      padding: EdgeInsets.symmetric(
+                                          vertical: 0.5.h, horizontal: 2.w),
+                                      decoration: BoxDecoration(
+                                        color: Color.fromARGB(255, 206, 136, 5),
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(
+                                          color: Color.fromARGB(255, 206, 136,
+                                              5), // Couleur de la bordure
+                                          width: 0.4.w, // Largeur de la bordure
+                                        ),
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            "Lançer une commande",
+                                            style: TextStyle(
+                                                fontSize: 8.sp,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white),
+                                          ),
+                                          // Container(
+                                          //   margin:
+                                          //       EdgeInsets.only(left: 0.5.h),
+                                          //   child: Icon(
+                                          //     Icons.add_circle,
+                                          //     color: Color.fromARGB(
+                                          //         255, 206, 136, 5),
+                                          //     size: 12.sp,
+                                          //   ),
+                                          // )
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // ::::::::::::::::::::::
                               ],
                             ),
                             collapsedTextColor:
@@ -553,67 +619,62 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                             textColor: Theme.of(context).colorScheme.tertiary,
                             iconColor: Theme.of(context).colorScheme.tertiary,
                             childrenPadding: EdgeInsets.symmetric(
-                                horizontal: 4.w, vertical: 0),
+                              horizontal: 4.w,
+                            ),
                             children: [
                               for (var mesureS in mesure.mesures)
-                                Container(
-                                  padding: EdgeInsets.all(0), // Removed padding
-                                  margin: EdgeInsets.all(0), // Removed margin
-                                  child: ListTile(
-                                    contentPadding: EdgeInsets
-                                        .zero, // Removed default padding
-
-                                    title: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Expanded(
-                                          flex: 4,
-                                          child: Text(
-                                            '${mesureS.libelle}:',
-                                            style: TextStyle(
-                                              fontSize: 8.sp,
-                                              fontWeight: FontWeight.w500,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .tertiary,
-                                            ),
-                                          ),
+                                // Padding(
+                                //   padding: EdgeInsets.symmetric(
+                                //       vertical: 0
+                                //           .h), // Ajuster ici pour réduire l'espacement
+                                //   child:
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Expanded(
+                                      flex: 4,
+                                      child: Text(
+                                        '${mesureS.libelle} :',
+                                        style: TextStyle(
+                                          fontSize: 8.sp,
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary,
                                         ),
-                                        Expanded(
-                                          flex: 3,
-                                          child: Text(
-                                            '${mesureS.valeur}',
-                                            style: TextStyle(
-                                              fontSize: 8.sp,
-                                              fontWeight: FontWeight.w700,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .tertiary,
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 1,
-                                          child: IconButton(
-                                            onPressed: () {
-                                              _delete(mesureS.id ?? 'Sans id',
-                                                  'mesure/supprimer');
-                                              // setState(() {
-                                              //   _fetchProprietaireMesure();
-                                              // });
-                                            },
-                                            icon: Icon(
-                                              Icons.delete,
-                                              size: 14.sp,
-                                              color: Colors.red,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
+                                      ),
                                     ),
-                                  ),
+                                    Expanded(
+                                      flex: 3,
+                                      child: Text(
+                                        '${mesureS.valeur}',
+                                        style: TextStyle(
+                                          fontSize: 8.sp,
+                                          fontWeight: FontWeight.w700,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .tertiary,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: IconButton(
+                                        onPressed: () {
+                                          _delete(mesureS.id ?? 'Sans id',
+                                              'mesure/supprimer');
+                                        },
+                                        icon: Icon(
+                                          Icons.delete,
+                                          size: 14.sp,
+                                          color: Colors.red,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
+                              // ),
                               Padding(
                                 padding: EdgeInsets.symmetric(vertical: 1.h),
                                 child: Row(
@@ -701,7 +762,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                           child: Row(
                                             children: [
                                               Text(
-                                                "Ajouter",
+                                                "Ajouter un mesure",
                                                 style: TextStyle(
                                                   fontSize: 8.sp,
                                                   fontWeight: FontWeight.bold,
@@ -1858,7 +1919,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
     }
   }
 
-  void _updateClientInfo(Client updatedClient) {
+  void _updateClientInfo(Utilisateur updatedClient) {
     setState(() {
       _client = updatedClient;
     });
@@ -1867,9 +1928,9 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
   void modifierClient() {
     // Valeurs par défaut pour les champs
     final nomController = TextEditingController(text: _client.nom);
-    final prenomController = TextEditingController(text: _client.prenom);
+    // final prenomController = TextEditingController(text: _client.prenom);
     final emailController = TextEditingController(text: _client.email);
-    final telephoneController = TextEditingController(text: _client.numero);
+    final telephoneController = TextEditingController(text: _client.username);
     final adresseController = TextEditingController(text: _client.adresse);
 
     showDialog(
@@ -1879,9 +1940,9 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
           builder: (BuildContext context, StateSetter setState) {
             bool isModified() {
               return nomController.text != _client.nom ||
-                  prenomController.text != _client.prenom ||
+                  // prenomController.text != _client.prenom ||
                   emailController.text != _client.email ||
-                  telephoneController.text != _client.numero ||
+                  telephoneController.text != _client.username ||
                   adresseController.text != _client.adresse;
             }
 
@@ -1948,61 +2009,61 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                           },
                         ),
                         SizedBox(height: 1.h),
-                        TextFormField(
-                          controller: prenomController,
-                          keyboardType: TextInputType.name,
-                          style: TextStyle(
-                              fontSize: 8
-                                  .sp), // Taille de police pour la valeur par défaut
-                          decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.account_circle),
-                            prefixIconColor: Color.fromARGB(255, 95, 95, 96),
-                            hintText: "Entrez le prénom ",
-                            hintStyle: TextStyle(
-                              color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 8.sp,
-                            ),
-                            labelText: "Prénom",
-                            labelStyle: TextStyle(
-                              color: Color.fromARGB(255, 132, 134, 135),
-                              fontSize: 8.sp,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Color.fromARGB(
-                                    255, 206, 136, 5), // Couleur de la bordure
-                                width: 0.4.w, // Largeur de la bordure
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Color.fromARGB(255, 206, 136, 5),
-                                width: 0.4.w,
-                              ), // Couleur de la bordure lorsqu'elle est en état de focus
-                            ),
-                            errorBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                              borderSide: BorderSide(
-                                color: Colors.red,
-                                width: 0.4.w,
-                              ), // Couleur de la bordure lorsqu'elle est en état de focus
-                            ),
-                            contentPadding: EdgeInsets.symmetric(
-                              vertical: 1.w,
-                            ), // Ajustez la valeur de la marge verticale selon vos besoins
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return 'Veuillez entrer le prénom';
-                            }
-                            return null;
-                          },
-                          onChanged: (value) {
-                            setState(() {});
-                          },
-                        ),
+                        // TextFormField(
+                        //   controller: prenomController,
+                        //   keyboardType: TextInputType.name,
+                        //   style: TextStyle(
+                        //       fontSize: 8
+                        //           .sp), // Taille de police pour la valeur par défaut
+                        //   decoration: InputDecoration(
+                        //     prefixIcon: Icon(Icons.account_circle),
+                        //     prefixIconColor: Color.fromARGB(255, 95, 95, 96),
+                        //     hintText: "Entrez le prénom ",
+                        //     hintStyle: TextStyle(
+                        //       color: Color.fromARGB(255, 132, 134, 135),
+                        //       fontSize: 8.sp,
+                        //     ),
+                        //     labelText: "Prénom",
+                        //     labelStyle: TextStyle(
+                        //       color: Color.fromARGB(255, 132, 134, 135),
+                        //       fontSize: 8.sp,
+                        //     ),
+                        //     enabledBorder: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(10),
+                        //       borderSide: BorderSide(
+                        //         color: Color.fromARGB(
+                        //             255, 206, 136, 5), // Couleur de la bordure
+                        //         width: 0.4.w, // Largeur de la bordure
+                        //       ),
+                        //     ),
+                        //     focusedBorder: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(10),
+                        //       borderSide: BorderSide(
+                        //         color: Color.fromARGB(255, 206, 136, 5),
+                        //         width: 0.4.w,
+                        //       ), // Couleur de la bordure lorsqu'elle est en état de focus
+                        //     ),
+                        //     errorBorder: OutlineInputBorder(
+                        //       borderRadius: BorderRadius.circular(10),
+                        //       borderSide: BorderSide(
+                        //         color: Colors.red,
+                        //         width: 0.4.w,
+                        //       ), // Couleur de la bordure lorsqu'elle est en état de focus
+                        //     ),
+                        //     contentPadding: EdgeInsets.symmetric(
+                        //       vertical: 1.w,
+                        //     ), // Ajustez la valeur de la marge verticale selon vos besoins
+                        //   ),
+                        //   validator: (value) {
+                        //     if (value == null || value.isEmpty) {
+                        //       return 'Veuillez entrer le prénom';
+                        //     }
+                        //     return null;
+                        //   },
+                        //   onChanged: (value) {
+                        //     setState(() {});
+                        //   },
+                        // ),
                         SizedBox(height: 1.h),
                         TextFormField(
                           controller: emailController,
@@ -2185,13 +2246,13 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                           if (nomController.text != _client.nom) {
                             updatedFields['nom'] = nomController.text;
                           }
-                          if (prenomController.text != _client.prenom) {
-                            updatedFields['prenom'] = prenomController.text;
-                          }
+                          // if (prenomController.text != _client.prenom) {
+                          //   updatedFields['prenom'] = prenomController.text;
+                          // }
                           if (emailController.text != _client.email) {
                             updatedFields['email'] = emailController.text;
                           }
-                          if (telephoneController.text != _client.numero) {
+                          if (telephoneController.text != _client.username) {
                             updatedFields['numero'] = telephoneController.text;
                           }
                           if (adresseController.text != _client.adresse) {
@@ -2203,21 +2264,23 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                           Navigator.of(context).pop();
                           // Crée un nouveau client avec les nouvelles valeurs
 
-                          final updatedClient = Client(
+                          final updatedClient = Utilisateur(
                             id: widget.clientId,
                             nom: nomController.text,
-                            prenom: prenomController.text,
+                            // prenom: prenomController.text,
                             email: emailController.text,
-                            numero: telephoneController.text,
-                            adresse: adresseController.text,
-                            utilisateur: Utilisateur(
-                                id: "id",
-                                nom: "nom",
-                                adresse: "adresse",
-                                specialite: "specialite",
-                                profile: "profile",
-                                email: "email",
-                                username: "username"),
+                            username: telephoneController.text,
+                            adresse: adresseController.text, specialite: '',
+                            profile: '',
+
+                            // utilisateur: Utilisateur(
+                            //     id: "id",
+                            //     nom: "nom",
+                            //     adresse: "adresse",
+                            //     specialite: "specialite",
+                            //     profile: "profile",
+                            //     email: "email",
+                            //     username: "username"),
                           );
 
                           // Appelle le callback pour mettre à jour les informations affichées

@@ -2,6 +2,7 @@ import 'package:Metre/pages/SplashScreen.dart';
 import 'package:Metre/theme/theme_provider.dart';
 import 'package:Metre/widgets/ConnectivityWrapper.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'; // Importez les localizati
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
@@ -28,6 +29,23 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Metre App',
         theme: themeData,
+        localizationsDelegates: const [
+          // Ajout des localizations
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+          GlobalCupertinoLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          // Ajout des locales supportées
+          Locale('en', 'US'),
+          Locale('fr', 'FR'),
+        ],
+        builder: (context, child) {
+          // Ajout d'un ScaffoldMessenger global
+          return ScaffoldMessenger(
+            child: child!,
+          );
+        },
         home: ConnectivityWrapper(
           child: SplashScreen(), // Afficher la SplashScreen d'abord
         ),

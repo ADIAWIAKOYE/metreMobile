@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:Metre/bottom_navigationbar/navigation_page.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -63,6 +64,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
       TextEditingController(); // Pour le telephone
   TextEditingController adresseController =
       TextEditingController(); // Pour l'adresse
+  TextEditingController SpecialiteController = TextEditingController();
 
   TextEditingController proprietaireController =
       TextEditingController(); // Pour le propriétaire
@@ -224,7 +226,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                       size: 15.sp,
                     ),
                     prefixIconColor: Color.fromARGB(255, 95, 95, 96),
-                    hintText: "exemple@gmail.com",
+                    hintText: "Exp: exemple@gmail.com",
                     hintStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
                       fontSize: 10.sp,
@@ -268,7 +270,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
                       size: 15.sp,
                     ),
                     prefixIconColor: Color.fromARGB(255, 95, 95, 96),
-                    hintText: "+XXXXXXXXXXX",
+                    hintText: "Exp: +22375468913",
                     hintStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
                       fontSize: 10.sp,
@@ -322,12 +324,59 @@ class _AddMesurePageState extends State<AddMesurePage> {
                       size: 15.sp,
                     ),
                     prefixIconColor: Color.fromARGB(255, 95, 95, 96),
-                    hintText: "Entrer l'adresse",
+                    hintText: "Exp: Bamako, yirimadio, 1008logt",
                     hintStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
                       fontSize: 10.sp,
                     ),
                     labelText: "Adresse",
+                    labelStyle: TextStyle(
+                      color: Color.fromARGB(255, 132, 134, 135),
+                      fontSize: 10.sp,
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: Color.fromARGB(255, 206, 136, 5),
+                        width: 1.5,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: BorderSide(
+                        color: Color.fromARGB(255, 206, 136, 5),
+                        width: 1.5,
+                      ),
+                    ),
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 1.h,
+                    ),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Veuillez entrer l\'adresse';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(
+                  height: 2.h,
+                ),
+                TextFormField(
+                  controller: SpecialiteController,
+                  keyboardType: TextInputType.text,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.laptop_mac,
+                      size: 15.sp,
+                    ),
+                    prefixIconColor: Color.fromARGB(255, 95, 95, 96),
+                    hintText: "Exp: Enseignant",
+                    hintStyle: TextStyle(
+                      color: Color.fromARGB(255, 132, 134, 135),
+                      fontSize: 10.sp,
+                    ),
+                    labelText: "profession",
                     labelStyle: TextStyle(
                       color: Color.fromARGB(255, 132, 134, 135),
                       fontSize: 10.sp,
@@ -678,53 +727,30 @@ class _AddMesurePageState extends State<AddMesurePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: LogoWidget(),
         backgroundColor: Theme.of(context)
             .colorScheme
             .background, // Changez cette couleur selon vos besoins
+        leading: IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.keyboard_backspace,
+            size: 30,
+          ),
+        ),
+        title: Text(
+          'Ajouter client',
+          style: TextStyle(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.tertiary,
+          ),
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // LogoWidget(),
-          SizedBox(
-              height: 1.h), // Ajouter un espacement entre le logo et le texte
-          SizedBox(
-            // height: 50,
-            width: double.infinity,
-            child: Container(
-              margin: const EdgeInsets.only(left: 20.0, right: 20.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary,
-                border: Border.all(
-                  color:
-                      Color.fromARGB(255, 206, 136, 5), // Couleur de la bordure
-                  width: 1, // Largeur de la bordure
-                ),
-                borderRadius: BorderRadius.circular(1), // Bord arrondi
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey,
-                    blurRadius: 1,
-                    offset: Offset(1, 2), // Shadow position
-                  ),
-                ],
-              ),
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 2.h, vertical: 5),
-                child: Text(
-                  'Ajouter un nouveau Client', // Ajoutez votre texte personnalisé ici
-                  textAlign: TextAlign.center, // Centrer le texte
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w700,
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
-                ),
-              ),
-            ),
-          ),
           SizedBox(height: 1.h),
           // Assurez-vous que ce widget a une taille définie
           Expanded(
@@ -872,10 +898,21 @@ class _AddMesurePageState extends State<AddMesurePage> {
       String telephone,
       String email,
       String adresse,
+      String specialite,
       String proprietaire,
       List<Map<String, String>> mesures) async {
     if (_id != null && _token != null) {
-      final url = 'http://192.168.56.1:8010/clients/ajouter';
+      final url = 'http://192.168.56.1:8010/clients/ajouter/$_id';
+      // Afficher le loader avant l'opération
+      showDialog(
+        context: context,
+        barrierDismissible: false, // Empêche la fermeture du loader
+        builder: (BuildContext context) {
+          return Center(
+            child: CircularProgressIndicator(), // Indicateur de chargement
+          );
+        },
+      );
       try {
         final response = await http.post(
           Uri.parse(url),
@@ -886,14 +923,11 @@ class _AddMesurePageState extends State<AddMesurePage> {
           },
           body: jsonEncode({
             "clients": {
-              "nom": nom,
-              "prenom": prenom,
-              "numero": telephone,
+              "nom": nom + " " + prenom,
               "email": email,
+              "username": telephone,
               "adresse": adresse,
-              "utilisateur": {
-                "id": _id // Remplace par l'ID réel de l'utilisateur
-              }
+              "specialite": specialite,
             },
             "proprietaireMesures": {
               "proprio": proprietaire,
@@ -901,53 +935,25 @@ class _AddMesurePageState extends State<AddMesurePage> {
             "mesuresList": mesures
           }),
         );
-
+        Navigator.of(context).pop(); // Cacher le loader
         if (response.statusCode == 202 || response.statusCode == 200) {
           final responseData = jsonDecode(response.body);
           String message = responseData['message'];
           // Succès, afficher un message
           print('Données envoyées avec succès');
           // Afficher un message de succès à l'utilisateur
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text(
-                  "Succès",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
-                ),
-                content: Text(
-                  message,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.tertiary,
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    style: ButtonStyle(
-                        backgroundColor: MaterialStatePropertyAll(
-                      Color.fromARGB(255, 206, 136, 5),
-                    )),
-                    onPressed: () {
-                      Navigator.of(context)
-                          .pop(); // Fermer la boîte de dialogue
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => NavigationBarPage()),
-                      );
-                    },
-                    child: Text(
-                      "OK",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
-              );
-            },
-          );
+          // Afficher un message de succès
+          // Assurez-vous que le contexte est valide avant d'afficher le dialogue
+          if (context.mounted) {
+            _showDialog(
+              context,
+              title: "Succès",
+              message: message,
+              isSuccess: true,
+            );
+          } else {
+            print("Le contexte a été démonté, dialogue non affiché");
+          }
         } else {
           // Échec, afficher un message d'erreurù
           final responseData = jsonDecode(response.body);
@@ -969,16 +975,15 @@ class _AddMesurePageState extends State<AddMesurePage> {
   }
 
   void envoyerDonnees() {
-    // Capturer les valeurs des champs
     String nom = nomController.text;
     String prenom = prenomController.text;
     String email =
         emailController.text.isNotEmpty ? emailController.text : 'neant';
     String telephone = telephoneController.text;
     String adresse = adresseController.text;
+    String specialite = SpecialiteController.text;
     String proprietaire = proprietaireController.text;
 
-    // Créer une liste de mesures avec les champs sélectionnés et leurs valeurs
     List<Map<String, String>> mesures = [];
     selectedItems.forEach((champ) {
       String valeur =
@@ -986,9 +991,11 @@ class _AddMesurePageState extends State<AddMesurePage> {
       mesures.add({'libelle': champ, 'valeur': valeur});
     });
 
-    // Afficher les valeurs dans le modal bottom sheet
+    // Capturer le contexte parent
+    final parentContext = context;
+
     showModalBottomSheet(
-      context: context,
+      context: parentContext,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -1025,6 +1032,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
               Text('Email : $email'),
               Text('Téléphone : $telephone'),
               Text('Adresse : $adresse'),
+              Text('Specialite : $specialite'),
               SizedBox(height: 1.h),
               const Text(
                 'Propriétaire des mésures :',
@@ -1046,56 +1054,35 @@ class _AddMesurePageState extends State<AddMesurePage> {
               ),
               SizedBox(height: 2.h),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(horizontal: 5.h),
-                        backgroundColor: Colors.red,
-                        foregroundColor: Colors.white,
-                      ),
-                      child: Text(
-                        "Fermer",
-                        style: TextStyle(
-                          fontSize: 8.sp,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                      onPressed: () {
-                        Navigator.of(context)
-                            .pop(true); // Fermer le modal et retourner true
-                      },
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
                     ),
+                    child: Text("Fermer"),
                   ),
-                  SizedBox(
-                    width: 3.w,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(0.8.h),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(horizontal: 5.h),
-                        backgroundColor: Color.fromARGB(255, 206, 136, 5),
-                        foregroundColor: Colors.white,
-                      ),
-                      child: Text(
-                        "Ajouter",
-                        style: TextStyle(
-                          fontSize: 8.sp,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                      onPressed: () {
-                        // ::::::::::::::::::::::::::::::::::::::::
-                        addClient(context, nom, prenom, telephone, email,
-                            adresse, proprietaire, mesures);
-                        //:::::::::::::::::::::::::::::::::::::::::::
-                        Navigator.of(context)
-                            .pop(); // Fermer la boîte de dialogue
-                      },
+                  SizedBox(width: 3.w),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                      addClient(
+                        parentContext, // Utilisation du contexte parent
+                        nom,
+                        prenom,
+                        telephone,
+                        email,
+                        adresse,
+                        specialite,
+                        proprietaire,
+                        mesures,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 206, 136, 5),
                     ),
+                    child: Text("Ajouter"),
                   ),
                 ],
               ),
@@ -1105,4 +1092,85 @@ class _AddMesurePageState extends State<AddMesurePage> {
       },
     );
   }
+
+  void _showDialog(
+    BuildContext context, {
+    required String title,
+    required String message,
+    bool isSuccess = false,
+  }) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(
+              "$message \n Le client vient de recevoire un email sur la creation de son compte client. "),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(
+                backgroundColor: isSuccess
+                    ? Color.fromARGB(255, 206, 136, 5)
+                    : Colors.red, // Couleur de fond du bouton
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(); // Fermer le dialogue
+
+                // Redirection vers la page des clients
+                if (isSuccess) {
+                  Navigator.of(context).popUntil(
+                    (route) => route.isFirst, // Retour à la première page
+                  );
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (context) => NavigationBarPage(
+                        initialIndex: 1, // Rediriger vers la page des clients
+                      ),
+                    ),
+                  );
+                }
+              },
+              child: const Text(
+                'OK',
+                style: TextStyle(
+                  color: Colors.white, // Couleur du texte du bouton
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // void _showDialog(BuildContext context,
+  //     {required String title,
+  //     required String message,
+  //     bool isSuccess = false}) {
+  //   showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: Text(title),
+  //         content: Text(message),
+  //         actions: [
+  //           TextButton(
+  //             style: TextButton.styleFrom(
+  //               backgroundColor: isSuccess
+  //                   ? Colors.green
+  //                   : Colors.red, // Couleur de fond du bouton
+  //             ),
+  //             onPressed: () => Navigator.of(context).pop(),
+  //             child: const Text(
+  //               'OK',
+  //               style: TextStyle(
+  //                 color: Colors.white, // Couleur du texte du bouton
+  //               ),
+  //             ),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
 }

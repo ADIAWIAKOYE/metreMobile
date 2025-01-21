@@ -72,12 +72,23 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> _redirectToWelcome() async {
-    if (mounted) {
+    if (!mounted) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+
+    CustomSnackBar.show(
+      context,
+      message: 'Désolé, votre compte a été supprimé ou désactivé !',
+      isError: true,
+    );
+    // Ajoute un délai si nécessaire
+    Future.delayed(Duration.zero, () {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => WelcomePage()),
       );
-    }
+    });
   }
 
   Future<bool> _refreshToken(String refreshToken) async {
@@ -149,14 +160,7 @@ class _SplashScreenState extends State<SplashScreen> {
       // Vérifiez les conditions après la mise à jour de l'état
       if (!isActive || isDeleted) {
         _redirectToWelcome();
-        final prefs = await SharedPreferences.getInstance();
-        await prefs.clear();
-
-        CustomSnackBar.show(
-          context,
-          message: 'Désolé, votre compte a été supprimé ou désactivé !',
-          isError: false,
-        );
+        return; // Arrêter l'exécution pour éviter tout autre traitement
       }
     } else {
       CustomSnackBar.show(

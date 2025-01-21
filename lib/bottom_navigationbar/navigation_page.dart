@@ -1,3 +1,5 @@
+import 'package:Metre/pages/commande_page.dart';
+import 'package:Metre/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:Metre/pages/add_mesure_page.dart';
 import 'package:Metre/pages/mesure_page.dart';
@@ -5,18 +7,27 @@ import 'package:Metre/pages/profile_page.dart';
 import 'package:sizer/sizer.dart';
 
 class NavigationBarPage extends StatefulWidget {
-  const NavigationBarPage({super.key});
+  final int initialIndex; // Nouvel argument pour définir l'onglet actif
+  const NavigationBarPage(
+      {super.key, this.initialIndex = 0}); // Par défaut : Accueil
 
   @override
   State<NavigationBarPage> createState() => _NavigationBarPageState();
 }
 
 class _NavigationBarPageState extends State<NavigationBarPage> {
-  int myCurrentIndex = 0;
+  late int myCurrentIndex;
 
-  List page = const [
+  @override
+  void initState() {
+    super.initState();
+    myCurrentIndex = widget.initialIndex; // Initialisation de l'index actif
+  }
+
+  List page = [
+    HomePage(),
     MesurePage(),
-    AddMesurePage(),
+    CommandePage(),
     ProfilePage(),
   ];
   @override
@@ -24,12 +35,15 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
     return Scaffold(
         bottomNavigationBar: Container(
           margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-          decoration: BoxDecoration(boxShadow: [
-            BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                blurRadius: 30,
-                offset: const Offset(0, 20))
-          ]),
+          decoration: BoxDecoration(
+            // color: Colors.transparent,
+            boxShadow: [
+              BoxShadow(
+                  color: Colors.black.withOpacity(0.2),
+                  blurRadius: 30,
+                  offset: const Offset(0, 20))
+            ],
+          ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(30),
             child: BottomNavigationBar(
@@ -55,9 +69,13 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
                   BottomNavigationBarItem(
                       icon: Icon(Icons.home), label: "Acceuil"),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.add_circle_outline), label: "Ajout"),
+                      icon: Icon(Icons.people), label: "Clients"),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.person_outline), label: "Profile"),
+                      icon: Icon(Icons.shopping_cart_outlined),
+                      label: "Commandes"),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.account_circle_outlined),
+                      label: "Profile"),
                 ]),
           ),
         ),
