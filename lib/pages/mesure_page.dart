@@ -5,6 +5,7 @@ import 'package:Metre/models/user_model.dart';
 import 'package:Metre/models/utilisateur_model.dart';
 import 'package:Metre/pages/add_mesure_page.dart';
 import 'package:Metre/pages/login_page.dart';
+import 'package:Metre/services/CustomIntercepter.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/material.dart';
 import 'package:Metre/pages/detail_mesure_page.dart';
@@ -28,6 +29,7 @@ class _MesurePageState extends State<MesurePage> {
 
   List<UtilisateurModel> listeDesClients = [];
   List<UtilisateurModel> displayedListe = [];
+  final http.Client client = CustomIntercepter(http.Client());
   bool isLoading = true; // Indicateur de chargement
   bool isLoadingMore =
       false; // Indicateur de chargement des pages supplémentaires
@@ -58,6 +60,7 @@ class _MesurePageState extends State<MesurePage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Appeler _refreshCommande ici pour charger les données à chaque fois que le widget revient en premier plan
     _fetchClients(); // Appel à la récupération des clients chaque fois que la page est visible
   }
 
@@ -72,7 +75,7 @@ class _MesurePageState extends State<MesurePage> {
   }
 
   Future<void> _fetchClients({bool isLoadMore = false}) async {
-    if (_id != null && _token != null) {
+    if (_id != null) {
       final url = 'http://192.168.56.1:8010/user/getallclient/client/$_id';
 
       setState(() {
@@ -84,9 +87,11 @@ class _MesurePageState extends State<MesurePage> {
       });
 
       try {
-        final response = await http.get(
+        final response = await client.get(
           Uri.parse(url),
-          headers: {'Authorization': 'Bearer $_token'},
+          headers: {
+            // 'Authorization': 'Bearer $_token'
+          },
         );
 
         if (response.statusCode == 202) {
@@ -314,7 +319,7 @@ class _MesurePageState extends State<MesurePage> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              // contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+              contentPadding: EdgeInsets.symmetric(vertical: 1.h),
             ),
           ),
         ),
@@ -386,7 +391,7 @@ class _MesurePageState extends State<MesurePage> {
                                         CircleAvatar(
                                           backgroundColor:
                                               Color.fromARGB(255, 206, 136, 5),
-                                          radius: 5.w,
+                                          radius: 4.w,
                                           child: Text(
                                             collaborator.nom != null &&
                                                     collaborator.nom!.isNotEmpty
@@ -397,7 +402,7 @@ class _MesurePageState extends State<MesurePage> {
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
                                               color: Colors.white,
-                                              fontSize: 14.sp,
+                                              fontSize: 10.sp,
                                             ),
                                           ),
                                         ),
@@ -406,7 +411,7 @@ class _MesurePageState extends State<MesurePage> {
                                           collaborator.nom ?? "nom",
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
-                                            fontSize: 12.sp,
+                                            fontSize: 10.sp,
                                           ),
                                         ),
                                         SizedBox(width: 4.w),
@@ -435,7 +440,7 @@ class _MesurePageState extends State<MesurePage> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Expanded(
-                                          flex: 3,
+                                          flex: 5,
                                           child: Column(
                                             children: [
                                               Text(
@@ -450,13 +455,13 @@ class _MesurePageState extends State<MesurePage> {
                                                   Icon(Icons.mark_email_read,
                                                       color: Color.fromARGB(
                                                           255, 206, 136, 5),
-                                                      size: 14.sp),
+                                                      size: 12.sp),
                                                   SizedBox(width: 2.w),
                                                   Text(
                                                     'Email : ${collaborator.email}',
                                                     style: TextStyle(
                                                       color: Colors.grey[800],
-                                                      fontSize: 9.sp,
+                                                      fontSize: 8.sp,
                                                       fontStyle:
                                                           FontStyle.italic,
                                                     ),
@@ -467,7 +472,7 @@ class _MesurePageState extends State<MesurePage> {
                                           ),
                                         ),
                                         Expanded(
-                                          flex: 1,
+                                          flex: 2,
                                           child: Column(
                                             children: [
                                               Container(
@@ -492,7 +497,7 @@ class _MesurePageState extends State<MesurePage> {
                                                   child: Container(
                                                     margin:
                                                         EdgeInsets.symmetric(
-                                                            horizontal: 1.w),
+                                                            horizontal: 3.w),
                                                     padding:
                                                         EdgeInsets.symmetric(
                                                             vertical: 0.5.h),
@@ -707,20 +712,26 @@ class _MesurePageState extends State<MesurePage> {
           //   ),
         ),
       ]),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddMesurePage(),
-            ),
-          );
-        },
-        backgroundColor: Color.fromARGB(255, 206, 136, 5),
-        icon: Icon(Icons.add, size: 20.sp),
-        label: Text(
-          "Ajouter un Client",
-          style: TextStyle(fontSize: 10.sp),
+      floatingActionButton: SizedBox(
+        width: 35
+            .w, // Ajustez la largeur selon vos besoins (par exemple en utilisant .w pour la rendre responsive)
+        height: 5
+            .h, // Ajustez la hauteur selon vos besoins (par exemple en utilisant .h pour la rendre responsive)
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddMesurePage(),
+              ),
+            );
+          },
+          backgroundColor: Color.fromARGB(255, 206, 136, 5),
+          icon: Icon(Icons.add, size: 15.sp),
+          label: Text(
+            "Ajouter un Client",
+            style: TextStyle(fontSize: 8.sp),
+          ),
         ),
       ),
     );

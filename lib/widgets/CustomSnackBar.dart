@@ -18,7 +18,7 @@ class CustomSnackBar {
               Icon(
                 isError ? Icons.highlight_off : Icons.check_circle,
                 color: Colors.white,
-                size: 20.sp,
+                size: 15.sp,
               ),
               SizedBox(width: 3.w),
               Expanded(
@@ -27,12 +27,12 @@ class CustomSnackBar {
                   children: [
                     Text(
                       isError ? "Erreur :" : "Succès :",
-                      style: TextStyle(fontSize: 12.sp, color: Colors.white),
+                      style: TextStyle(fontSize: 10.sp, color: Colors.white),
                     ),
                     Spacer(),
                     Text(
                       message,
-                      style: TextStyle(fontSize: 10.sp, color: Colors.white),
+                      style: TextStyle(fontSize: 9.sp, color: Colors.white),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),

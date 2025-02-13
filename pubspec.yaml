@@ -41,8 +41,14 @@ dependencies:
   form_builder_file_picker:
   file_picker:
   intl:
+  share_plus: 
+  pdf: 
+  printing: 
+  google_fonts: ^6.2.1
+  path_provider:
 
-  # The following adds the Cupertino Icons font to your application.
+
+  # The following adds te Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   provider:
@@ -82,6 +88,7 @@ flutter:
     - assets/image/
     - assets/image/icone/
     - assets/image/Frame.json
+    - assets/image/static/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

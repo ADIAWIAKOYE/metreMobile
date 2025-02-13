@@ -1,13 +1,26 @@
 import 'dart:convert';
+import 'dart:io';
 
+import 'package:Metre/bottom_navigationbar/navigation_page.dart';
 import 'package:Metre/models/commande_model.dart';
 import 'package:Metre/pages/detail_mesure_page.dart';
+import 'package:Metre/pages/edit_modele_page.dart';
+import 'package:Metre/pages/edit_tissu_page.dart';
 import 'package:Metre/services/CustomIntercepter.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sizer/sizer.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+
+import 'package:google_fonts/google_fonts.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:share_plus/share_plus.dart';
+
 // import 'package:flutter_dotenv/flutter_dotenv.dart'; // Ajout de l'import pour dotenv
 
 class CommandeDetailsPage extends StatefulWidget {
@@ -41,6 +54,8 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
         return Colors.blue;
       case 'LIVRER':
         return Colors.green;
+      case 'ANNULER':
+        return Colors.red;
       default:
         return Colors.grey;
     }
@@ -191,6 +206,13 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
     }
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Appeler _refreshCommande ici pour charger les données à chaque fois que le widget revient en premier plan
+    _refreshCommande();
+  }
+
   Future<void> _refreshCommande() async {
     final url = 'http://192.168.56.1:8010/api/commandes/loadbyid/$commandeId';
     try {
@@ -216,8 +238,75 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
     }
   }
 
-  // Boîte de dialogue pour modifier le statut
+  Future<void> _functiondeleteCommande() async {
+    final url = 'http://192.168.56.1:8010/api/commandes/delete/$commandeId';
+    try {
+      final response = await client.delete(Uri.parse(url));
+      if (response.statusCode == 202) {
+        final responseData = jsonDecode(response.body);
+        CustomSnackBar.show(context,
+            message: '${responseData['message']}', isError: false);
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(
+              builder: (context) => NavigationBarPage(
+                initialIndex: 2, // Rediriger vers la page des clients
+              ),
+            ),
+          );
+        }
+      } else {
+        // print(
+        //     'Erreur lors de la suppression de la commande : ${response.statusCode}');
+        final responseData = jsonDecode(response.body);
+        CustomSnackBar.show(context,
+            message: '${responseData['message']}', isError: true);
+      }
+    } catch (e) {
+      print('Erreur lors de la requête : $e');
+      CustomSnackBar.show(context,
+          message: 'Une erreur s\'est produite lors de la requête: $e',
+          isError: true);
+    }
+  }
+
+  Future<void> _deletePayement(String idpayement) async {
+    final url =
+        'http://192.168.56.1:8010/api/payementcommande/payementcommande/$idpayement';
+    try {
+      final response = await client.delete(Uri.parse(url));
+      if (response.statusCode == 202) {
+        final responseData = jsonDecode(response.body);
+
+        setState(() {
+          _refreshCommande();
+        });
+        CustomSnackBar.show(context,
+            message: '${responseData['message']}', isError: false);
+      } else {
+        print(
+            'Erreur lors de la mise à jour de la commande : ${response.statusCode}');
+        CustomSnackBar.show(context,
+            message: 'Erreur lors de la suppression du payement',
+            isError: true);
+      }
+    } catch (e) {
+      print('Erreur lors de la requête : $e');
+      CustomSnackBar.show(context,
+          message: 'Une erreur s\'est produite lors de la requête: $e',
+          isError: true);
+    }
+  }
+
+// Boîte de dialogue pour modifier le statut
   void _changeStatut(BuildContext context) {
+    if (_commande.status == 'ANNULER') {
+      CustomSnackBar.show(context,
+          message: 'Impossible de modifier le statut d\'une commande annulée.',
+          isError: true);
+      return; // Ne pas ouvrir la boîte de dialogue
+    }
+
     showDialog(
       context: context,
       builder: (context) {
@@ -239,7 +328,12 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
                     color: Theme.of(context).colorScheme.tertiary,
                   ),
                   value: selectedStatut,
-                  items: ['CREER', 'ENCOUR', 'TERMINER', 'LIVRER']
+                  items: [
+                    'CREER',
+                    'ENCOUR',
+                    'TERMINER',
+                    'LIVRER'
+                  ] // Removed 'ANNULER'
                       .map((statut) => DropdownMenuItem(
                             value: statut,
                             child: Text(
@@ -325,6 +419,13 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
 
   // Boîte de dialogue pour effectuer un paiement
   void _makePayment(BuildContext context) {
+    if (_commande.status == 'ANNULER') {
+      CustomSnackBar.show(context,
+          message:
+              'Impossible d\'ajouter des payements sur une commande annulée.',
+          isError: true);
+      return; // Ne pas ouvrir la boîte de dialogue
+    }
     showDialog(
       context: context,
       builder: (context) {
@@ -333,7 +434,7 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
           title: Text(
             'Enregistrer un paiement',
             style: TextStyle(
-              fontSize: 14.sp,
+              fontSize: 10.sp,
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.tertiary,
             ),
@@ -380,33 +481,155 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
             ),
           ),
           actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: Text('Annuler', style: TextStyle(fontSize: 10.sp)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red, // Couleur du bouton
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8), // Bords arrondis
+                    ),
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    // Logique pour enregistrer le paiement
+                    // Ici, tu vas faire l'appel API pour faire la mise à jour du paiement
+                    await _ajouterPayementCommande(paymentController.text);
+                    Navigator.pop(context);
+                  },
+                  child: Text('Valider', style: TextStyle(fontSize: 10.sp)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Color.fromARGB(255, 206, 136, 5), // Couleur du bouton
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8), // Bords arrondis
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Dialogue pour la confirmation de suppression
+  void _deletepayement(BuildContext context, String id) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Supprimer du Payement de commande',
+            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Êtes-vous sûr de vouloir supprimer cet Payement de commande ?',
+            style: TextStyle(fontSize: 10.sp),
+          ),
+          actions: [
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Annuler', style: TextStyle(fontSize: 12.sp)),
+              child: Text('Annuler', style: TextStyle(fontSize: 10.sp)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red, // Couleur du bouton
+                backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8), // Bords arrondis
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                // Logique pour supprimer la commande
+                // Ici, tu vas faire l'appel API pour faire la suppression de la commande
+                _deletePayement(id);
+                _refreshCommande();
+                Navigator.pop(context);
+              },
+              child: Text(
+                'Supprimer',
+                style: TextStyle(fontSize: 10.sp),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 206, 136, 5),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  // Dialogue pour annuler la commande
+  void _annulerCommande(BuildContext context, String statut) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            'Annuler commande',
+            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Êtes-vous sur le point d\'annuler la commande .',
+            style: TextStyle(fontSize: 10.sp),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Non', style: TextStyle(fontSize: 10.sp)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
             ElevatedButton(
               onPressed: () async {
-                // Logique pour enregistrer le paiement
-                // Ici, tu vas faire l'appel API pour faire la mise à jour du paiement
-                await _ajouterPayementCommande(paymentController.text);
-                Navigator.pop(context);
+                // Logique pour supprimer la commande
+                // Ici, tu vas faire l'appel API pour
+                //faire la suppression de la commande
+                if (_commande.payementCommandes != null &&
+                    _commande.payementCommandes!.isNotEmpty) {
+                  CustomSnackBar.show(context,
+                      message:
+                          'Impossible d\'annuler une commande qui a des payements ',
+                      isError: true);
+                  Navigator.pop(context);
+                } else {
+                  await _updateCommandeStatus(statut);
+                  Navigator.pop(context);
+                }
               },
-              child: Text('Valider', style: TextStyle(fontSize: 12.sp)),
+              child: Text(
+                'Oui',
+                style: TextStyle(fontSize: 10.sp),
+              ),
               style: ElevatedButton.styleFrom(
-                backgroundColor:
-                    Color.fromARGB(255, 206, 136, 5), // Couleur du bouton
+                backgroundColor: Color.fromARGB(255, 206, 136, 5),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8), // Bords arrondis
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
             ),
@@ -424,18 +647,18 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
         return AlertDialog(
           title: Text(
             'Supprimer la commande',
-            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
           ),
           content: Text(
             'Êtes-vous sûr de vouloir supprimer cette commande ?',
-            style: TextStyle(fontSize: 12.sp),
+            style: TextStyle(fontSize: 8.sp),
           ),
           actions: [
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: Text('Annuler', style: TextStyle(fontSize: 12.sp)),
+              child: Text('Annuler', style: TextStyle(fontSize: 10.sp)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
@@ -445,18 +668,16 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
+              onPressed: () async {
                 // Logique pour supprimer la commande
                 // Ici, tu vas faire l'appel API pour faire la suppression de la commande
+
                 Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text('Commande supprimée avec succès.')),
-                );
+                await _functiondeleteCommande();
               },
               child: Text(
                 'Supprimer',
-                style: TextStyle(fontSize: 12.sp),
+                style: TextStyle(fontSize: 10.sp),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color.fromARGB(255, 206, 136, 5),
@@ -472,6 +693,291 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
     );
   }
 
+// Fonction pour la modification des Tissus
+  void _openEditTissusPage(int index) {
+    // Add the index parameter
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditTissuPage(
+            commande: _commande, tissuIndex: index), // pass the index
+      ),
+    ).then((value) {
+      if (value == true) {
+        _refreshCommande();
+      }
+    });
+  }
+
+// Fonction pour la modification des modeles
+  void _openEditModelePage(int tissuIndex, int modeleIndex) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => EditModelePage(
+            commande: _commande,
+            tissuIndex: tissuIndex,
+            modeleIndex: modeleIndex),
+      ),
+    ).then((value) {
+      if (value == true) {
+        _refreshCommande(); // Actualiser après modification
+      }
+    });
+  }
+
+  // Future<void> _generateAndSharePdf(PayementCommande payement) async {
+  //   final pdf = pw.Document();
+
+  //   // Charger la police de Google Fonts
+  //   final font = GoogleFonts.roboto;
+
+  //   final fontData =
+  //       await rootBundle.load("assets/image/static/Roboto-Regular.ttf");
+  //   final pdfFont = pw.Font.ttf(fontData);
+
+  //   pdf.addPage(
+  //     pw.Page(
+  //       build: (pw.Context context) => pw.Column(
+  //         crossAxisAlignment: pw.CrossAxisAlignment.start,
+  //         children: [
+  //           pw.Text('FACTURE DE PAIEMENT',
+  //               style: pw.TextStyle(
+  //                   font: pdfFont,
+  //                   fontSize: 20,
+  //                   fontWeight: pw.FontWeight.bold)),
+  //           pw.SizedBox(height: 10),
+  //           pw.Text('Référence: ${payement.reference ?? "Inconnu"}',
+  //               style: pw.TextStyle(
+  //                 font: pdfFont,
+  //                 fontSize: 14,
+  //               )),
+  //           pw.Text('Montant: ${payement.montant?.toString() ?? "Inconnu"} CFA',
+  //               style: pw.TextStyle(
+  //                 font: pdfFont,
+  //                 fontSize: 14,
+  //               )),
+  //           pw.Text(
+  //               'Date: ${payement.date != null ? dateFormat.format(payement.date!) : "Inconnu"}',
+  //               style: pw.TextStyle(
+  //                 font: pdfFont,
+  //                 fontSize: 14,
+  //               )),
+  //           pw.SizedBox(height: 20),
+  //           pw.Text('Merci pour votre paiement !',
+  //               style: pw.TextStyle(
+  //                 font: pdfFont,
+  //                 fontSize: 16,
+  //               )),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+
+  //   try {
+  //     final pdfBytes = await pdf.save();
+
+  //     await Share.shareXFiles(
+  //       [
+  //         XFile.fromData(pdfBytes,
+  //             mimeType: 'application/pdf',
+  //             name: 'facture_paiement_${payement.reference}.pdf')
+  //       ],
+  //       subject: 'Facture de paiement',
+  //     );
+  //   } catch (e) {
+  //     CustomSnackBar.show(context,
+  //         message: 'Erreur lors de la génération du PDF: $e', isError: true);
+  //   }
+  // }
+
+  Future<void> _generateAndSharePdf(
+      BuildContext context, PayementCommande payement) async {
+    final pdf = pw.Document();
+    final dateFormat = DateFormat('dd/MM/yyyy HH:mm:ss');
+
+    // Charger les polices
+    final fontData =
+        await rootBundle.load("assets/image/static/Roboto-Regular.ttf");
+    final pdfFont = pw.Font.ttf(fontData);
+
+    // Charger les images
+    final orangeMoneyLogo = pw.MemoryImage(
+      (await rootBundle.load('assets/image/logo_coture.png'))
+          .buffer
+          .asUint8List(),
+    );
+    final recuPayeImage = pw.MemoryImage(
+      (await rootBundle.load('assets/image/logo_coture.png'))
+          .buffer
+          .asUint8List(), // Remplacez par le bon chemin
+    );
+    final orangeLogo = pw.MemoryImage(
+      (await rootBundle.load('assets/image/logo_coture.png'))
+          .buffer
+          .asUint8List(), // Remplacez par le bon chemin
+    );
+
+    pdf.addPage(
+      pw.Page(
+        margin: const pw.EdgeInsets.all(20),
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              // Logo Orange Money
+              pw.Center(
+                child: pw.Image(orangeMoneyLogo, width: 150),
+              ),
+              pw.SizedBox(height: 20),
+
+              // Titre
+              pw.Center(
+                child: pw.Text('Reçu de paiement de COMMANDE',
+                    style: pw.TextStyle(
+                        font: pdfFont,
+                        fontSize: 22,
+                        fontWeight: pw.FontWeight.bold)),
+              ),
+              pw.SizedBox(height: 20),
+
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.start,
+                children: [
+                  pw.SizedBox(
+                    width: 0.5 * 595.28 - 40, // 50% de la largeur du document
+                    child: pw.Table(
+                      columnWidths: {
+                        0: const pw.FixedColumnWidth(0.5 * 0.25 * 595.28),
+                        1: const pw.FixedColumnWidth(0.5 * 0.25 * 595.28),
+                      },
+                      border: pw.TableBorder.all(color: PdfColors.grey),
+                      children: [
+                        _buildTableRow(
+                            'Nom et Prénom',
+                            _commande.proprietaire?.client?.nom ?? "Inconnu",
+                            pdfFont),
+                        _buildTableRow(
+                            'Téléphone',
+                            _commande.proprietaire?.client?.username ??
+                                "Inconnu",
+                            pdfFont),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 20),
+              // Table des informations
+              pw.Table(
+                columnWidths: {
+                  0: const pw.FixedColumnWidth(120), // Ajustez la largeur
+                  1: const pw.FixedColumnWidth(150), // Ajustez la largeur
+                },
+                border: pw.TableBorder.all(
+                    color: PdfColors.grey), // Ajoute une bordure
+                //tablePadding: const pw.EdgeInsets.all(5),  //SUPPRIMER CETTE LIGNE
+                children: [
+                  // _buildTableRow('N° Facture', '2492223902636', pdfFont),
+                  _buildTableRow('Référence de payement',
+                      payement.reference ?? "Inconnu", pdfFont),
+                  _buildTableRow('Date Paiement',
+                      dateFormat.format(payement.date!), pdfFont),
+
+                  _buildTableRow(
+                      'Montant facture',
+                      '${payement.montant?.toString() ?? "Inconnu"} FCFA',
+                      pdfFont),
+                ],
+              ),
+              pw.SizedBox(height: 20),
+
+              pw.Table(
+                columnWidths: {
+                  0: const pw.FixedColumnWidth(120), // Ajustez la largeur
+                  1: const pw.FixedColumnWidth(150), // Ajustez la largeur
+                },
+                border: pw.TableBorder.all(
+                    color: PdfColors.grey), // Ajoute une bordure
+                //tablePadding: const pw.EdgeInsets.all(5),  //SUPPRIMER CETTE LIGNE
+                children: [
+                  // _buildTableRow('N° Facture', '2492223902636', pdfFont),
+                  _buildTableRow('Référence de commande',
+                      _commande.reference ?? "Inconnu", pdfFont),
+                  _buildTableRow(
+                      'prix',
+                      '${_commande.prix?.toString() ?? "Inconnu"} FCFA',
+                      pdfFont),
+
+                  _buildTableRow(
+                      'Rest à payé',
+                      '${_commande.rest?.toString() ?? "Inconnu"} FCFA',
+                      pdfFont),
+                ],
+              ),
+              pw.SizedBox(height: 20),
+
+              pw.Text('Merci pour votre paiement !', // Nouveau message
+                  style: pw.TextStyle(
+                      font: pdfFont,
+                      fontSize: 14)), // Ajuster la taille de la police
+              pw.SizedBox(height: 20),
+
+              // Image "reçu payé"
+              pw.Center(
+                child: pw.Image(recuPayeImage, width: 100),
+              ),
+              pw.SizedBox(height: 20),
+
+              // Logo Orange en bas
+              pw.Align(
+                alignment: pw.Alignment.bottomRight,
+                child: pw.Image(orangeLogo, width: 80),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    // Sauvegarder et partager le PDF
+    try {
+      final pdfBytes = await pdf.save();
+      final directory = await getTemporaryDirectory();
+      final path =
+          '${directory.path}/recu_payement_commande_${payement.reference}.pdf';
+      final file = File(path);
+      await file.writeAsBytes(pdfBytes);
+
+      await Share.shareXFiles(
+        [
+          XFile(path, mimeType: 'application/pdf'),
+        ],
+        subject: 'Reçu de paiement COMMANDE',
+      );
+    } catch (e) {
+      CustomSnackBar.show(context,
+          message: 'Erreur lors de la génération du PDF: $e', isError: true);
+    }
+  }
+
+// Helper function to create a table row
+  pw.TableRow _buildTableRow(String label, String value, pw.Font pdfFont) {
+    return pw.TableRow(children: [
+      pw.Padding(
+        // Ajout du padding ici
+        padding: const pw.EdgeInsets.all(5),
+        child: pw.Text(label + ':',
+            style: pw.TextStyle(font: pdfFont, fontSize: 12)),
+      ),
+      pw.Padding(
+        // Ajout du padding ici
+        padding: const pw.EdgeInsets.all(5),
+        child: pw.Text(value, style: pw.TextStyle(font: pdfFont, fontSize: 12)),
+      ),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -483,13 +989,13 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
           },
           icon: Icon(
             Icons.keyboard_backspace,
-            size: 30,
+            size: 20.sp,
           ),
         ),
         title: Text(
           ' ${_commande.reference}',
           style: TextStyle(
-            fontSize: 14.sp,
+            fontSize: 11.sp,
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.tertiary,
           ),
@@ -500,13 +1006,18 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildSectionTitle('Informations Principales', onEdit: () {
-              // Logique pour editer la section  Informations Principales
-              print('Editer Informations Principales');
-            }, onDelete: () {
-              // Logique pour supprimer la section Informations Principales
-              print('Supprimer Informations Principales');
-            }),
+            _buildSectionTitle(
+              'Informations Principales',
+              onDelete: () {
+                // Logique pour supprimer la section Informations Principales
+                print('Supprimer Informations Principales');
+                _deleteCommande(context);
+              },
+              onEdit: () {
+                // Logique pour editer la section  Informations Principales
+                print('Editer Informations Principales');
+              },
+            ),
             _buildInfoRow(
               'Client',
               _commande.proprietaire?.client?.nom ?? "Inconnu",
@@ -527,7 +1038,7 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
             _buildInfoRow('Statut', _commande.status ?? "Inconnu",
                 color: _getStatutColor(_commande.status ?? '')),
             _buildInfoRow(
-              'Prix de la commande',
+              'Prix ',
               '${_commande.prix} CFA',
               color: Theme.of(context).colorScheme.tertiary,
             ),
@@ -557,11 +1068,11 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
                     },
                     icon: Icon(
                       Icons.person,
-                      size: 12.sp,
+                      size: 10.sp,
                     ),
                     label: Text(
                       "Afficher le client",
-                      style: TextStyle(fontSize: 10.sp),
+                      style: TextStyle(fontSize: 8.sp),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
@@ -580,11 +1091,11 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
                     onPressed: () => _changeStatut(context),
                     icon: Icon(
                       Icons.edit_note,
-                      size: 12.sp,
+                      size: 10.sp,
                     ),
                     label: Text(
                       "Modifier le statut",
-                      style: TextStyle(fontSize: 10.sp),
+                      style: TextStyle(fontSize: 8.sp),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
@@ -601,29 +1112,75 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
             ),
 
             // Tissus
-            _buildSectionTitle(
-              'Tissus',
-              //  onEdit: () {
-              //   // Logique pour editer la section  Tissus
-              //   print('Editer Tissus');
-              // }, onDelete: () {
-              //   // Logique pour supprimer la section Tissus
-              //   print('Supprimer Tissus');
-              // }
-            ),
             if (_commande.tissus != null && _commande.tissus!.isNotEmpty)
-              ..._commande.tissus!.map((tissu) {
-                return _buildTissuItem(
-                  context,
-                  tissu,
-                  onEdit: () {
-                    // Logique pour modifier un tissu
-                    print('Modifier le tissu : ${tissu.nom}');
-                  },
-                  onDelete: () {
-                    // Logique pour supprimer un tissu
-                    print('Supprimer le tissu : ${tissu.nom}');
-                  },
+              ..._commande.tissus!.indexed.map((indexedTissu) {
+                final tissuIndex = indexedTissu.$1; // Extrait l'index du tissu
+                final tissu = indexedTissu.$2; // Extrait le tissu
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Tissu ${tissuIndex + 1}:",
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w500,
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                    _buildTissuItem(
+                      context,
+                      tissu,
+                      tissuIndex, // Passe l'index du tissu
+                      onEdit: () {
+                        _openEditTissusPage(tissuIndex);
+                      },
+                    ),
+                    // Modèles associés à ce tissu
+                    if (tissu.modeles != null && tissu.modeles!.isNotEmpty)
+                      Padding(
+                        padding:
+                            EdgeInsets.only(left: 16.0), // Ajoute un retrait
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Modèles associés :",
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                fontWeight: FontWeight.w500,
+                                color: Theme.of(context).colorScheme.tertiary,
+                              ),
+                            ),
+                            ...tissu.modeles!.indexed.map((indexedModele) {
+                              // Utilise indexed pour obtenir l'index du modèle
+                              final modeleIndex =
+                                  indexedModele.$1; //Extrait l'index du modele
+                              final modele =
+                                  indexedModele.$2; // Extrait le modele
+
+                              return _buildModeleItem(
+                                context,
+                                modele,
+                                tissuIndex,
+                                modeleIndex, // Passe les index du tissu et du modele
+                                onEdit: () {
+                                  // Logique pour modifier un modèle
+                                  _openEditModelePage(tissuIndex, modeleIndex);
+                                },
+                              );
+                            }).toList(),
+                          ],
+                        ),
+                      )
+                    else
+                      Padding(
+                        padding: EdgeInsets.only(left: 16.0, bottom: 8.0),
+                        child: Text(
+                          "Aucun modèle associé à ce tissu.",
+                          style: TextStyle(fontSize: 10.sp),
+                        ),
+                      ),
+                  ],
                 );
               }).toList()
             else
@@ -632,39 +1189,6 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
                 child: Text(
                   "Aucun Tissus pour cette commande",
                   style: TextStyle(fontSize: 12.sp),
-                ),
-              ),
-            const Divider(),
-
-            // Modèles
-            _buildSectionTitle(
-              'Modèles',
-              // onEdit: () {
-              //     // Logique pour editer la section Modèles
-              //     print('Editer Modèles');
-              //   }, onDelete: () {
-              //     // Logique pour supprimer la section Modèles
-              //     print('Supprimer Modèles');
-              // }
-            ),
-            if (_commande.tissus != null && _commande.tissus!.isNotEmpty)
-              ..._commande.tissus!
-                  .expand((tissu) => tissu.modeles ?? [])
-                  .map((modele) {
-                return _buildModeleItem(context, modele, onEdit: () {
-                  // Logique pour modifier un modèle
-                  print('Modifier le modèle : ${modele.nom}');
-                }, onDelete: () {
-                  // Logique pour supprimer un modèle
-                  print('Supprimer le modèle : ${modele.nom}');
-                });
-              }).toList()
-            else
-              Padding(
-                padding: EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  "Aucun Modèles pour cette commande",
-                  style: TextStyle(fontSize: 10.sp),
                 ),
               ),
             const Divider(),
@@ -687,12 +1211,9 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
                 return _buildPayementItem(
                   context,
                   payement,
-                  onEdit: () {
-                    // Logique pour modifier un paiement
-                    print('Modifier le paiement : ${payement.reference}');
-                  },
                   onDelete: () {
-                    // Logique pour supprimer un paiement
+                    _deletepayement(context, payement.id ?? '');
+
                     print('Supprimer le paiement : ${payement.reference}');
                   },
                 );
@@ -702,7 +1223,7 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
                   "Aucun Paiements pour cette commande",
-                  style: TextStyle(fontSize: 12.sp),
+                  style: TextStyle(fontSize: 10.sp),
                 ),
               ),
             const Divider(),
@@ -727,22 +1248,13 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
           Text(
             title,
             style: TextStyle(
-              fontSize: 13.sp,
+              fontSize: 11.sp,
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.tertiary,
             ),
           ),
           Row(
             children: [
-              if (onEdit != null)
-                IconButton(
-                  icon: Icon(
-                    Icons.edit,
-                    size: 14.sp,
-                    color: Colors.blue,
-                  ),
-                  onPressed: onEdit,
-                ),
               if (onDelete != null)
                 IconButton(
                   icon: Icon(
@@ -751,6 +1263,15 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
                     color: Colors.red,
                   ),
                   onPressed: onDelete,
+                ),
+              if (onEdit != null)
+                IconButton(
+                  icon: Icon(
+                    Icons.edit,
+                    size: 14.sp,
+                    color: Colors.blue,
+                  ),
+                  onPressed: onEdit,
                 ),
             ],
           ),
@@ -778,7 +1299,7 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
             ),
           ),
           Expanded(
-            flex: 3,
+            flex: 4,
             child: Text(
               value,
               style: TextStyle(
@@ -791,30 +1312,42 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
   }
 
   // Widget pour afficher un élément de la liste des tissus
-  Widget _buildTissuItem(BuildContext context, Tissu tissu,
+  Widget _buildTissuItem(BuildContext context, Tissu tissu, int tissuIndex,
       {VoidCallback? onEdit, VoidCallback? onDelete}) {
     return GestureDetector(
       onTap: () {
         showDialog(
           context: context,
           builder: (_) => Dialog(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (tissu.fichiersTissus != null &&
-                    tissu.fichiersTissus!.isNotEmpty)
-                  Image.network(
-                    tissu.fichiersTissus![0].urlfichier!,
-                    fit: BoxFit.contain,
+            //  shape: null, // Supprime le borderRadius
+            // backgroundColor: Colors.transparent, // Transparence pour le Dialog
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (tissu.fichiersTissus != null &&
+                      tissu.fichiersTissus!.isNotEmpty)
+                    SizedBox(
+                      height: 50.h, // Ajustez la hauteur si nécessaire
+                      child: PageView.builder(
+                          itemCount: tissu.fichiersTissus!.length,
+                          itemBuilder: (context, index) => Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: Image.network(
+                                  tissu.fichiersTissus![index].urlfichier!,
+                                  fit: BoxFit.contain,
+                                ),
+                              )),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      tissu.nom ?? "Inconnu",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    tissu.nom ?? "Inconnu",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -838,12 +1371,21 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
           children: [
             if (tissu.fichiersTissus != null &&
                 tissu.fichiersTissus!.isNotEmpty)
-              Image.network(
-                tissu.fichiersTissus![0].urlfichier!,
-                width: 25.w,
-                height: 15.h,
-                fit: BoxFit.cover,
-              ),
+              SizedBox(
+                  width: 15.w,
+                  height: 10.h,
+                  child: PageView.builder(
+                    itemCount: tissu.fichiersTissus!.length,
+                    itemBuilder: (context, index) => Padding(
+                      padding: const EdgeInsets.only(right: 5.0),
+                      child: Image.network(
+                        tissu.fichiersTissus![index].urlfichier!,
+                        width: 15.w,
+                        height: 10.h,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  )),
             SizedBox(width: 3.w),
             Expanded(
               child: Column(
@@ -851,28 +1393,28 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
                 children: [
                   Text(
                     'Nom:  ${tissu.nom ?? "Inconnu"}',
-                    style: TextStyle(fontSize: 10.sp),
+                    style: TextStyle(fontSize: 9.sp),
                   ),
                   SizedBox(
                     height: 0.5.h,
                   ),
                   Text(
                     'Quantité:  ${tissu.quantite ?? "Inconnu"}',
-                    style: TextStyle(fontSize: 10.sp),
+                    style: TextStyle(fontSize: 9.sp),
                   ),
                   SizedBox(
                     height: 0.5.h,
                   ),
                   Text(
                     'Couleur:  ${tissu.couleur ?? "Inconnu"}',
-                    style: TextStyle(fontSize: 10.sp),
+                    style: TextStyle(fontSize: 9.sp),
                   ),
                   SizedBox(
                     height: 0.5.h,
                   ),
                   Text(
                     'Fourni par:  ${tissu.fournipar ?? "Inconnu"}',
-                    style: TextStyle(fontSize: 10.sp),
+                    style: TextStyle(fontSize: 9.sp),
                   ),
                 ],
               ),
@@ -905,34 +1447,43 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
   }
 
   // Widget pour afficher un élément de la liste des modèles
-  Widget _buildModeleItem(BuildContext context, Modele modele,
+  Widget _buildModeleItem(
+      BuildContext context, Modele modele, int tissuIndex, int modeleIndex,
       {VoidCallback? onEdit, VoidCallback? onDelete}) {
     return GestureDetector(
       onTap: () {
         showDialog(
           context: context,
           builder: (_) => Dialog(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (modele.fichiersModeles != null &&
-                    modele.fichiersModeles!.isNotEmpty)
-                  Image.network(
-                    modele.fichiersModeles![0].urlfichier!,
-                    fit: BoxFit.contain,
+            // backgroundColor: Colors.transparent, // Transparence pour le Dialog
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (modele.fichiersModeles != null &&
+                      modele.fichiersModeles!.isNotEmpty)
+                    SizedBox(
+                      height: 50.h, // Ajustez la hauteur si nécessaire
+
+                      child: PageView.builder(
+                          itemCount: modele.fichiersModeles!.length,
+                          itemBuilder: (context, index) => Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: Image.network(
+                                  modele.fichiersModeles![index].urlfichier!,
+                                  fit: BoxFit.contain,
+                                ),
+                              )),
+                    ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      modele.nom ?? "Inconnu",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                   ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    modele.nom ?? "Inconnu",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-                // Padding(
-                //   padding: const EdgeInsets.all(8.0),
-                //   child: Text(modele.description ?? "Inconnu"),
-                // ),
-              ],
+                ],
+              ),
             ),
           ),
         );
@@ -956,22 +1507,31 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
           children: [
             if (modele.fichiersModeles != null &&
                 modele.fichiersModeles!.isNotEmpty)
-              Image.network(
-                modele.fichiersModeles![0].urlfichier!,
-                width: 25.w,
-                height: 15.h,
-                fit: BoxFit.cover,
-              ),
+              SizedBox(
+                  width: 15.w,
+                  height: 10.h,
+                  child: PageView.builder(
+                    itemCount: modele.fichiersModeles!.length,
+                    itemBuilder: (context, index) => Padding(
+                      padding: const EdgeInsets.only(right: 5.0),
+                      child: Image.network(
+                        modele.fichiersModeles![index].urlfichier!,
+                        width: 15.w,
+                        height: 10.h,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  )),
             SizedBox(width: 3.w),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text('Nom : ${modele.nom ?? "Inconnu"}',
-                      style: TextStyle(fontSize: 10.sp)),
+                      style: TextStyle(fontSize: 9.sp)),
                   SizedBox(height: 0.5.h),
                   Text('Description : ${modele.description ?? "Inconnu"}',
-                      style: TextStyle(fontSize: 10.sp)),
+                      style: TextStyle(fontSize: 9.sp)),
                 ],
               ),
             ),
@@ -980,7 +1540,7 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
                 children: [
                   if (onEdit != null)
                     IconButton(
-                        onPressed: onEdit,
+                        onPressed: () => onEdit!(),
                         icon: Icon(
                           Icons.edit,
                           size: 14.sp,
@@ -1007,7 +1567,7 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
   Widget _buildPayementItem(BuildContext context, PayementCommande payement,
       {VoidCallback? onEdit, VoidCallback? onDelete}) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 5),
+      margin: EdgeInsets.symmetric(vertical: 1.h),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(10),
@@ -1020,7 +1580,7 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
           ),
         ],
       ),
-      padding: EdgeInsets.all(10),
+      padding: EdgeInsets.all(2.w),
       child: Row(
         children: [
           Expanded(
@@ -1029,33 +1589,33 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
               children: [
                 Row(
                   children: [
-                    Text('Référence :', style: TextStyle(fontSize: 10.sp)),
+                    Text('Référence :', style: TextStyle(fontSize: 9.sp)),
                     Text(
                       ' ${payement.reference ?? "Inconnu"}',
                       style: TextStyle(
-                          fontSize: 10.sp, fontWeight: FontWeight.w700),
+                          fontSize: 9.sp, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
                 SizedBox(height: 0.5.h),
                 Row(
                   children: [
-                    Text('Montant :', style: TextStyle(fontSize: 10.sp)),
+                    Text('Montant :', style: TextStyle(fontSize: 9.sp)),
                     Text(
                       ' ${payement.montant?.toString() ?? "Inconnu"} CFA',
                       style: TextStyle(
-                          fontSize: 10.sp, fontWeight: FontWeight.w700),
+                          fontSize: 9.sp, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
                 SizedBox(height: 0.5.h),
                 Row(
                   children: [
-                    Text('Date :', style: TextStyle(fontSize: 10.sp)),
+                    Text('Date :', style: TextStyle(fontSize: 9.sp)),
                     Text(
                       ' ${payement.date != null ? dateFormat.format(payement.date!) : "Inconnu"}',
                       style: TextStyle(
-                          fontSize: 10.sp, fontWeight: FontWeight.w700),
+                          fontSize: 9.sp, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -1068,14 +1628,14 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
           if (onEdit != null || onDelete != null)
             Column(
               children: [
-                if (onEdit != null)
-                  IconButton(
-                      onPressed: onEdit,
-                      icon: Icon(
-                        Icons.edit,
-                        size: 14.sp,
-                        color: Colors.blue,
-                      )),
+                // if (onEdit != null)
+                //   IconButton(
+                //       onPressed: onEdit,
+                //       icon: Icon(
+                //         Icons.edit,
+                //         size: 14.sp,
+                //         color: Colors.blue,
+                //       )),
                 if (onDelete != null)
                   IconButton(
                       onPressed: onDelete,
@@ -1083,7 +1643,12 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
                         Icons.delete,
                         size: 14.sp,
                         color: Colors.red,
-                      ))
+                      )),
+                IconButton(
+                  icon: Icon(Icons.share, size: 14.sp),
+                  onPressed: () =>
+                      _generateAndSharePdf(context, payement), // Correction ici
+                )
               ],
             )
         ],
@@ -1099,14 +1664,37 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
         Container(
           margin: EdgeInsets.only(top: 1.h, bottom: 1.h),
           child: ElevatedButton.icon(
+            onPressed: () {
+              _annulerCommande(context, 'ANNULER');
+            },
+            icon: Icon(
+              Icons.delete_forever,
+              size: 10.sp,
+            ),
+            label: Text(
+              "Annuler Commande",
+              style: TextStyle(fontSize: 8.sp),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8), // Bords arrondis
+              ),
+            ),
+          ),
+        ),
+        Container(
+          margin: EdgeInsets.only(top: 1.h, bottom: 1.h),
+          child: ElevatedButton.icon(
             onPressed: () => _makePayment(context),
             icon: Icon(
               Icons.payment,
-              size: 12.sp,
+              size: 10.sp,
             ),
             label: Text(
-              "Ajouter un Paiement",
-              style: TextStyle(fontSize: 10.sp),
+              "Ajouter Paiement",
+              style: TextStyle(fontSize: 8.sp),
             ),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.green,

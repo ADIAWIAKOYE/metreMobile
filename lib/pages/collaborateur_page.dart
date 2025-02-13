@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:Metre/models/user_model.dart';
 import 'package:Metre/models/utilisateur_model.dart';
+import 'package:Metre/services/CustomIntercepter.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:Metre/widgets/Textfield_Widget.dart';
 import 'package:flutter/material.dart';
@@ -40,13 +41,17 @@ class _CollaborateurPageState extends State<CollaborateurPage> {
     });
   }
 
+  final http.Client client = CustomIntercepter(http.Client());
   // pour afficher les Collaborateurs
   Future<void> _fetchCollaborateirs() async {
     final url = 'http://192.168.56.1:8010/user/loadCollaboratorsByUserId/$_id';
     try {
-      final response = await http.get(
+      final response = await client.get(
         Uri.parse(url),
-        headers: {'Authorization': 'Bearer $_token'},
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': 'Bearer $_token'
+        },
       );
 
       if (response.statusCode == 202) {

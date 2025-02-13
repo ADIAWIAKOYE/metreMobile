@@ -146,17 +146,20 @@ class _SignupPageState extends State<SignupPage> {
                     controller: nomEntre,
                     keyboardType: TextInputType.name,
                     decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.account_circle),
+                      prefixIcon: Icon(
+                        Icons.account_circle,
+                        size: 15.sp,
+                      ),
                       hintText: "Exp: MonStyl Couture",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
                       ),
 
                       labelText: "nom de l'entreprise",
                       labelStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -203,17 +206,20 @@ class _SignupPageState extends State<SignupPage> {
                     controller: adresse,
                     keyboardType: TextInputType.text,
                     decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.location_on),
+                      prefixIcon: Icon(
+                        Icons.location_on,
+                        size: 15.sp,
+                      ),
                       hintText: "Exp: Bamako, yirimadio, 1008logt",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
                       ),
 
                       labelText: "Adresse de l'entreprise",
                       labelStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
-                          fontSize: 10.sp),
+                          fontSize: 8.sp),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
@@ -259,17 +265,20 @@ class _SignupPageState extends State<SignupPage> {
                     controller: phone,
                     keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.phone),
+                      prefixIcon: Icon(
+                        Icons.phone,
+                        size: 15.sp,
+                      ),
                       hintText: "Exp: +22375468913",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
                       ),
 
                       labelText: "téléphone de l'entreprise",
                       labelStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
-                          fontSize: 10.sp),
+                          fontSize: 8.sp),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                         borderSide: BorderSide(
@@ -320,17 +329,20 @@ class _SignupPageState extends State<SignupPage> {
                     controller: email,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.mail),
+                      prefixIcon: Icon(
+                        Icons.mail,
+                        size: 15.sp,
+                      ),
                       hintText: "Exp: exemple@gmail.com",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
                       ),
 
                       labelText: "email de l'entreprise",
                       labelStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -379,16 +391,19 @@ class _SignupPageState extends State<SignupPage> {
                     value:
                         specialite, // Assurez-vous de définir la valeur initiale
                     decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.category),
+                      prefixIcon: Icon(
+                        Icons.category,
+                        size: 15.sp,
+                      ),
                       hintText: "Choisissez votre spécialité",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
                       ),
                       labelText: "Spécialité de l'entreprise",
                       labelStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -422,7 +437,7 @@ class _SignupPageState extends State<SignupPage> {
                         value: label,
                         child: Text(
                           label,
-                          style: TextStyle(fontSize: 10.sp),
+                          style: TextStyle(fontSize: 8.sp),
                         ),
                       );
                     }).toList(),
@@ -455,11 +470,20 @@ class _SignupPageState extends State<SignupPage> {
                     enableSuggestions: false,
                     autocorrect: false,
                     decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.lock),
+                      prefixIcon: Icon(
+                        Icons.lock,
+                        size: 15.sp,
+                      ),
                       suffixIcon: IconButton(
                         icon: _isObscuredP
-                            ? const Icon(Icons.visibility)
-                            : const Icon(Icons.visibility_off),
+                            ? Icon(
+                                Icons.visibility,
+                                size: 15.sp,
+                              )
+                            : Icon(
+                                Icons.visibility_off,
+                                size: 15.sp,
+                              ),
                         onPressed: () {
                           setState(() {
                             _isObscuredP = !_isObscuredP;
@@ -469,13 +493,13 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Entrez votre mot de passe",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
                       ),
 
                       labelText: "mot de passe",
                       labelStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -528,11 +552,20 @@ class _SignupPageState extends State<SignupPage> {
                     enableSuggestions: false,
                     autocorrect: false,
                     decoration: InputDecoration(
-                      prefixIcon: Icon(Icons.lock),
+                      prefixIcon: Icon(
+                        Icons.lock,
+                        size: 15.sp,
+                      ),
                       suffixIcon: IconButton(
                         icon: _isObscuredC
-                            ? const Icon(Icons.visibility)
-                            : const Icon(Icons.visibility_off),
+                            ? Icon(
+                                Icons.visibility,
+                                size: 15.sp,
+                              )
+                            : Icon(
+                                Icons.visibility_off,
+                                size: 15.sp,
+                              ),
                         onPressed: () {
                           setState(() {
                             _isObscuredC = !_isObscuredC;
@@ -542,13 +575,13 @@ class _SignupPageState extends State<SignupPage> {
                       hintText: "Confirmer votre mot de passe",
                       hintStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
                       ),
 
                       labelText: "mot de passe confirmer",
                       labelStyle: TextStyle(
                         color: Color.fromARGB(255, 132, 134, 135),
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
                       ),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
@@ -620,7 +653,7 @@ class _SignupPageState extends State<SignupPage> {
                       child: Text(
                         "S'inscrire",
                         style: TextStyle(
-                          fontSize: 10.sp,
+                          fontSize: 8.sp,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
@@ -646,6 +679,7 @@ class _SignupPageState extends State<SignupPage> {
                 child: Text(
                   "Se connecter",
                   style: TextStyle(
+                    fontSize: 8.sp,
                     color: Color.fromARGB(
                         255, 1, 62, 111), // Couleur du texte cliquable
                     decoration: TextDecoration.none, // Souligner le texte

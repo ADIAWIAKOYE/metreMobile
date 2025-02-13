@@ -649,7 +649,7 @@ class _CreateCommandePageState extends State<CreateCommandePage> {
                                   child: Text(
                                     'Ajouter un modèle',
                                     style: TextStyle(
-                                        color: Colors.white, fontSize: 10.sp),
+                                        color: Colors.white, fontSize: 8.sp),
                                   ),
                                 ),
                               ),
@@ -739,7 +739,7 @@ class _CreateCommandePageState extends State<CreateCommandePage> {
                                                 Text(
                                                   "Cliquer pour ajouter un photo ",
                                                   style: TextStyle(
-                                                    fontSize: 9.sp,
+                                                    fontSize: 8.sp,
                                                     fontWeight: FontWeight.bold,
                                                     color: Color.fromARGB(
                                                         255, 206, 136, 5),
@@ -809,8 +809,7 @@ class _CreateCommandePageState extends State<CreateCommandePage> {
                         onPressed: addTissu,
                         child: Text(
                           'Ajouter un tissu',
-                          style:
-                              TextStyle(color: Colors.white, fontSize: 10.sp),
+                          style: TextStyle(color: Colors.white, fontSize: 8.sp),
                         ),
                       ),
                     ),
@@ -828,7 +827,7 @@ class _CreateCommandePageState extends State<CreateCommandePage> {
                           child: Text(
                             'Annuler la commande',
                             style:
-                                TextStyle(color: Colors.white, fontSize: 10.sp),
+                                TextStyle(color: Colors.white, fontSize: 8.sp),
                           ),
                         ),
                         ElevatedButton(
@@ -841,7 +840,7 @@ class _CreateCommandePageState extends State<CreateCommandePage> {
                             style: TextStyle(
                                 // color: Theme.of(context).colorScheme.tertiary,
                                 color: Colors.white,
-                                fontSize: 10.sp),
+                                fontSize: 8.sp),
                           ),
                         ),
                       ],

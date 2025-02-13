@@ -40,7 +40,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-    // Mettre à jour le token dans SharedPreferences
+  // Mettre à jour le token dans SharedPreferences
   static Future<void> setToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
@@ -102,13 +102,10 @@ class _HomePageState extends State<HomePage> {
   }
 // :::::::::::::::::::::::::::::::::::::::::::::::
 
-
   Future<void> clearCache() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear(); // Supprime toutes les données stockées
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -128,12 +125,12 @@ class _HomePageState extends State<HomePage> {
             // Section de bienvenue
             Text(
               "Bonjour, Fatou !",
-              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 2.h),
             Text(
               "Gérez votre atelier avec efficacité 🚀",
-              style: TextStyle(fontSize: 12.sp, color: Colors.grey[700]),
+              style: TextStyle(fontSize: 10.sp, color: Colors.grey[700]),
             ),
             SizedBox(height: 3.h),
 
@@ -162,7 +159,7 @@ class _HomePageState extends State<HomePage> {
             // Actions rapides
             Text(
               "Actions rapides",
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
             ),
 
             SizedBox(height: 2.h),
@@ -180,7 +177,7 @@ class _HomePageState extends State<HomePage> {
             // Notifications importantes
             Text(
               "Notifications importantes",
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 2.h),
             Card(
@@ -223,7 +220,7 @@ class _HomePageState extends State<HomePage> {
                 Text(
                   value,
                   style: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.bold,
                     color: color,
                   ),

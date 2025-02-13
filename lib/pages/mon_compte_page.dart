@@ -450,7 +450,7 @@ class _MonComptePageState extends State<MonComptePage> {
           child: Text(
             'Supprimer',
             style: TextStyle(
-                fontSize: 10.sp, letterSpacing: 2, color: Colors.white),
+                fontSize: 8.sp, letterSpacing: 2, color: Colors.white),
           ),
           style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
@@ -470,7 +470,7 @@ class _MonComptePageState extends State<MonComptePage> {
           child: Text(
             'Annuler',
             style: TextStyle(
-              fontSize: 10.sp,
+              fontSize: 8.sp,
               letterSpacing: 2,
               color: Theme.of(context).colorScheme.tertiary,
             ),
@@ -488,7 +488,7 @@ class _MonComptePageState extends State<MonComptePage> {
           child: Text(
             'Modifier',
             style: TextStyle(
-                fontSize: 10.sp, letterSpacing: 2, color: Colors.white),
+                fontSize: 8.sp, letterSpacing: 2, color: Colors.white),
           ),
           style: ElevatedButton.styleFrom(
               backgroundColor: const Color.fromARGB(255, 206, 136, 5),

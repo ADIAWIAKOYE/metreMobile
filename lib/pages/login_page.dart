@@ -224,7 +224,7 @@ class _LoginPageState extends State<LoginPage> {
               Text(
                 "Connectez-vous",
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: 12.sp,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -242,8 +242,12 @@ class _LoginPageState extends State<LoginPage> {
                       controller: phone,
                       enabled: _fieldsEnabled,
                       keyboardType: TextInputType.phone,
+                      style: TextStyle(fontSize: 10.sp),
                       decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.phone),
+                        prefixIcon: Icon(
+                          Icons.phone,
+                          size: 15.sp,
+                        ),
                         hintText: "Exp: +22375468913",
                         hintStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
@@ -275,7 +279,13 @@ class _LoginPageState extends State<LoginPage> {
                             width: 0.4.w,
                           ),
                         ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+                        // contentPadding: EdgeInsets.symmetric(vertical: 0.5.h),
+                        constraints: BoxConstraints(
+                          minHeight: 4
+                              .h, // Définir une hauteur minimale (ajuster selon vos besoins)
+                          maxHeight: 5
+                              .h, // Définir une hauteur maximale (ajuster selon vos besoins)
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -292,16 +302,26 @@ class _LoginPageState extends State<LoginPage> {
                       controller: password,
                       enabled: _fieldsEnabled,
                       keyboardType: TextInputType.visiblePassword,
+                      style: TextStyle(fontSize: 10.sp),
                       obscureText: _isObscured,
                       obscuringCharacter: "*",
                       enableSuggestions: false,
                       autocorrect: false,
                       decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.lock),
+                        prefixIcon: Icon(
+                          Icons.lock,
+                          size: 15.sp,
+                        ),
                         suffixIcon: IconButton(
                           icon: _isObscured
-                              ? const Icon(Icons.visibility)
-                              : const Icon(Icons.visibility_off),
+                              ? Icon(
+                                  Icons.visibility,
+                                  size: 15.sp,
+                                )
+                              : Icon(
+                                  Icons.visibility_off,
+                                  size: 15.sp,
+                                ),
                           onPressed: () {
                             setState(() {
                               _isObscured = !_isObscured;
@@ -339,7 +359,13 @@ class _LoginPageState extends State<LoginPage> {
                             width: 0.4.w,
                           ),
                         ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+                        // contentPadding: EdgeInsets.symmetric(vertical: 0.h),
+                        constraints: BoxConstraints(
+                          minHeight: 4
+                              .h, // Définir une hauteur minimale (ajuster selon vos besoins)
+                          maxHeight: 5
+                              .h, // Définir une hauteur maximale (ajuster selon vos besoins)
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -361,7 +387,7 @@ class _LoginPageState extends State<LoginPage> {
                                 text: 'Mot de passe oublié?',
                                 style: TextStyle(
                                   color: Color.fromARGB(255, 206, 136, 5),
-                                  fontSize: 10.sp,
+                                  fontSize: 8.sp,
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
@@ -378,7 +404,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: 2.h),
                     SizedBox(
-                      height: 5.h,
+                      height: 4.h,
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _isLoading ? null : _login,
@@ -419,7 +445,10 @@ class _LoginPageState extends State<LoginPage> {
                       keyboardType: TextInputType.phone,
                       style: TextStyle(fontSize: 10.sp),
                       decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.phone),
+                        prefixIcon: Icon(
+                          Icons.phone,
+                          size: 15.sp,
+                        ),
                         hintText: "Entrez le numéro de votre entreprise",
                         hintStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
@@ -451,7 +480,13 @@ class _LoginPageState extends State<LoginPage> {
                             width: 0.4.w,
                           ),
                         ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+                        // contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+                        constraints: BoxConstraints(
+                          minHeight: 4
+                              .h, // Définir une hauteur minimale (ajuster selon vos besoins)
+                          maxHeight: 5
+                              .h, // Définir une hauteur maximale (ajuster selon vos besoins)
+                        ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -469,7 +504,10 @@ class _LoginPageState extends State<LoginPage> {
                       keyboardType: TextInputType.emailAddress,
                       style: TextStyle(fontSize: 10.sp),
                       decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.mail),
+                        prefixIcon: Icon(
+                          Icons.mail,
+                          size: 15.sp,
+                        ),
                         hintText: "Entrez votre adresse mail",
                         hintStyle: TextStyle(
                           color: Color.fromARGB(255, 132, 134, 135),
@@ -501,7 +539,13 @@ class _LoginPageState extends State<LoginPage> {
                             width: 0.4.w,
                           ),
                         ),
-                        contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+                        constraints: BoxConstraints(
+                          minHeight: 4
+                              .h, // Définir une hauteur minimale (ajuster selon vos besoins)
+                          maxHeight: 5
+                              .h, // Définir une hauteur maximale (ajuster selon vos besoins)
+                        ),
+                        // contentPadding: EdgeInsets.symmetric(vertical: 1.h),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -524,7 +568,7 @@ class _LoginPageState extends State<LoginPage> {
                                 text: 'Se connecter?',
                                 style: TextStyle(
                                   color: Color.fromARGB(255, 206, 136, 5),
-                                  fontSize: 10.sp,
+                                  fontSize: 8.sp,
                                 ),
                                 recognizer: TapGestureRecognizer()
                                   ..onTap = () {
@@ -541,7 +585,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     SizedBox(height: 2.h),
                     SizedBox(
-                      height: 5.h,
+                      height: 4.h,
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: _submitFormOubliPassword,
@@ -572,7 +616,7 @@ class _LoginPageState extends State<LoginPage> {
               Text(
                 "vous n'avez pas de compte?",
                 style: TextStyle(
-                  fontSize: 10.sp,
+                  fontSize: 8.sp,
                   color: Color.fromARGB(255, 132, 134, 135),
                 ),
               ),
@@ -583,7 +627,7 @@ class _LoginPageState extends State<LoginPage> {
                       text: 'S\'inscrire',
                       style: TextStyle(
                         color: Color.fromARGB(255, 206, 136, 5),
-                        fontSize: 10.sp,
+                        fontSize: 8.sp,
                       ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {

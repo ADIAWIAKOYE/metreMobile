@@ -4,6 +4,7 @@ import 'package:Metre/models/clients_model.dart';
 import 'package:Metre/models/mesure_model.dart';
 import 'package:Metre/models/proprioMesures_model.dart';
 import 'package:Metre/pages/CreateCommandePage.dart';
+import 'package:Metre/services/CustomIntercepter.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +45,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
       true; // Ajoutez une variable pour gérer l'état de chargement
   List<ProprietaireMesure> listeDesprorios = [];
   List<ProprietaireMesure> displayedprorios = [];
+  final http.Client client = CustomIntercepter(http.Client());
 
   List<bool> _isExpandedList =
       []; // Liste pour garder l'état d'ouverture de chaque ExpansionTile
@@ -73,10 +75,11 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
   Future<void> _fetchClientDetails() async {
     final url = 'http://192.168.56.1:8010/user/loadById/${widget.clientId}';
     try {
-      final response = await http.get(
+      final response = await client.get(
         Uri.parse(url),
         headers: {
-          'Authorization': 'Bearer $_token',
+          'Content-Type': 'application/json',
+          // 'Authorization': 'Bearer $_token',
         },
       );
 
@@ -104,9 +107,12 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
         'http://192.168.56.1:8010/proprio/getByClients/${widget.clientId}';
 
     try {
-      final response = await http.get(
+      final response = await client.get(
         Uri.parse(url),
-        headers: {'Authorization': 'Bearer $_token'},
+        headers: {
+          'Content-Type': 'application/json',
+          // 'Authorization': 'Bearer $_token'
+        },
       );
 
       if (response.statusCode == 202) {
@@ -127,9 +133,12 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
         for (var proprietaire in listeDesprorios) {
           final mesureUrl =
               'http://192.168.56.1:8010/mesure/loadByProprio/${proprietaire.id}';
-          final mesureResponse = await http.get(
+          final mesureResponse = await client.get(
             Uri.parse(mesureUrl),
-            headers: {'Authorization': 'Bearer $_token'},
+            headers: {
+              'Content-Type': 'application/json',
+              // 'Authorization': 'Bearer $_token'
+            },
           );
 
           if (mesureResponse.statusCode == 202) {
@@ -147,12 +156,13 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                 .toList();
 
             proprietaire.mesures = mesures;
-          } else {
-            CustomSnackBar.show(context,
-                message:
-                    'Une erreur s\'est produite. du chargement des mesures.',
-                isError: true);
           }
+          // else {
+          //   CustomSnackBar.show(context,
+          //       message:
+          //           'Une erreur s\'est produite. du chargement des mesures.',
+          //       isError: true);
+          // }
         }
 
         setState(() {
@@ -178,10 +188,11 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
 // pour afficher le proprio
   Future<void> _fetchProprio(String idProprio) async {
     final url = 'http://192.168.56.1:8010/proprio/loadbyid/${idProprio}';
-    final response = await http.get(
+    final response = await client.get(
       Uri.parse(url),
       headers: {
-        'Authorization': 'Bearer $_token',
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer $_token',
       },
     );
 
@@ -201,10 +212,11 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
   Future<void> _delete(String id, String libelleurl) async {
     final url = 'http://192.168.56.1:8010/${libelleurl}/${id}';
     try {
-      final response = await http.delete(
+      final response = await client.delete(
         Uri.parse(url),
         headers: {
-          'Authorization': 'Bearer $_token',
+          'Content-Type': 'application/json',
+          // 'Authorization': 'Bearer $_token',
         },
       );
 
@@ -237,7 +249,14 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
             //   context,
             //   MaterialPageRoute(builder: (context) => NavigationBarPage()),
             // );
-            Navigator.pop(context);
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => NavigationBarPage(
+                  initialIndex: 1, // Rediriger vers la page des clients
+                ),
+              ),
+            );
+            // Navigator.pop(context, true);
           },
           icon: Icon(
             Icons.keyboard_backspace,
@@ -289,7 +308,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                     'Les informations personnels Client', // Ajoutez votre texte personnalisé ici
                     textAlign: TextAlign.center, // Centrer le texte
                     style: TextStyle(
-                      fontSize: 12.sp,
+                      fontSize: 10.sp,
                       fontWeight: FontWeight.w700,
                       color: Theme.of(context).colorScheme.tertiary,
                     ),
@@ -370,7 +389,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                 padding: EdgeInsets.symmetric(
                                     vertical: 0.5.h, horizontal: 1.w),
                                 decoration: BoxDecoration(
-                                  color: Colors.transparent,
+                                  color: Colors.red,
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
                                     color: Colors.red, // Couleur de la bordure
@@ -384,14 +403,14 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                       style: TextStyle(
                                         fontSize: 8.sp,
                                         fontWeight: FontWeight.bold,
-                                        color: Colors.red,
+                                        color: Colors.white,
                                       ),
                                     ),
                                     Container(
                                       margin: EdgeInsets.only(left: 0.5.h),
                                       child: Icon(
                                         Icons.delete_forever,
-                                        color: Colors.red,
+                                        color: Colors.white,
                                         size: 12.sp,
                                       ),
                                     )
@@ -412,10 +431,10 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                 padding: EdgeInsets.symmetric(
                                     vertical: 0.5.h, horizontal: 2.w),
                                 decoration: BoxDecoration(
-                                  color: Colors.transparent,
+                                  color: Color.fromARGB(255, 206, 136, 5),
                                   borderRadius: BorderRadius.circular(10),
                                   border: Border.all(
-                                    color: Color.fromARGB(255, 206, 163,
+                                    color: Color.fromARGB(255, 206, 136,
                                         5), // Couleur de la bordure
                                     width: 0.4.w, // Largeur de la bordure
                                   ),
@@ -427,14 +446,14 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                       style: TextStyle(
                                         fontSize: 8.sp,
                                         fontWeight: FontWeight.bold,
-                                        color: Color.fromARGB(255, 206, 136, 5),
+                                        color: Colors.white,
                                       ),
                                     ),
                                     Container(
                                       margin: const EdgeInsets.only(left: 5.0),
                                       child: Icon(
-                                        Icons.border_color,
-                                        color: Color.fromARGB(255, 206, 136, 5),
+                                        Icons.edit,
+                                        color: Colors.white,
                                         size: 12.sp,
                                       ),
                                     )
@@ -479,7 +498,7 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                   'les Mésures du client', // Ajoutez votre texte personnalisé ici
                   textAlign: TextAlign.center, // Centrer le texte
                   style: TextStyle(
-                    fontSize: 12.sp,
+                    fontSize: 10.sp,
                     fontWeight: FontWeight.w700,
                     color: Theme.of(context).colorScheme.tertiary,
                   ),
@@ -590,10 +609,10 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                                       child: Row(
                                         children: [
                                           Text(
-                                            "Lançer une commande",
+                                            "Commander",
                                             style: TextStyle(
                                                 fontSize: 8.sp,
-                                                fontWeight: FontWeight.bold,
+                                                fontWeight: FontWeight.w500,
                                                 color: Colors.white),
                                           ),
                                           // Container(
@@ -872,12 +891,12 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
   TextEditingController proprioownerController = TextEditingController();
 
   Future<void> sendPostRequest(Map<String, dynamic> body) async {
-    final response = await http.post(
+    final response = await client.post(
       Uri.parse('http://192.168.56.1:8010/proprio/ajouter'),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization':
-            'Bearer $_token', // Assurez-vous que $_token est défini et valide
+        // 'Authorization':
+        //     'Bearer $_token', // Assurez-vous que $_token est défini et valide
       },
       body: json.encode(body),
     );
@@ -1355,12 +1374,12 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
     valeur = valeur + " cm";
     final url = 'http://192.168.56.1:8010/mesure/newMesure';
     try {
-      final response = await http.post(
+      final response = await client.post(
         Uri.parse(url),
         headers: {
           'Content-Type': 'application/json',
-          'Authorization':
-              'Bearer $_token', // Assurez-vous que $_token est défini et valide
+          // 'Authorization':
+          //     'Bearer $_token', // Assurez-vous que $_token est défini et valide
         },
         body: jsonEncode({
           "libelle": libelle,
@@ -1601,12 +1620,12 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
   Future<void> updateProprios(
       String id, Map<String, dynamic> updatedFields) async {
     final url = 'http://192.168.56.1:8010/proprio/update/$id';
-    final response = await http.put(
+    final response = await client.put(
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization':
-            'Bearer $_token', // Assurez-vous que $_token est défini et valide
+        // 'Authorization':
+        //     'Bearer $_token', // Assurez-vous que $_token est défini et valide
       },
       body: jsonEncode(updatedFields),
     );
@@ -1782,11 +1801,13 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
 
   // delete
   Future<void> _FunctiondeleteClient() async {
-    final url = 'http://192.168.56.1:8010/clients/delete/${widget.clientId}';
-    final response = await http.delete(
+    final url =
+        'http://192.168.56.1:8010/user/$_id/deleteclients/${widget.clientId}';
+    final response = await client.delete(
       Uri.parse(url),
       headers: {
-        'Authorization': 'Bearer $_token',
+        'Content-Type': 'application/json',
+        // 'Authorization': 'Bearer $_token',
       },
     );
 
@@ -1802,8 +1823,9 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
       //   content: Text('$message'),
       // ));
     } else {
-      CustomSnackBar.show(context,
-          message: 'Erreur: Une erreur est produite.', isError: true);
+      final message = json.decode(response.body)['message'];
+      CustomSnackBar.show(context, message: '$message', isError: true);
+      print(message);
     }
   }
 
@@ -1875,11 +1897,11 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                     _FunctiondeleteClient();
                     //:::::::::::::::::::::::::::::::::::::::::::
                     Navigator.of(context).pop(); // Fermer la boîte de dialogue
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => NavigationBarPage()),
-                    );
+                    // Navigator.pushReplacement(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //       builder: (context) => NavigationBarPage()),
+                    // );
                   },
                 ),
                 // ),
@@ -1894,20 +1916,23 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
 //modifier un client
 
   Future<void> updateClient(Map<String, dynamic> updatedFields) async {
-    final url = 'http://192.168.56.1:8010/clients/update/${widget.clientId}';
-    final response = await http.put(
+    final url = 'http://192.168.56.1:8010/user/update/${widget.clientId}';
+    final response = await client.put(
       Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
-        'Authorization':
-            'Bearer $_token', // Assurez-vous que $_token est défini et valide
+        // 'Authorization':
+        //     'Bearer $_token', // Assurez-vous que $_token est défini et valide
       },
       body: jsonEncode(updatedFields),
     );
 
     if (response.statusCode == 202) {
+      final responseData = jsonDecode(response.body);
+      // _fetchClientDetails();
       CustomSnackBar.show(context,
           message: 'Client modifier avec success ...!', isError: false);
+      print("$responseData['message']");
     } else if (response.statusCode == 400) {
       CustomSnackBar.show(context,
           message: 'Cet téléphone appartient à autre client...!',
@@ -1932,6 +1957,8 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
     final emailController = TextEditingController(text: _client.email);
     final telephoneController = TextEditingController(text: _client.username);
     final adresseController = TextEditingController(text: _client.adresse);
+    final professionController =
+        TextEditingController(text: _client.specialite);
 
     showDialog(
       context: context,
@@ -1967,7 +1994,10 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                               fontSize: 8
                                   .sp), // Taille de police pour la valeur par défaut
                           decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.account_circle),
+                            prefixIcon: Icon(
+                              Icons.account_circle,
+                              size: 15.sp,
+                            ),
                             prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                             hintText: "Entrez le nom ",
                             hintStyle: TextStyle(
@@ -2072,7 +2102,10 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                               fontSize: 8
                                   .sp), // Taille de police pour la valeur par défaut
                           decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.email),
+                            prefixIcon: Icon(
+                              Icons.email,
+                              size: 15.sp,
+                            ),
                             prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                             hintText: "exemple@gmail.com",
                             hintStyle: TextStyle(
@@ -2115,7 +2148,10 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                               fontSize: 8
                                   .sp), // Taille de police pour la valeur par défaut
                           decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.phone),
+                            prefixIcon: Icon(
+                              Icons.phone,
+                              size: 15.sp,
+                            ),
                             prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                             hintText: "+XXXXXXXXXXX",
                             hintStyle: TextStyle(
@@ -2170,7 +2206,10 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                               fontSize: 8
                                   .sp), // Taille de police pour la valeur par défaut
                           decoration: InputDecoration(
-                            prefixIcon: Icon(Icons.location_on),
+                            prefixIcon: Icon(
+                              Icons.location_on,
+                              size: 15.sp,
+                            ),
                             prefixIconColor: Color.fromARGB(255, 95, 95, 96),
                             hintText: "Entrer l'adresse",
                             hintStyle: TextStyle(
@@ -2270,7 +2309,8 @@ class _DetailMesurePageState extends State<DetailMesurePage> {
                             // prenom: prenomController.text,
                             email: emailController.text,
                             username: telephoneController.text,
-                            adresse: adresseController.text, specialite: '',
+                            adresse: adresseController.text,
+                            specialite: professionController.text,
                             profile: '',
 
                             // utilisateur: Utilisateur(
