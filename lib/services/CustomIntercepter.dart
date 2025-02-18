@@ -11,6 +11,7 @@ class CustomIntercepter extends http.BaseClient {
     if (token != null) {
       request.headers['Authorization'] = 'Bearer $token';
     }
+
     return await _inner.send(request);
   }
 }

@@ -1,5 +1,6 @@
 import 'package:Metre/pages/commande_page.dart';
 import 'package:Metre/pages/home.dart';
+import 'package:Metre/pages/modeles_album_page.dart';
 import 'package:flutter/material.dart';
 import 'package:Metre/pages/add_mesure_page.dart';
 import 'package:Metre/pages/mesure_page.dart';
@@ -28,6 +29,7 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
     HomePage(),
     MesurePage(),
     CommandePage(),
+    ModelesAlbumPage(),
     ProfilePage(),
   ];
   @override
@@ -73,6 +75,11 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
                   BottomNavigationBarItem(
                       icon: Icon(Icons.shopping_cart_outlined),
                       label: "Commandes"),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons
+                        .photo_camera_back_outlined), // Choisissez une icône appropriée
+                    label: "Modèles",
+                  ),
                   BottomNavigationBarItem(
                       icon: Icon(Icons.account_circle_outlined),
                       label: "Profile"),
