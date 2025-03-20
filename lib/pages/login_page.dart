@@ -279,13 +279,13 @@ class _LoginPageState extends State<LoginPage> {
                             width: 0.4.w,
                           ),
                         ),
-                        // contentPadding: EdgeInsets.symmetric(vertical: 0.5.h),
-                        constraints: BoxConstraints(
-                          minHeight: 4
-                              .h, // Définir une hauteur minimale (ajuster selon vos besoins)
-                          maxHeight: 5
-                              .h, // Définir une hauteur maximale (ajuster selon vos besoins)
-                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+                        // constraints: BoxConstraints(
+                        //   minHeight: 4
+                        //       .h, // Définir une hauteur minimale (ajuster selon vos besoins)
+                        //   maxHeight: 5
+                        //       .h, // Définir une hauteur maximale (ajuster selon vos besoins)
+                        // ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -359,13 +359,13 @@ class _LoginPageState extends State<LoginPage> {
                             width: 0.4.w,
                           ),
                         ),
-                        // contentPadding: EdgeInsets.symmetric(vertical: 0.h),
-                        constraints: BoxConstraints(
-                          minHeight: 4
-                              .h, // Définir une hauteur minimale (ajuster selon vos besoins)
-                          maxHeight: 5
-                              .h, // Définir une hauteur maximale (ajuster selon vos besoins)
-                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+                        // constraints: BoxConstraints(
+                        //   minHeight: 4
+                        //       .h, // Définir une hauteur minimale (ajuster selon vos besoins)
+                        //   maxHeight: 5
+                        //       .h, // Définir une hauteur maximale (ajuster selon vos besoins)
+                        // ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -480,13 +480,13 @@ class _LoginPageState extends State<LoginPage> {
                             width: 0.4.w,
                           ),
                         ),
-                        // contentPadding: EdgeInsets.symmetric(vertical: 1.h),
-                        constraints: BoxConstraints(
-                          minHeight: 4
-                              .h, // Définir une hauteur minimale (ajuster selon vos besoins)
-                          maxHeight: 5
-                              .h, // Définir une hauteur maximale (ajuster selon vos besoins)
-                        ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+                        // constraints: BoxConstraints(
+                        //   minHeight: 4
+                        //       .h, // Définir une hauteur minimale (ajuster selon vos besoins)
+                        //   maxHeight: 5
+                        //       .h, // Définir une hauteur maximale (ajuster selon vos besoins)
+                        // ),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -539,13 +539,13 @@ class _LoginPageState extends State<LoginPage> {
                             width: 0.4.w,
                           ),
                         ),
-                        constraints: BoxConstraints(
-                          minHeight: 4
-                              .h, // Définir une hauteur minimale (ajuster selon vos besoins)
-                          maxHeight: 5
-                              .h, // Définir une hauteur maximale (ajuster selon vos besoins)
-                        ),
-                        // contentPadding: EdgeInsets.symmetric(vertical: 1.h),
+                        // constraints: BoxConstraints(
+                        //   minHeight: 4
+                        //       .h, // Définir une hauteur minimale (ajuster selon vos besoins)
+                        //   maxHeight: 5
+                        //       .h, // Définir une hauteur maximale (ajuster selon vos besoins)
+                        // ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 1.h),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {

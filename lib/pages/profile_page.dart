@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:Metre/models/user_model.dart';
 import 'package:Metre/pages/clientSupprimer_page.dart';
 import 'package:Metre/pages/collaborateur_page.dart';
+import 'package:Metre/pages/commandes/commande_annuler_page.dart';
 import 'package:Metre/pages/login_page.dart';
 import 'package:Metre/utilitaires/taille_des_polices.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
@@ -158,18 +159,17 @@ class _ProfilePageState extends State<ProfilePage> {
                       onTap: () =>
                           _navigateToPage(context, const ChangerPasswordPage()),
                     ),
-                    if (messages == "ok")
-                      SizedBox(
-                        height: 4.h,
-                      ),
-                    // Changer mot de passe
+
+                    SizedBox(
+                      height: 4.h,
+                    ),
                     if (messages == "ok")
                       _buildMenuOption(
                         context,
-                        icon: Icons.person_add_disabled,
-                        label: "Client Supprimer",
-                        onTap: () => _navigateToPage(
-                            context, const ClientSupprimerPage()),
+                        icon: Icons.remove_shopping_cart_sharp,
+                        label: "Commande Annuler",
+                        onTap: () =>
+                            _navigateToPage(context, CommandeAnnuleePage()),
                       ),
                     SizedBox(
                       height: 4.h,

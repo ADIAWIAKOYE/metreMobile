@@ -10,10 +10,10 @@ class LogoWidget extends StatelessWidget {
     // var isDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     return Padding(
       padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top,
-        left: 5,
-        right: 5,
-      ),
+          // top: MediaQuery.of(context).padding.top,
+          // left: 5,
+          // right: 5,
+          ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

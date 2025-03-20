@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:Metre/bottom_navigationbar/navigation_page.dart';
 import 'package:Metre/services/CustomIntercepter.dart';
 import 'package:Metre/services/TokenManager.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
@@ -239,7 +240,8 @@ class _CreateCommandePageState extends State<CreateCommandePage> {
           var decodedJson = json.decode(responseData);
           CustomSnackBar.show(context,
               message: '${decodedJson['message']}', isError: false);
-          _resetForm();
+          // _resetForm();
+          messageCreation();
           // ScaffoldMessenger.of(context).showSnackBar(
           //   SnackBar(
           //       content: Text('Commande créée avec succès : $responseData')),
@@ -920,6 +922,47 @@ class _CreateCommandePageState extends State<CreateCommandePage> {
         ),
       ),
       contentPadding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 1.h),
+    );
+  }
+
+  void messageCreation() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Creation réussie',
+            style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Commande creer avec succès ?',
+            style: TextStyle(fontSize: 10.sp),
+          ),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => NavigationBarPage(
+                      initialIndex: 2, // Rediriger vers la page des clients
+                    ),
+                  ),
+                );
+              },
+              child: Text('ok', style: TextStyle(fontSize: 10.sp)),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 206, 136, 5),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

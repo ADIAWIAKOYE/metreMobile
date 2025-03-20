@@ -409,8 +409,10 @@ class _AddMesurePageState extends State<AddProprioMesurePage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) =>
-                          DetailMesurePage(clientId: widget.clientId),
+                      builder: (context) => DetailMesurePage(
+                        clientId: widget.clientId,
+                        onClientDeleted: (String) {},
+                      ),
                     ),
                   );
                 }

@@ -1,8 +1,8 @@
-import 'package:Metre/pages/commande_page.dart';
+import 'package:Metre/pages/2commande/modeles_album_pages.dart';
+// import 'package:Metre/pages/commande_page.dart';
+import 'package:Metre/pages/commandes/commandeteste.dart';
 import 'package:Metre/pages/home.dart';
-import 'package:Metre/pages/modeles_album_page.dart';
 import 'package:flutter/material.dart';
-import 'package:Metre/pages/add_mesure_page.dart';
 import 'package:Metre/pages/mesure_page.dart';
 import 'package:Metre/pages/profile_page.dart';
 import 'package:sizer/sizer.dart';
@@ -28,8 +28,8 @@ class _NavigationBarPageState extends State<NavigationBarPage> {
   List page = [
     HomePage(),
     MesurePage(),
-    CommandePage(),
-    ModelesAlbumPage(),
+    CommandesPage(),
+    ModelesAlbumPages(),
     ProfilePage(),
   ];
   @override

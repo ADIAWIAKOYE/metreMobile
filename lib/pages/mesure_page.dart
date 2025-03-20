@@ -156,10 +156,7 @@ class _MesurePageState extends State<MesurePage> {
         bool containsAllSearchTerms = true;
         for (final term in searchTerms) {
           containsAllSearchTerms = containsAllSearchTerms &&
-              (element.nom!.toLowerCase().contains(term)
-              // ||
-              //     element.prenom!.toLowerCase().contains(term)
-              );
+              (element.nom!.toLowerCase().contains(term));
         }
         return containsAllSearchTerms ||
             fullName.toLowerCase().contains(value.toLowerCase()) ||
@@ -167,33 +164,6 @@ class _MesurePageState extends State<MesurePage> {
       }).toList();
     });
   }
-
-  // Fonction pour démarrer le rafraîchissement du token à intervalles réguliers
-  // void _startTokenRefreshTimer(String refreshToken) {
-  //   _refreshTimer =
-  //       Timer.periodic(Duration(milliseconds: 300000), (timer) async {
-  //     final String url = 'http://192.168.56.1:8010/user/refreshtoken';
-
-  //     final response = await http.post(
-  //       Uri.parse(url),
-  //       headers: {'Content-Type': 'application/json'},
-  //       body: jsonEncode({'refreshToken': refreshToken}),
-  //     );
-
-  //     if (response.statusCode == 200) {
-  //       final data = jsonDecode(response.body);
-  //       final String newToken = data['accessToken'];
-
-  //       final prefs = await SharedPreferences.getInstance();
-  //       await prefs.setString('token', newToken);
-
-  //       // _getUserById(newToken);
-  //     } else {
-  //       final message = json.decode(response.body)['message'];
-  //       CustomSnackBar.show(context, message: '$message', isError: true);
-  //     }
-  //   });
-  // }
 
   Future<void> _getUserById(String token) async {
     final url = 'http://192.168.56.1:8010/user/loadById/$_id';
@@ -263,13 +233,6 @@ class _MesurePageState extends State<MesurePage> {
       }
     }
   }
-
-  // @override
-  // void dispose() {
-  //   // Annuler le Timer lorsqu'il n'est plus nécessaire
-  //   _refreshTimer?.cancel();
-  //   super.dispose();
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -374,126 +337,165 @@ class _MesurePageState extends State<MesurePage> {
                           itemCount: displayedListe.length,
                           itemBuilder: (context, index) {
                             final collaborator = displayedListe[index];
-                            return Card(
-                              elevation: 3,
-                              margin: EdgeInsets.symmetric(
-                                  vertical: 1.5.h, horizontal: 3.w),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.all(4.w),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        CircleAvatar(
-                                          backgroundColor:
-                                              Color.fromARGB(255, 206, 136, 5),
-                                          radius: 4.w,
-                                          child: Text(
-                                            collaborator.nom != null &&
-                                                    collaborator.nom!.isNotEmpty
-                                                ? collaborator.nom!
-                                                    .substring(0, 1)
-                                                    .toUpperCase()
-                                                : "N", // Met une lettre par défaut si le nom est nul ou vide
+                            return InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DetailMesurePage(
+                                      // client: displayedListe[index],
+                                      clientId: displayedListe[index].id!,
+                                      onClientDeleted: (String clientId) {
+                                        setState(() {
+                                          listeDesClients.removeWhere(
+                                              (client) =>
+                                                  client.id == clientId);
+                                          displayedListe.removeWhere((client) =>
+                                              client.id == clientId);
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: Card(
+                                elevation: 3,
+                                margin: EdgeInsets.symmetric(
+                                    vertical: 1.5.h, horizontal: 3.w),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.all(4.w),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          CircleAvatar(
+                                            backgroundColor: Color.fromARGB(
+                                                255, 206, 136, 5),
+                                            radius: 4.w,
+                                            child: Text(
+                                              collaborator.nom != null &&
+                                                      collaborator
+                                                          .nom!.isNotEmpty
+                                                  ? collaborator.nom!
+                                                      .substring(0, 1)
+                                                      .toUpperCase()
+                                                  : "N", // Met une lettre par défaut si le nom est nul ou vide
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                                fontSize: 10.sp,
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 4.w),
+                                          Text(
+                                            collaborator.nom ?? "nom",
                                             style: TextStyle(
                                               fontWeight: FontWeight.bold,
-                                              color: Colors.white,
                                               fontSize: 10.sp,
                                             ),
                                           ),
-                                        ),
-                                        SizedBox(width: 4.w),
-                                        Text(
-                                          collaborator.nom ?? "nom",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 10.sp,
+                                          SizedBox(width: 4.w),
+                                          Text(
+                                            collaborator.isActive == true
+                                                ? "Activé"
+                                                : "Déactivé",
+                                            style: TextStyle(
+                                                fontSize: 10.sp,
+                                                color: Colors.grey),
                                           ),
-                                        ),
-                                        SizedBox(width: 4.w),
-                                        Text(
-                                          collaborator.isActive == true
-                                              ? "Activé"
-                                              : "Déactivé",
-                                          style: TextStyle(
-                                              fontSize: 10.sp,
-                                              color: Colors.grey),
-                                        ),
-                                        SizedBox(width: 4.w),
-                                        Text(
-                                          collaborator.isDeleted == true
-                                              ? "Supprimer"
-                                              : "",
-                                          style: TextStyle(
-                                              fontSize: 10.sp,
-                                              color: Colors.red),
-                                        )
-                                      ],
-                                    ),
-                                    SizedBox(height: 1.h),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          flex: 5,
-                                          child: Column(
-                                            children: [
-                                              Text(
-                                                'Numéro : ${collaborator.username}',
-                                                style: TextStyle(
-                                                    color: Colors.grey[700],
-                                                    fontSize: 10.sp),
-                                              ),
-                                              SizedBox(height: 1.h),
-                                              Row(
-                                                children: [
-                                                  Icon(Icons.mark_email_read,
-                                                      color: Color.fromARGB(
-                                                          255, 206, 136, 5),
-                                                      size: 12.sp),
-                                                  SizedBox(width: 2.w),
-                                                  Text(
-                                                    'Email : ${collaborator.email}',
-                                                    style: TextStyle(
-                                                      color: Colors.grey[800],
-                                                      fontSize: 8.sp,
-                                                      fontStyle:
-                                                          FontStyle.italic,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Expanded(
-                                          flex: 2,
-                                          child: Column(
-                                            children: [
-                                              Container(
-                                                // margin: EdgeInsets.only(right: 2.h),
-                                                child: InkWell(
-                                                  onTap: () {
-                                                    // Action à effectuer lors du tapotement
-                                                    Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            DetailMesurePage(
-                                                          // client: displayedListe[index],
-                                                          clientId:
-                                                              displayedListe[
-                                                                      index]
-                                                                  .id!,
-                                                        ),
+                                          SizedBox(width: 4.w),
+                                          Text(
+                                            collaborator.isDeleted == true
+                                                ? "Supprimer"
+                                                : "",
+                                            style: TextStyle(
+                                                fontSize: 10.sp,
+                                                color: Colors.red),
+                                          )
+                                        ],
+                                      ),
+                                      SizedBox(height: 1.h),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            flex: 5,
+                                            child: Column(
+                                              children: [
+                                                Text(
+                                                  'Numéro : ${collaborator.username}',
+                                                  style: TextStyle(
+                                                      color: Colors.grey[700],
+                                                      fontSize: 10.sp),
+                                                ),
+                                                SizedBox(height: 1.h),
+                                                Row(
+                                                  children: [
+                                                    Icon(Icons.mark_email_read,
+                                                        color: Color.fromARGB(
+                                                            255, 206, 136, 5),
+                                                        size: 12.sp),
+                                                    SizedBox(width: 2.w),
+                                                    Text(
+                                                      'Email : ${collaborator.email}',
+                                                      style: TextStyle(
+                                                        color: Colors.grey[800],
+                                                        fontSize: 8.sp,
+                                                        fontStyle:
+                                                            FontStyle.italic,
                                                       ),
-                                                    );
-                                                  },
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Expanded(
+                                            flex: 2,
+                                            child: Column(
+                                              children: [
+                                                Container(
+                                                  // margin: EdgeInsets.only(right: 2.h),
+                                                  // child: InkWell(
+                                                  //   onTap: () {
+                                                  //     // Action à effectuer lors du tapotement
+                                                  //     Navigator.push(
+                                                  //       context,
+                                                  //       MaterialPageRoute(
+                                                  //         builder: (context) =>
+                                                  //             DetailMesurePage(
+                                                  //           // client: displayedListe[index],
+                                                  //           clientId:
+                                                  //               displayedListe[
+                                                  //                       index]
+                                                  //                   .id!,
+                                                  //           onClientDeleted:
+                                                  //               (String
+                                                  //                   clientId) {
+                                                  //             setState(() {
+                                                  //               listeDesClients.removeWhere(
+                                                  //                   (client) =>
+                                                  //                       client
+                                                  //                           .id ==
+                                                  //                       clientId);
+                                                  //               displayedListe.removeWhere(
+                                                  //                   (client) =>
+                                                  //                       client
+                                                  //                           .id ==
+                                                  //                       clientId);
+                                                  //             });
+                                                  //           },
+                                                  //         ),
+                                                  //       ),
+                                                  //     );
+                                                  //   },
                                                   child: Container(
                                                     margin:
                                                         EdgeInsets.symmetric(
@@ -530,186 +532,20 @@ class _MesurePageState extends State<MesurePage> {
                                                       ),
                                                     ),
                                                   ),
+                                                  // ),
                                                 ),
-                                              ),
-                                            ],
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    // if (collaborator.isActive == false)
-                                    //   Container(
-                                    //     margin: EdgeInsets.only(top: 2.h),
-                                    //     child: InkWell(
-                                    //       onTap: () {
-                                    //         print("BUTTON cliqué !");
-                                    //         deleteUser(collaborator.id ?? "id");
-                                    //       },
-                                    //       child: Container(
-                                    //         margin: EdgeInsets.symmetric(
-                                    //             horizontal: 20.w),
-                                    //         padding:
-                                    //             EdgeInsets.symmetric(vertical: 0.5.h),
-                                    //         decoration: BoxDecoration(
-                                    //           color: Colors.red,
-                                    //           borderRadius: BorderRadius.circular(10),
-                                    //         ),
-                                    //         child: Center(
-                                    //           child: Text(
-                                    //             "Supprimer",
-                                    //             style: TextStyle(
-                                    //               fontSize: 8.sp,
-                                    //               fontWeight: FontWeight.bold,
-                                    //               color: Colors.white,
-                                    //               letterSpacing: 2,
-                                    //             ),
-                                    //           ),
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //   ),
-                                    // if (collaborator.isDeleted == true)
-                                    //   Container(
-                                    //     margin: EdgeInsets.only(top: 2.h),
-                                    //     child: InkWell(
-                                    //       onTap: () {
-                                    //         _retrouverCollaborateur(
-                                    //             collaborator.id ?? "id");
-                                    //       },
-                                    //       child: Container(
-                                    //         margin: EdgeInsets.symmetric(
-                                    //             horizontal: 20.w),
-                                    //         padding:
-                                    //             EdgeInsets.symmetric(vertical: 0.5.h),
-                                    //         decoration: BoxDecoration(
-                                    //           color: Color.fromARGB(255, 206, 136, 5),
-                                    //           borderRadius: BorderRadius.circular(10),
-                                    //         ),
-                                    //         child: Center(
-                                    //           child: Text(
-                                    //             "Rétrouver",
-                                    //             style: TextStyle(
-                                    //               fontSize: 8.sp,
-                                    //               fontWeight: FontWeight.bold,
-                                    //               color: Colors.white,
-                                    //               letterSpacing: 2,
-                                    //             ),
-                                    //           ),
-                                    //         ),
-                                    //       ),
-                                    //     ),
-                                    //   ),
-                                  ],
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             );
                           },
                         ),
-          // ListView.builder(
-          //     itemCount: displayedListe.length,
-          //     itemBuilder: (context, index) => Container(
-          //       decoration: BoxDecoration(
-          //         color: Theme.of(context).colorScheme.primary,
-          //         border: Border.all(
-          //           color: Color.fromARGB(
-          //               255, 206, 136, 5), // Couleur de la bordure
-          //           width: 0.4.w, // Largeur de la bordure
-          //         ),
-          //         borderRadius:
-          //             BorderRadius.circular(5), // Bord arrondi
-          //         boxShadow: [
-          //           BoxShadow(
-          //             color: Colors.grey,
-          //             blurRadius: 1,
-          //             offset: Offset(1, 2), // Shadow position
-          //           ),
-          //         ],
-          //       ),
-          //       margin: EdgeInsets.symmetric(
-          //           vertical: 1.h, horizontal: 5.w),
-          //       child: ListTile(
-          //         contentPadding: EdgeInsets.all(1.h),
-          //         title: Text(
-          //           // displayedListe[index].prenom! +
-          //           //     " " +
-          //           displayedListe[index].nom!,
-          //           style: TextStyle(
-          //             color: Theme.of(context).colorScheme.tertiary,
-          //             fontWeight: FontWeight.w700,
-          //             fontSize: 9.sp,
-          //           ),
-          //         ),
-          //         subtitle: Row(
-          //           children: [
-          //             Text(
-          //               displayedListe[index].username!,
-          //               style: TextStyle(
-          //                 color: Theme.of(context)
-          //                     .colorScheme
-          //                     .tertiary,
-          //                 fontSize: 8.sp,
-          //               ),
-          //             ),
-          //             Spacer(), // Ajouter un espace flexible entre les deux éléments
-
-          //             InkWell(
-          //               onTap: () {
-          //                 // Action à effectuer lors du tapotement
-          //                 Navigator.push(
-          //                   context,
-          //                   MaterialPageRoute(
-          //                     builder: (context) =>
-          //                         DetailMesurePage(
-          //                       // client: displayedListe[index],
-          //                       clientId: displayedListe[index].id!,
-          //                     ),
-          //                   ),
-          //                 );
-          //               },
-          //               borderRadius: BorderRadius.circular(10),
-          //               child: Container(
-          //                 margin:
-          //                     EdgeInsets.symmetric(horizontal: 2.h),
-          //                 padding: EdgeInsets.symmetric(
-          //                     vertical: 0.5.h, horizontal: 2.w),
-          //                 decoration: BoxDecoration(
-          //                   color: Colors.transparent,
-          //                   borderRadius: BorderRadius.circular(10),
-          //                   border: Border.all(
-          //                     color: Color.fromARGB(255, 206, 136,
-          //                         5), // Couleur de la bordure
-          //                     width: 0.4.w, // Largeur de la bordure
-          //                   ),
-          //                 ),
-          //                 child: Row(
-          //                   mainAxisSize: MainAxisSize.min,
-          //                   children: [
-          //                     Text(
-          //                       'Voir plus ',
-          //                       style: TextStyle(
-          //                         color: Color.fromARGB(
-          //                             255, 206, 136, 5),
-          //                         fontWeight: FontWeight.w600,
-          //                         fontSize: 6.sp,
-          //                       ),
-          //                     ),
-          //                     Icon(
-          //                       Icons.arrow_forward,
-          //                       color: Color.fromARGB(
-          //                           255, 206, 136, 5),
-          //                       size: 12.sp,
-          //                     ),
-          //                   ],
-          //                 ),
-          //               ),
-          //             )
-          //           ],
-          //         ),
-          //         leading:
-          //             Image.asset('assets/image/customer1.png'),
-          //       ),
-          //     ),
-          //   ),
         ),
       ]),
       floatingActionButton: SizedBox(

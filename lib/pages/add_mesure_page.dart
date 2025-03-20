@@ -1,16 +1,17 @@
 import 'dart:convert';
 
 import 'package:Metre/bottom_navigationbar/navigation_page.dart';
+import 'package:Metre/pages/unbound_client_page.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:Metre/widgets/logo.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sizer/sizer.dart';
 import 'package:http/http.dart' as http;
+import 'package:Metre/services/CustomIntercepter.dart';
 
 class AddMesurePage extends StatefulWidget {
   const AddMesurePage({super.key});
@@ -20,6 +21,9 @@ class AddMesurePage extends StatefulWidget {
 }
 
 class _AddMesurePageState extends State<AddMesurePage> {
+  final http.Client client =
+      CustomIntercepter(http.Client()); // Initialiser le client ici
+
   List<String> items = [
     'L.Pantalon',
     'Ceinture',
@@ -751,7 +755,32 @@ class _AddMesurePageState extends State<AddMesurePage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(height: 1.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 3.w),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 2.h),
+                backgroundColor: Color.fromARGB(255, 206, 136, 5),
+                foregroundColor: Colors.white,
+              ),
+              child: Text(
+                "Ajouter un client existant",
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  letterSpacing: 1,
+                ),
+              ),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => UnboundClientPage(),
+                  ),
+                );
+              },
+            ),
+          ),
+          // SizedBox(height: 1.h),
           // Assurez-vous que ce widget a une taille définie
           Expanded(
             child: Padding(
@@ -901,7 +930,7 @@ class _AddMesurePageState extends State<AddMesurePage> {
       String specialite,
       String proprietaire,
       List<Map<String, String>> mesures) async {
-    if (_id != null && _token != null) {
+    if (_id != null) {
       final url = 'http://192.168.56.1:8010/clients/ajouter/$_id';
       // Afficher le loader avant l'opération
       showDialog(
@@ -914,12 +943,12 @@ class _AddMesurePageState extends State<AddMesurePage> {
         },
       );
       try {
-        final response = await http.post(
+        final response = await client.post(
           Uri.parse(url),
           headers: {
             'Content-Type': 'application/json',
-            'Authorization':
-                'Bearer $_token', // Assurez-vous que $_token est défini et valide
+            // 'Authorization':
+            //     'Bearer $_token', // Assurez-vous que $_token est défini et valide
           },
           body: jsonEncode({
             "clients": {
@@ -977,8 +1006,9 @@ class _AddMesurePageState extends State<AddMesurePage> {
   void envoyerDonnees() {
     String nom = nomController.text;
     String prenom = prenomController.text;
-    String email =
-        emailController.text.isNotEmpty ? emailController.text : 'neant';
+    String email = emailController.text.isNotEmpty
+        ? emailController.text
+        : 'exemple@gmail.com';
     String telephone = telephoneController.text;
     String adresse = adresseController.text;
     String specialite = SpecialiteController.text;

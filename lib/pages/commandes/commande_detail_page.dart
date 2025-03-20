@@ -25,8 +25,9 @@ import 'package:share_plus/share_plus.dart';
 
 class CommandeDetailsPage extends StatefulWidget {
   final Commande commande;
+  final Function(String)? onCommandeAnnulee; // Add callback function
 
-  CommandeDetailsPage({required this.commande});
+  CommandeDetailsPage({required this.commande, this.onCommandeAnnulee});
 
   @override
   State<CommandeDetailsPage> createState() => _CommandeDetailsPageState();
@@ -93,6 +94,10 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
           widget.commande.status =
               newStatus; //mettre à jour l'état de widget.commande
         });
+        //  Check if the status is "ANNULER" and call the callback
+        if (newStatus == 'ANNULER') {
+          widget.onCommandeAnnulee?.call(commandeId!); // Call the callback
+        }
       } else {
         // Erreur lors de la mise à jour
         // print(
@@ -618,6 +623,7 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
                   Navigator.pop(context);
                 } else {
                   await _updateCommandeStatus(statut);
+                  // Appeler le callback pour informer la page appelante
                   Navigator.pop(context);
                 }
               },
@@ -1061,8 +1067,10 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
                         context,
                         MaterialPageRoute(
                           builder: (context) => DetailMesurePage(
-                              clientId: _commande.proprietaire?.client?.id ??
-                                  "Inconnu"),
+                            clientId:
+                                _commande.proprietaire?.client?.id ?? "Inconnu",
+                            onClientDeleted: (String) {},
+                          ),
                         ),
                       );
                     },
@@ -1255,15 +1263,16 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
           ),
           Row(
             children: [
-              if (onDelete != null)
-                IconButton(
-                  icon: Icon(
-                    Icons.delete,
-                    size: 14.sp,
-                    color: Colors.red,
+              if (_commande.status == "ANNULER")
+                if (onDelete != null)
+                  IconButton(
+                    icon: Icon(
+                      Icons.delete,
+                      size: 14.sp,
+                      color: Colors.red,
+                    ),
+                    onPressed: onDelete,
                   ),
-                  onPressed: onDelete,
-                ),
               if (onEdit != null)
                 IconButton(
                   icon: Icon(

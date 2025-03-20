@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'package:Metre/models/mesure_model.dart';
 import 'package:Metre/models/modelesAlbum%20.dart';
+import 'package:Metre/models/utilisateur_model.dart';
 import 'package:Metre/services/CustomIntercepter.dart';
 import 'package:http/http.dart' as http;
 
@@ -209,6 +211,49 @@ class ApiService {
       }
     } catch (e) {
       print('Error in getModelesAlbumsByCategorie: $e');
+      rethrow;
+    }
+  }
+
+  // Récupérer tous les clients d'un utilisateur (il faut creer un endpoint pour ça)
+  Future<List<UtilisateurModel>> getAllClientsByUtilisateurId(
+      String utilisateurId) async {
+    try {
+      final response = await client.get(Uri.parse(
+          'http://192.168.56.1:8010/user/getallclient/client/$utilisateurId')); // Replace with your actual endpoint
+      if (response.statusCode == 202) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final List<dynamic> content = data['data'];
+        return content.map((json) => UtilisateurModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load clients: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in getAllClientsByUtilisateurId: $e');
+      rethrow;
+    }
+  }
+
+  // Récupérer les proprietaires de mesure par client ID
+  Future<List<ProprietaireMesure>> getProprietairesByClientId(
+      String clientId) async {
+    try {
+      final response = await client.get(
+          Uri.parse('http://192.168.56.1:8010/proprio/getByClients/$clientId'));
+      if (response.statusCode == 202) {
+        final Map<String, dynamic> data = jsonDecode(response.body);
+        final Map<String, dynamic> dataContent =
+            data['data']; // Accéder à "data"
+        final List<dynamic> content =
+            dataContent['content']; // Accéder à "content"
+        return content
+            .map((json) => ProprietaireMesure.fromJson(json))
+            .toList();
+      } else {
+        throw Exception('Failed to load proprietaires: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error in getProprietairesByClientId: $e');
       rethrow;
     }
   }

@@ -1,5 +1,6 @@
 import 'dart:math';
 import 'package:Metre/models/modelesAlbum%20.dart';
+import 'package:Metre/pages/2commande/select_client_page.dart';
 import 'package:Metre/pages/add_modeles_album_page.dart';
 import 'package:Metre/pages/modeles_album_details_page.dart';
 import 'package:Metre/services/ApiService.dart';
@@ -8,16 +9,16 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
-import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart'; // Import the package
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
-class ModelesAlbumPage extends StatefulWidget {
-  const ModelesAlbumPage({Key? key}) : super(key: key);
+class ModelesAlbumPages extends StatefulWidget {
+  const ModelesAlbumPages({Key? key}) : super(key: key);
 
   @override
-  State<ModelesAlbumPage> createState() => _ModelesAlbumPageState();
+  State<ModelesAlbumPages> createState() => _ModelesAlbumPagesState();
 }
 
-class _ModelesAlbumPageState extends State<ModelesAlbumPage> {
+class _ModelesAlbumPagesState extends State<ModelesAlbumPages> {
   String? _id;
   String? _token;
 
@@ -41,6 +42,10 @@ class _ModelesAlbumPageState extends State<ModelesAlbumPage> {
     'AUTRE',
   ];
   String? selectedCategory; // La catégorie sélectionnée
+
+  // New variables for selected models and their images
+  List<ModelesAlbum> selectedAlbums = [];
+  List<String> selectedImageUrls = [];
 
   @override
   void initState() {
@@ -112,6 +117,19 @@ class _ModelesAlbumPageState extends State<ModelesAlbumPage> {
     }
   }
 
+  // Function to toggle selection of an album and its images
+  void toggleAlbumSelection(ModelesAlbum album) {
+    setState(() {
+      if (selectedAlbums.contains(album)) {
+        selectedAlbums.remove(album);
+        selectedImageUrls.removeWhere((url) => album.images.contains(url));
+      } else {
+        selectedAlbums.add(album);
+        selectedImageUrls.addAll(album.images);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double w = MediaQuery.of(context).size.width;
@@ -160,9 +178,7 @@ class _ModelesAlbumPageState extends State<ModelesAlbumPage> {
                             fontWeight: FontWeight.w500,
                             color: isSelected
                                 ? Color.fromARGB(255, 206, 136, 5)
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .tertiary, // Modifier la couleur du texte
+                                : Colors.black, // Modifier la couleur du texte
                           ),
                         ),
                         if (isSelected)
@@ -206,12 +222,39 @@ class _ModelesAlbumPageState extends State<ModelesAlbumPage> {
                               album: album,
                               itemWidth: itemwidth,
                               itemHeight: itemHeight,
+                              isSelected: selectedAlbums
+                                  .contains(album), // Pass the selection state
+                              onTap: () {
+                                toggleAlbumSelection(album);
+                              },
                             );
                           } else {
                             return _buildLoader();
                           }
-                        }),
+                        },
+                      ),
           ),
+          if (selectedAlbums.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SelectClientPage(
+                        selectedAlbums: selectedAlbums, // Passer selectedAlbums
+                      ),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color.fromARGB(255, 206, 136, 5),
+                  foregroundColor: Colors.white,
+                ),
+                child: Text('Commander'),
+              ),
+            ),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -310,19 +353,24 @@ class AlbumCard extends StatelessWidget {
   final ModelesAlbum album;
   final double itemWidth;
   final double itemHeight;
+  final bool isSelected; // Indicate if the album is selected
+  final VoidCallback onTap; // Callback for single tap (selection)
 
   const AlbumCard({
     Key? key,
     required this.album,
     required this.itemWidth,
     required this.itemHeight,
+    required this.isSelected,
+    required this.onTap,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        // TODO: Naviguer vers la page de détails de l'album
+    return GestureDetector(
+      onTap: onTap, // Single tap for selection
+      onDoubleTap: () {
+        // Double tap for details
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -330,12 +378,15 @@ class AlbumCard extends StatelessWidget {
                 albumId: album.id), // Passer l'ID de l'album
           ),
         );
-        // print('Album tapped: ${album.nom}');
       },
       child: Card(
         elevation: 4,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+          side: isSelected
+              ? BorderSide(color: Color.fromARGB(255, 237, 183, 82), width: 2)
+              : BorderSide.none,
+        ), // Highlight the selected card
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

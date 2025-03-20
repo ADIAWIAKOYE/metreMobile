@@ -1,3 +1,5 @@
+import 'package:Metre/models/clients_model.dart';
+
 class UtilisateurModel {
   String? id;
   String? nom;
@@ -80,5 +82,31 @@ class RoleModel {
       'id': id,
       'libelle': libelle,
     };
+  }
+}
+
+class ClientModel {
+  final String id;
+  final String nom;
+  final String username;
+  final bool isActive;
+  final bool isDeleted;
+
+  ClientModel({
+    required this.id,
+    required this.nom,
+    required this.username,
+    required this.isActive,
+    required this.isDeleted,
+  });
+
+  factory ClientModel.fromJson(Map<String, dynamic> json) {
+    return ClientModel(
+      id: json['id'],
+      nom: json['nom'],
+      username: json['username'],
+      isActive: json['isActive'],
+      isDeleted: json['isDeleted'],
+    );
   }
 }

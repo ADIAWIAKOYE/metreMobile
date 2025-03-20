@@ -1,23 +1,26 @@
+// lib/pages/commandes_page.dart
 import 'dart:convert';
 
 import 'package:Metre/models/commande_model.dart';
+import 'package:Metre/pages/commandes/commande_detail_page.dart';
 import 'package:Metre/services/CustomIntercepter.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:Metre/widgets/logo.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:sizer/sizer.dart';
-import 'commande_detail_page.dart';
-import 'package:http/http.dart' as http;
-import 'package:intl/intl.dart';
 
-class CommandePage extends StatefulWidget {
+class CommandesPage extends StatefulWidget {
+  const CommandesPage({Key? key}) : super(key: key);
+
   @override
-  _CommandePageState createState() => _CommandePageState();
+  _CommandesPageState createState() => _CommandesPageState();
 }
 
-class _CommandePageState extends State<CommandePage>
+class _CommandesPageState extends State<CommandesPage>
     with SingleTickerProviderStateMixin {
   List<Commande> _commandes = [];
   late TabController _tabController;
@@ -29,11 +32,13 @@ class _CommandePageState extends State<CommandePage>
   DateFormat dateFormat = DateFormat("yyyy-MM-dd HH:mm:ss");
 
   int _page = 0;
-  final int _pageSize = 5;
+  final int _pageSize = 10;
   bool _hasMore = true;
   bool _loadingMore = false;
   final ScrollController _scrollController = ScrollController();
   List<Commande> _filteredCommandes = []; // Stocker les commandes filtrées
+  int _selectedMonth = DateTime.now().month;
+  int _selectedYear = DateTime.now().year;
 
   @override
   void initState() {
@@ -41,7 +46,8 @@ class _CommandePageState extends State<CommandePage>
     _loadUserData().then((_) {
       _fetchInitialCommandes();
     });
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController =
+        TabController(length: 5, vsync: this); // 5 tabs, ANNULER est enlevé
     _tabController.addListener(
         _onTabChange); // Ajout d'un listener pour les changements d'onglet
     _scrollController.addListener(_scrollListener);
@@ -107,22 +113,27 @@ class _CommandePageState extends State<CommandePage>
     try {
       if (_id != null) {
         final String url =
-            'http://192.168.56.1:8010/api/commandes/getByUser/$_id?page=$_page&size=$_pageSize';
+            'http://192.168.56.1:8010/api/commandes/getByUsers/$_id?mois=$_selectedMonth&annee=$_selectedYear&page=$_page&size=$_pageSize';
 
-        // if (_token != null) {
         final response = await client.get(
           Uri.parse(url),
           headers: {
             'Content-Type': 'application/json',
-            // 'Authorization': 'Bearer $_token'
           },
         );
         if (response.statusCode == 202) {
           final data = json.decode(response.body)['data']['content'];
+          List<Commande> newCommandes =
+              data.map<Commande>((item) => Commande.fromJson(item)).toList();
+
           setState(() {
-            List<Commande> newCommandes =
-                data.map<Commande>((item) => Commande.fromJson(item)).toList();
-            _commandes.addAll(newCommandes);
+            if (_page == 0) {
+              // Effacer les anciennes commandes seulement lors de la première page
+              _commandes.clear();
+              _commandes.addAll(newCommandes);
+            } else {
+              _commandes.addAll(newCommandes);
+            }
             if (newCommandes.isEmpty || newCommandes.length < _pageSize) {
               _hasMore = false;
             }
@@ -139,10 +150,6 @@ class _CommandePageState extends State<CommandePage>
           print(
               'Erreur lors de la récupération des commandes: ${response.statusCode} : ${response.body}');
         }
-        // } else {
-        //   CustomSnackBar.show(context,
-        //       message: 'Token invalide', isError: true);
-        // }
       } else {
         CustomSnackBar.show(context,
             message: 'L\'identifiant utilisateur est null', isError: true);
@@ -187,8 +194,6 @@ class _CommandePageState extends State<CommandePage>
         return 'TERMINER';
       case 4:
         return 'LIVRER';
-      case 5:
-        return 'ANNULER';
       default:
         return "TOUT"; // Valeur par défaut si l'index est hors limites
     }
@@ -205,6 +210,9 @@ class _CommandePageState extends State<CommandePage>
                   .toLowerCase()
                   .contains(searchQuery.toLowerCase()) ||
               commande.proprietaire!.client!.nom!
+                  .toLowerCase()
+                  .contains(searchQuery.toLowerCase()) ||
+              commande.reference!
                   .toLowerCase()
                   .contains(searchQuery.toLowerCase()))
           .toList();
@@ -228,6 +236,95 @@ class _CommandePageState extends State<CommandePage>
       default:
         return Colors.grey;
     }
+  }
+
+  //Fonction pour afficher un dialogue pour la selection du mois et de l'année
+  Future<void> _selectDate(BuildContext context) async {
+    return showDialog(
+        context: context,
+        builder: (context) {
+          int selectedMonth = _selectedMonth;
+          int selectedYear = _selectedYear;
+
+          return AlertDialog(
+            title: Text(
+              'Sélectionner le mois et l\'année',
+              style: TextStyle(fontSize: 12.sp, fontWeight: FontWeight.w700),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<int>(
+                  decoration: InputDecoration(labelText: 'Mois'),
+                  value: selectedMonth,
+                  items: List.generate(12, (index) => index + 1)
+                      .map((month) => DropdownMenuItem(
+                            value: month,
+                            child: Text(DateFormat('MMMM', 'fr_FR')
+                                .format(DateTime(selectedYear, month))),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    selectedMonth = value!;
+                  },
+                ),
+                DropdownButtonFormField<int>(
+                  decoration: InputDecoration(labelText: 'Année'),
+                  value: selectedYear,
+                  items:
+                      List.generate(5, (index) => DateTime.now().year - index)
+                          .map((year) => DropdownMenuItem(
+                                value: year,
+                                child: Text(year.toString()),
+                              ))
+                          .toList(),
+                  onChanged: (value) {
+                    selectedYear = value!;
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 2.h),
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text('Annuler'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 2.h),
+                  backgroundColor: Color.fromARGB(255, 206, 136, 5),
+                  foregroundColor: Colors.white,
+                ),
+                child: Text('Valider'),
+                onPressed: () {
+                  setState(() {
+                    _selectedMonth = selectedMonth;
+                    _selectedYear = selectedYear;
+                    _page = 0;
+                    _hasMore = true;
+                  });
+                  _fetchCommandes();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  //  Ajouter cette fonction pour supprimer une commande de la liste
+  void _removeCommande(String commandeId) {
+    setState(() {
+      _commandes.removeWhere((commande) => commande.id == commandeId);
+      _updateFilteredCommandes(); // Mise à jour après suppression
+    });
   }
 
   Widget _buildCommandeList(List<Commande> commandes) {
@@ -352,21 +449,6 @@ class _CommandePageState extends State<CommandePage>
                                 ],
                               ),
                             ),
-                            // Column(
-                            //   crossAxisAlignment: CrossAxisAlignment.end,
-                            //   children: [
-                            //     SizedBox(height: 0.8.h),
-                            //     Text(
-                            //       '${commande.prix ?? 0} CFA',
-                            //       style: TextStyle(
-                            //           fontSize: 10.sp,
-                            //           fontWeight: FontWeight.bold,
-                            //           color: Theme.of(context)
-                            //               .colorScheme
-                            //               .tertiary),
-                            //     ),
-                            //   ],
-                            // ),
                           ],
                         ),
                         SizedBox(height: 1.h),
@@ -400,7 +482,9 @@ class _CommandePageState extends State<CommandePage>
                                           MaterialPageRoute(
                                             builder: (context) =>
                                                 CommandeDetailsPage(
-                                                    commande: commande),
+                                                    commande: commande,
+                                                    onCommandeAnnulee:
+                                                        _removeCommande),
                                           ),
                                         );
                                       },
@@ -469,6 +553,16 @@ class _CommandePageState extends State<CommandePage>
         automaticallyImplyLeading: false,
         title: LogoWidget(),
         backgroundColor: Theme.of(context).colorScheme.background,
+        actions: [
+          IconButton(
+            icon: Icon(
+              Icons.calendar_month,
+              size: 20.sp,
+              // color: Color.fromARGB(255, 206, 136, 5),
+            ),
+            onPressed: () => _selectDate(context),
+          ),
+        ],
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
@@ -507,12 +601,6 @@ class _CommandePageState extends State<CommandePage>
             Tab(
               child: Text(
                 'LIVRER',
-                style: TextStyle(fontSize: 10.sp),
-              ),
-            ),
-            Tab(
-              child: Text(
-                'ANNULER',
                 style: TextStyle(fontSize: 10.sp),
               ),
             ),
@@ -599,12 +687,6 @@ class _CommandePageState extends State<CommandePage>
                         borderRadius: BorderRadius.circular(10),
                       ),
                       contentPadding: EdgeInsets.symmetric(vertical: 1.h),
-                      // constraints: BoxConstraints(
-                      //   minHeight: 5
-                      //       .h, // Définir une hauteur minimale (ajuster selon vos besoins)
-                      //   maxHeight: 5
-                      //       .h, // Définir une hauteur maximale (ajuster selon vos besoins)
-                      // ),
                     ),
                   ),
                 ),
@@ -612,7 +694,6 @@ class _CommandePageState extends State<CommandePage>
                   child: TabBarView(
                     controller: _tabController,
                     children: [
-                      _buildCommandeList(_filteredCommandes),
                       _buildCommandeList(_filteredCommandes),
                       _buildCommandeList(_filteredCommandes),
                       _buildCommandeList(_filteredCommandes),
