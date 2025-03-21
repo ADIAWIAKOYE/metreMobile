@@ -10,6 +10,7 @@ import 'package:Metre/pages/login_page.dart';
 import 'package:Metre/pages/revenue_depense_page.dart';
 import 'package:Metre/pages/unbound_client_page.dart';
 import 'package:Metre/services/AuthService.dart';
+import 'package:Metre/services/CustomIntercepter.dart';
 import 'package:Metre/widgets/CustomSnackBar.dart';
 import 'package:Metre/widgets/logo.dart';
 import 'package:flutter/cupertino.dart';
@@ -37,7 +38,6 @@ class _HomePageState extends State<HomePage> {
   Timer? _refreshTimer; // Timer pour le rafraîchissement du token
 
   final AuthService _authService = AuthService(); // Instance d'AuthService
-
   // Nouvelles variables pour le nombre de clients
   int _nbClients = 0;
   bool _isLoadingClients = true;
@@ -353,7 +353,9 @@ class _HomePageState extends State<HomePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "${user!.nom}",
+                      user != null
+                          ? "${user!.nom}"
+                          : "En attente...", // Vérifie si user est null
                       style: TextStyle(
                           fontSize: 14.sp, fontWeight: FontWeight.bold),
                     ),
