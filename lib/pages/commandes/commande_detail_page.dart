@@ -26,8 +26,13 @@ import 'package:share_plus/share_plus.dart';
 class CommandeDetailsPage extends StatefulWidget {
   final Commande commande;
   final Function(String)? onCommandeAnnulee; // Add callback function
+  final Function(Commande)? onCommandeUpdated; // Nouveau callback
 
-  CommandeDetailsPage({required this.commande, this.onCommandeAnnulee});
+  CommandeDetailsPage({
+    required this.commande,
+    this.onCommandeAnnulee,
+    this.onCommandeUpdated,
+  });
 
   @override
   State<CommandeDetailsPage> createState() => _CommandeDetailsPageState();
@@ -90,10 +95,16 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
         CustomSnackBar.show(context,
             message: '${responseData['message']}', isError: false);
 
+        // Mise à jour de la commande (par exemple, recupération des infos de la commande à nouveau)
+        // _refreshCommande();
         setState(() {
-          widget.commande.status =
-              newStatus; //mettre à jour l'état de widget.commande
+          _commande.status = newStatus;
         });
+
+        // Appeler le callback pour informer la page parente
+        if (widget.onCommandeUpdated != null) {
+          widget.onCommandeUpdated!(_commande);
+        }
         //  Check if the status is "ANNULER" and call the callback
         if (newStatus == 'ANNULER') {
           widget.onCommandeAnnulee?.call(commandeId!); // Call the callback
@@ -984,6 +995,41 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
     ]);
   }
 
+  bool _getBorderColor() {
+    if (_commande.daterdv == null || _commande.daterdv!.isEmpty) {
+      return true;
+    }
+
+    try {
+      // Extraction des composants de la date
+      List<String> dateParts =
+          _commande.daterdv!.split('-'); // Sépare l'année, le mois et le jour
+
+      if (dateParts.length != 3) {
+        print("Format de date incorrect: ${_commande.daterdv}");
+        return true; // Gérer le format incorrect
+      }
+
+      int year = int.parse(dateParts[0]);
+      int month = int.parse(dateParts[1]);
+      int day = int.parse(dateParts[2]);
+
+      // Création de l'objet DateTime (à 00:00:00 par défaut)
+      DateTime dateRDV = DateTime(year, month, day);
+      DateTime now = DateTime.now();
+
+      if (now.isAfter(dateRDV) && (_commande.status ?? '') != "TERMINER") {
+        return false; // Date dépassée et commande non terminée
+      } else {
+        return true; // Couleur par défaut du statut
+      }
+    } catch (e) {
+      print(
+          "Erreur lors de la conversion de la date: $e, dateRDV = ${_commande.daterdv}");
+      return true; // Retourner la couleur du statut en cas d'erreur
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1012,6 +1058,14 @@ class _CommandeDetailsPageState extends State<CommandeDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (!_getBorderColor())
+              Text(
+                "Cette commande dévrais etre terminer avant le ${_commande.daterdv}",
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  color: Colors.red,
+                ),
+              ),
             _buildSectionTitle(
               'Informations Principales',
               onDelete: () {

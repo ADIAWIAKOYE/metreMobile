@@ -191,7 +191,7 @@ class _RevenueDepensePageState extends State<RevenueDepensePage> {
                         children: [
                           DropdownButton<String>(
                             value: _selectedPeriod,
-                            items: ['jour', 'mois', 'semaine', 'annee']
+                            items: ['mois', 'annee']
                                 .map((period) => DropdownMenuItem(
                                       value: period,
                                       child: Text(period),

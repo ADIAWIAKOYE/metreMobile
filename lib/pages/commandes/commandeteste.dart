@@ -327,6 +327,56 @@ class _CommandesPageState extends State<CommandesPage>
     });
   }
 
+  Color _getBorderColor(Commande commande) {
+    if (commande.daterdv == null || commande.daterdv!.isEmpty) {
+      return _getStatutColor(commande.status ?? '');
+    }
+
+    try {
+      // Extraction des composants de la date
+      List<String> dateParts =
+          commande.daterdv!.split('-'); // Sépare l'année, le mois et le jour
+
+      if (dateParts.length != 3) {
+        print("Format de date incorrect: ${commande.daterdv}");
+        return _getStatutColor(
+            commande.status ?? ''); // Gérer le format incorrect
+      }
+
+      int year = int.parse(dateParts[0]);
+      int month = int.parse(dateParts[1]);
+      int day = int.parse(dateParts[2]);
+
+      // Création de l'objet DateTime (à 00:00:00 par défaut)
+      DateTime dateRDV = DateTime(year, month, day);
+      DateTime now = DateTime.now();
+
+      if (now.isAfter(dateRDV) && (commande.status ?? '') != "TERMINER") {
+        return Color.fromARGB(
+            255, 238, 219, 217); // Date dépassée et commande non terminée
+      } else {
+        return Theme.of(context)
+            .colorScheme
+            .surface; // Couleur par défaut du statut
+      }
+    } catch (e) {
+      print(
+          "Erreur lors de la conversion de la date: $e, dateRDV = ${commande.daterdv}");
+      return _getStatutColor(commande.status ??
+          ''); // Retourner la couleur du statut en cas d'erreur
+    }
+  }
+
+  void _updateCommandeInList(Commande updatedCommande) {
+    setState(() {
+      final index = _commandes.indexWhere((c) => c.id == updatedCommande.id);
+      if (index != -1) {
+        _commandes[index] = updatedCommande;
+      }
+      _updateFilteredCommandes(); // Mettre à jour la liste filtrée
+    });
+  }
+
   Widget _buildCommandeList(List<Commande> commandes) {
     return commandes.isEmpty
         ? const Center(
@@ -341,153 +391,173 @@ class _CommandesPageState extends State<CommandesPage>
             itemBuilder: (context, index) {
               if (index < commandes.length) {
                 final commande = commandes[index];
-                return Card(
-                  color: Theme.of(context).colorScheme.surface,
-                  margin:
-                      const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-                  elevation: 6,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.all(2.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Ref: ${commande.reference}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 10.sp,
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).colorScheme.background,
-                                border: Border.all(
-                                    color:
-                                        _getStatutColor(commande.status ?? '')),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 2.w, vertical: 0.5.h),
-                              child: Text(
-                                commande.status ?? '',
+                return InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CommandeDetailsPage(
+                          commande: commande,
+                          onCommandeAnnulee: _removeCommande,
+                          onCommandeUpdated: _updateCommandeInList,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Card(
+                    // color: Theme.of(context).colorScheme.surface,
+                    color: _getBorderColor(commande),
+                    margin:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                        side: BorderSide(
+                            //
+                            //// Utiliser la fonction pour la couleur,
+                            color: _getStatutColor(commande.status ?? ''),
+                            width: 0.5.w)),
+                    child: Padding(
+                      padding: EdgeInsets.all(2.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Ref: ${commande.reference}',
                                 style: TextStyle(
-                                  color: _getStatutColor(commande.status ?? ''),
-                                  fontSize: 10
-                                      .sp, // Ajustez la taille selon vos besoins
-                                  fontWeight: FontWeight.w500,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 10.sp,
+                                  color: Theme.of(context).colorScheme.tertiary,
                                 ),
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 1.h),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: commande.tissus != null &&
-                                      commande.tissus!.isNotEmpty &&
-                                      commande.tissus![0].fichiersTissus !=
-                                          null &&
-                                      commande
-                                          .tissus![0].fichiersTissus!.isNotEmpty
-                                  ? Image.network(
-                                      commande.tissus![0].fichiersTissus![0]
-                                          .urlfichier!,
-                                      width: 10.h,
-                                      height: 22.w,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.asset(
-                                      'assets/image/logo2.png',
-                                      width: 10.h,
-                                      height: 22.w,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                            SizedBox(width: 2.w),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Prix: ${commande.prix ?? 0} CFA',
-                                    style: TextStyle(
-                                        fontSize: 10.sp,
-                                        fontWeight: FontWeight.w700),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color:
+                                      Theme.of(context).colorScheme.background,
+                                  border: Border.all(
+                                      color: _getStatutColor(
+                                          commande.status ?? '')),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 2.w, vertical: 0.5.h),
+                                child: Text(
+                                  commande.status ?? '',
+                                  style: TextStyle(
+                                    color:
+                                        _getStatutColor(commande.status ?? ''),
+                                    fontSize: 10
+                                        .sp, // Ajustez la taille selon vos besoins
+                                    fontWeight: FontWeight.w500,
                                   ),
-                                  SizedBox(height: 0.5.h),
-                                  Text(
-                                    'Client: ${commande.proprietaire?.client?.nom ?? "Inconnu"}',
-                                    style: TextStyle(
-                                        fontSize: 10.sp,
-                                        fontWeight: FontWeight.w700),
-                                  ),
-                                  SizedBox(height: 0.5.h),
-                                  Text(
-                                    'Pour: ${commande.proprietaire?.proprio ?? "Inconnu"}',
-                                    style: TextStyle(
-                                        fontSize: 10.sp,
-                                        fontWeight: FontWeight.w700),
-                                  ),
-                                  SizedBox(height: 0.5.h),
-                                  Text(
-                                    'Date RDV: ${commande.daterdv ?? "Inconnu"}',
-                                    style: TextStyle(
-                                      fontSize: 10.sp,
-                                      color: Colors.grey[600],
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                        SizedBox(height: 1.h),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              flex: 4,
-                              child: Row(
-                                children: [
-                                  Icon(Icons.calendar_today,
-                                      color: Colors.grey, size: 10.sp),
-                                  SizedBox(width: 0.5.w),
-                                  Text(
-                                    'Créée le : ${dateFormat.format(commande.datecreation!)}',
-                                    style: TextStyle(
-                                        fontSize: 8.sp, color: Colors.grey),
-                                  ),
-                                ],
+                            ],
+                          ),
+                          SizedBox(height: 1.h),
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: commande.tissus != null &&
+                                        commande.tissus!.isNotEmpty &&
+                                        commande.tissus![0].fichiersTissus !=
+                                            null &&
+                                        commande.tissus![0].fichiersTissus!
+                                            .isNotEmpty
+                                    ? Image.network(
+                                        commande.tissus![0].fichiersTissus![0]
+                                            .urlfichier!,
+                                        width: 10.h,
+                                        height: 22.w,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.asset(
+                                        'assets/image/logo2.png',
+                                        width: 10.h,
+                                        height: 22.w,
+                                        fit: BoxFit.cover,
+                                      ),
                               ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Column(
-                                children: [
-                                  Container(
-                                    child: InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                CommandeDetailsPage(
-                                                    commande: commande,
-                                                    onCommandeAnnulee:
-                                                        _removeCommande),
-                                          ),
-                                        );
-                                      },
+                              SizedBox(width: 2.w),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Prix: ${commande.prix ?? 0} CFA',
+                                      style: TextStyle(
+                                          fontSize: 10.sp,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                    SizedBox(height: 0.5.h),
+                                    Text(
+                                      'Client: ${commande.proprietaire?.client?.nom ?? "Inconnu"}',
+                                      style: TextStyle(
+                                          fontSize: 10.sp,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                    SizedBox(height: 0.5.h),
+                                    Text(
+                                      'Pour: ${commande.proprietaire?.proprio ?? "Inconnu"}',
+                                      style: TextStyle(
+                                          fontSize: 10.sp,
+                                          fontWeight: FontWeight.w700),
+                                    ),
+                                    SizedBox(height: 0.5.h),
+                                    Text(
+                                      'Date RDV: ${commande.daterdv ?? "Inconnu"}',
+                                      style: TextStyle(
+                                        fontSize: 10.sp,
+                                        color: Colors.grey[600],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 1.h),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                flex: 4,
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.calendar_today,
+                                        color: Colors.grey, size: 10.sp),
+                                    SizedBox(width: 0.5.w),
+                                    Text(
+                                      'Créée le : ${dateFormat.format(commande.datecreation!)}',
+                                      style: TextStyle(
+                                          fontSize: 8.sp, color: Colors.grey),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Expanded(
+                                flex: 1,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      // child: InkWell(
+                                      //   onTap: () {
+                                      //     Navigator.push(
+                                      //       context,
+                                      //       MaterialPageRoute(
+                                      //         builder: (context) =>
+                                      //             CommandeDetailsPage(
+                                      //                 commande: commande,
+                                      //                 onCommandeAnnulee:
+                                      //                     _removeCommande),
+                                      //       ),
+                                      //     );
+                                      //   },
                                       child: Container(
                                         margin: EdgeInsets.symmetric(
                                             horizontal: 1.w),
@@ -517,14 +587,15 @@ class _CommandesPageState extends State<CommandesPage>
                                           ),
                                         ),
                                       ),
+                                      // ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );
